@@ -1,0 +1,10 @@
+scikit-learn==1.0.2
+spacy==3.2.4
+nltk
+word2number
+vosk
+Flask
+gevent
+flask-cors
+psutil
+plac
