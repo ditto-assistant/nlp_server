@@ -203,8 +203,8 @@ class NLP:
                 second = '1' # user said 'a' second 
             if 'minute' in minute:
                 minute = '1' # user said 'a' minute
-            if not second == '1' and not second == '': second = w2n.word_to_num(second)
-            if not minute == '1' and not minute == '': minute = w2n.word_to_num(minute)
+            if not second == '1' and not second == '': second = w2n.word_to_num(second.strip())
+            if not minute == '1' and not minute == '': minute = w2n.word_to_num(minute.strip())
             # print(second, minute)
 
         except:
