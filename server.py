@@ -45,7 +45,7 @@ def intent_handler():
 @app.route("/ner/", methods=['POST'])
 def ner_handler():
     requests = request.args
-
+    ner_response = '{"response:" "None"}'
     try:
         if request.method == "POST":
 
@@ -53,25 +53,24 @@ def ner_handler():
                 print('\nsending request to ner-timer\n')
                 prompt = requests['ner-timer']
                 ner_response = nlp.prompt_ner_timer(prompt)
-                return ner_response
             
             elif 'ner-light' in requests:
                 print('\nsending request to ner_light\n')
                 prompt = requests['ner-light']
                 ner_response = nlp.prompt_ner_light(prompt)
-                return ner_response
 
             elif 'ner-numeric' in requests:
                 print('\nsending request to ner_numeric\n')
                 prompt = requests['ner-numeric']
                 ner_response = nlp.prompt_ner_numeric(prompt)
-                return ner_response
             
             elif 'ner-play' in requests:
                 print('\nsending request to ner_play\n')
                 prompt = requests['ner-play']
                 ner_response = nlp.prompt_ner_play(prompt)
-                return ner_response
+
+            print(ner_response)
+            return ner_response
 
         else:
             return '{"error": "invalid request"}'
