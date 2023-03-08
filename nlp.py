@@ -30,13 +30,17 @@ import spacy
 
 class NLP:
 
-    def __init__(self, train=False):
+    def __init__(self, train=False, mode='dev'):
         print('[Fitting Neurons...]')
         self.train = train
-        self.ner_play = spacy.load('models/ner/play')
-        self.ner_timer = spacy.load('models/ner/timer')
-        self.ner_numeric = spacy.load('models/ner/numeric')
-        self.ner_light = spacy.load('models/ner/light')
+        self.mode = mode
+        self.path = ''
+        if mode == 'prod':
+            self.path = '~/nlp_server/'
+        self.ner_play = spacy.load(self.path+'models/ner/play')
+        self.ner_timer = spacy.load(self.path+'models/ner/timer')
+        self.ner_numeric = spacy.load(self.path+'models/ner/numeric')
+        self.ner_light = spacy.load(self.path+'models/ner/light')
 
 
     def initialize(self):
@@ -45,7 +49,7 @@ class NLP:
         #     for filename in filenames:
         #         print(os.path.join(dirname, filename))
 
-        df = pd.read_csv("data/dataset_ditto.csv")
+        df = pd.read_csv(self.path+"data/dataset_ditto.csv")
 
 
         # Data Preperation
@@ -153,9 +157,9 @@ class NLP:
             self.mlp_max_iter_model_subcat = MLPClassifier()
             self.mlp_max_iter_model_action = MLPClassifier()
 
-            self.mlp_max_iter_model_cat = joblib.load("models/mlp_max_iter_model_cat.pkl")
-            self.mlp_max_iter_model_subcat = joblib.load("models/mlp_max_iter_model_subcat.pkl")
-            self.mlp_max_iter_model_action = joblib.load("models/mlp_max_iter_model_action.pkl")
+            self.mlp_max_iter_model_cat = joblib.load(self.path+"models/mlp_max_iter_model_cat.pkl")
+            self.mlp_max_iter_model_subcat = joblib.load(self.path+"models/mlp_max_iter_model_subcat.pkl")
+            self.mlp_max_iter_model_action = joblib.load(self.path+"models/mlp_max_iter_model_action.pkl")
 
             self.mlp_max_iter_model_cat.fit(X_train_cat,y_train_cat)
             self.mlp_max_iter_model_subcat.fit(X_train_subcat, y_train_subcat)
