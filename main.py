@@ -13,6 +13,5 @@ def start_server():
         if MODE=='prod': subprocess.call(['python', '~/nlp_server/start_server.py'])
         else: subprocess.call(['python', 'start_server.py'])
         
-
 if __name__ == "__main__":
     start_server()

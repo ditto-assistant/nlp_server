@@ -101,7 +101,12 @@ lights,none,none,bedroom light to 6
 lights,none,none,can you set the bedroom lights brightness to 6
 music,none,pause,pause music
 music,none,pause,pause
+music,none,pause,pause please
+music,none,pause,please pause
 music,none,resume,play music
+music,none,resume,play
+music,none,resume,play please
+music,none,resume,please play
 music,none,pause,can you please pause the music
 music,none,resume,resume music
 music,none,resume,play music please
@@ -278,7 +283,7 @@ spotify,none,none,play my top songs 2021 playlist.
 spotify,none,none,play my playlist jazz tunes on spotify.
 spotify,none,none,play jazz tunes on spotify.
 spotify,none,none,play the mars volta.
-spotify,none,none,pause music.
+music,none,pause,pause music.
 spotify,none,none,play my top songs 2020 playlist.
 spotify,none,none,play jeff buckley.
 spotify,none,none,play future days by can.

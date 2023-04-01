@@ -4,11 +4,9 @@ from flask import request
 from flask_cors import CORS
 import json
 
-# import offline nlp resources
-from nlp import NLP
-nlp = NLP()
-nlp.initialize()
-nlp.contruct_sentence_vectors()
+# load intent model 
+from intent import IntentRecognition
+intent_model = IntentRecognition(train=False)
 
 app = Flask(__name__)
 CORS(app)
@@ -31,7 +29,7 @@ def intent_handler():
             if 'prompt' in requests:
                 print('\nsending prompt to intent model\n')
                 prompt = requests['prompt']
-                intent = nlp.prompt(prompt)
+                intent = intent_model.prompt(prompt)
                 return intent
 
         else:
@@ -52,22 +50,22 @@ def ner_handler():
             if 'ner-timer' in requests:
                 print('\nsending request to ner-timer\n')
                 prompt = requests['ner-timer']
-                ner_response = nlp.prompt_ner_timer(prompt)
+                ner_response = intent_model.prompt_ner_timer(prompt)
             
             elif 'ner-light' in requests:
                 print('\nsending request to ner_light\n')
                 prompt = requests['ner-light']
-                ner_response = nlp.prompt_ner_light(prompt)
+                ner_response = intent_model.prompt_ner_light(prompt)
 
             elif 'ner-numeric' in requests:
                 print('\nsending request to ner_numeric\n')
                 prompt = requests['ner-numeric']
-                ner_response = nlp.prompt_ner_numeric(prompt)
+                ner_response = intent_model.prompt_ner_numeric(prompt)
             
             elif 'ner-play' in requests:
                 print('\nsending request to ner_play\n')
                 prompt = requests['ner-play']
-                ner_response = nlp.prompt_ner_play(prompt)
+                ner_response = intent_model.prompt_ner_play(prompt)
 
             print(ner_response)
             return ner_response
@@ -80,7 +78,6 @@ def ner_handler():
         return '{"internal error": "%s"}' % str(e)
 
 
-# Use Postman for POST Test and more!
 @app.route("/", methods=['POST'])
 def post_handler():
     return '{"nlp_server_status": "on"}'
@@ -95,3 +92,4 @@ class Server():
 if __name__ == "__main__":
 
     server = Server()
+    # app.run(port='32032', host='0.0.0.0')
