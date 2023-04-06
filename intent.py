@@ -138,7 +138,7 @@ class IntentRecognition:
         ])
 
         print('\n[Training Category Model...]\n')
-        self.cat_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=2)
+        self.cat_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
         self.category_model.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
         self.category_model.fit(xtrain_cat, ytrain_cat, batch_size=32, epochs=epochs, callbacks=[self.cat_callback])
         ypreds_cat = self.category_model.predict(xtest_cat)
@@ -154,7 +154,7 @@ class IntentRecognition:
         print('\n[Model saved to models/category.model]\n')
 
         print('\n[Training Subcategory Model...]\n')
-        self.subcat_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=2)
+        self.subcat_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
         self.subcategory_model.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
         self.subcategory_model.fit(xtrain_subcat, ytrain_subcat, batch_size=32, epochs=epochs, callbacks=[self.subcat_callback])
         ypreds_subcat = self.subcategory_model.predict(xtest_subcat)
@@ -170,7 +170,7 @@ class IntentRecognition:
         print('\n[Model saved to models/subcategory.model]\n')
 
         print('\n[Training Action Model...]\n')
-        self.action_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=2)
+        self.action_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
         self.action_model.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
         self.action_model.fit(xtrain_action, ytrain_action, batch_size=32, epochs=epochs, callbacks=[self.action_callback])
         ypreds_action = self.action_model.predict(xtest_action)

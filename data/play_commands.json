@@ -468,6 +468,36 @@
                 "B-artist",
                 "I-artist"
             ]
+        },
+        {
+            "words": [
+                "play",
+                "binaural",
+                "beats",
+                "frequencies",
+                "playlist"
+            ],
+            "labels": [
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "binaural",
+                "beats",
+                "playlist"
+            ],
+            "labels": [
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "O"
+            ]
         }
     ]
 }

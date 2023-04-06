@@ -26,9 +26,9 @@ from spacy.training.example import Example
 from tqdm import tqdm
 
 # which model to create
-PLAY=0
+PLAY=1
 LIGHT=0
-TIMER=1
+TIMER=0
 NUM=0
 
 EPOCHS = 100
