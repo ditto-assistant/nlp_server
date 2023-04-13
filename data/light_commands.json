@@ -657,6 +657,102 @@
                 "O",
                 "B-brightness"
             ]
+        },
+        {
+            "words": [
+                "turn",
+                "off",
+                "all",
+                "of",
+                "the",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "B-lightname",
+                "O",
+                "O",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "off",
+                "all",
+                "the",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "B-lightname",
+                "O",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "off",
+                "all",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "B-lightname",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "on",
+                "all",
+                "of",
+                "the",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "B-lightname",
+                "O",
+                "O",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "on",
+                "all",
+                "the",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "B-lightname",
+                "O",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "on",
+                "all",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "B-lightname",
+                "I-lightname"
+            ]
         }
     ]
 }
