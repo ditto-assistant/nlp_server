@@ -3,7 +3,7 @@
 
 # run server
 run:
-    (cd ..; source ditto/bin/activate; cd nlp_server; python main.py)
+    (source ../ditto/bin/activate; python main.py)
 
 # create venv and install requirements
 install:
