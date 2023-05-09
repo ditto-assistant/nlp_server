@@ -276,6 +276,158 @@
         },
         {
             "words": [
+                "set",
+                "the",
+                "office",
+                "lamp",
+                "brightness",
+                "to",
+                "five"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "lights",
+                "brightness",
+                "to",
+                "two"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "lights",
+                "brightness",
+                "to",
+                "ten"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "lights",
+                "brightness",
+                "to",
+                "three"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "lights",
+                "brightness",
+                "to",
+                "one"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "office",
+                "lamps",
+                "brightness",
+                "to",
+                "four"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "office",
+                "lamps",
+                "brightness",
+                "to",
+                "five"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "office",
+                "lamps",
+                "brightness",
+                "to",
+                "six"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
                 "change",
                 "the",
                 "office",

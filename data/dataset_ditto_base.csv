@@ -307,19 +307,29 @@ timer,none,none,timer for 23 seconds.
 timer,none,none,count down from 30.
 timer,none,none,set the timer for 35 seconds.
 timer,none,none,set a timer for one minute.
-timer,none,none,it`s dab time.
-timer,none,none,time to hit a dab.
-timer,none,none,set a dab timer.
 timer,none,none,set a timer for half a minute.
 timer,none,none,set a timer for a minute and a half.
 timer,none,none,set a timer for 2 minutes and a half.
 timer,none,none,turn the timer on for half a minute.
 timer,none,none,turn the timer on for half a minute.
 timer,none,none,toggle timer for 60 seconds.
-timer,none,none,time to hit a dab.
-weather,none,none,what's the weather like today
-weather,location,none,what's the weather like today in Auburn
-weather,none,none,what's the temperature today
+weather,forecast,none,what's the weather like today
+weather,forecast,none,what's the weather like today 
+weather,temperature,none,what's the temperature today
+weather,forecast,none,what is the forecast for today
+weather,forecast,numeric,what's the weather like for the next three days
+weather,forecast,none,what is the weather like today
+weather,forecast,none,what's the weather like today 
+weather,temperature,none,what's the temperature today
+weather,forecast,none,what is the forecast for today
+weather,forecast,numeric,what's the weather like for the next 5 days
+weather,forecast,none,what's the weather
+weather,forecast,none,should i wear a jacket?
+weather,forecast,none,should i wear a jacket?
+weather,temperature,none,how hot is it today?
+weather,temperature,none,is it cold today?
+weather,temperature,none,how cold is it today?
+weather,temperature,none,is it hot today?
 wolfram,none,none,convert 135 lb to kilograms
 wolfram,math,none,what is 2 + 2
 wolfram,math,none,what's 2 plus 2

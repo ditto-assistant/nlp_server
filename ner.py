@@ -31,7 +31,7 @@ LIGHT=1
 TIMER=0
 NUM=0
 
-EPOCHS = 100
+EPOCHS = 50
 
 # def create_load_data():
 # load in and organize data

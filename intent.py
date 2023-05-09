@@ -5,6 +5,9 @@ author: Omar Barazanji
 date: 4/1/2023
 '''
 
+import spacy
+import pandas as pd
+from matplotlib import pyplot as plt
 import os
 import dill as pickle
 import numpy as np
@@ -18,9 +21,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from word2number import w2n
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-from matplotlib import pyplot as plt
-import pandas as pd
-import spacy 
+
 
 class IntentRecognition:
 
@@ -33,17 +34,24 @@ class IntentRecognition:
             self.__create_train_models()
         else:
             self.__load_intent_models()
-            self.__load_ner_models()         
+            self.__load_ner_models()
 
     def __load_intent_models(self):
         try:
-            self.category_model = tf.keras.models.load_model('models/category.model')
-            self.subcategory_model = tf.keras.models.load_model('models/subcategory.model')
-            self.action_model = tf.keras.models.load_model('models/action.model')
-            self.cat_labels = list(np.load('data/intent-resources/cat_labels.npy'))
-            self.subcat_labels = list(np.load('data/intent-resources/subcat_labels.npy'))
-            self.action_labels = list(np.load('data/intent-resources/action_labels.npy'))
-            self.vectorizer = pickle.load(open('vectorizers/tfidf.pickle', 'rb'))
+            self.category_model = tf.keras.models.load_model(
+                'models/category.model')
+            self.subcategory_model = tf.keras.models.load_model(
+                'models/subcategory.model')
+            self.action_model = tf.keras.models.load_model(
+                'models/action.model')
+            self.cat_labels = list(
+                np.load('data/intent-resources/cat_labels.npy'))
+            self.subcat_labels = list(
+                np.load('data/intent-resources/subcat_labels.npy'))
+            self.action_labels = list(
+                np.load('data/intent-resources/action_labels.npy'))
+            self.vectorizer = pickle.load(
+                open('vectorizers/tfidf.pickle', 'rb'))
             self.stemmer = SnowballStemmer('english')
             self.lemmatizer = WordNetLemmatizer()
         except:
@@ -57,17 +65,17 @@ class IntentRecognition:
             self.ner_light = spacy.load('models/ner/light')
         except:
             print('\n[Unable to locate one or more NER models...]\n')
-            self.ner_play, self.ner_timer, self.ner_numeric, self.ner_light = [],[],[],[]
+            self.ner_play, self.ner_timer, self.ner_numeric, self.ner_light = [], [], [], []
 
     def __load_data(self):
         self.df = pd.read_csv("data/dataset_ditto.csv")
-        self.cat_strarr, self.subcat_strarr, self.action_str_arr, self.prompt_strarr = [],[],[],[]
+        self.cat_strarr, self.subcat_strarr, self.action_str_arr, self.prompt_strarr = [], [], [], []
         for sample in self.df.iterrows():
             self.cat_strarr.append(str(sample[1].Category).lower())
             self.subcat_strarr.append(str(sample[1].Subcategory).lower())
             self.action_str_arr.append(str(sample[1].Action).lower())
             self.prompt_strarr.append(str(sample[1].Sentence).lower())
-        
+
     def __transform_data(self):
         # load stemmer
         self.stemmer = SnowballStemmer('english')
@@ -75,14 +83,16 @@ class IntentRecognition:
         self.lemmatizer = WordNetLemmatizer()
 
         print('\n[Tokenizing...]\n')
-        tokenized_prompts = list(map(lambda prompt: word_tokenize(prompt), self.prompt_strarr))
+        tokenized_prompts = list(
+            map(lambda prompt: word_tokenize(prompt), self.prompt_strarr))
 
         print('\n[Stemming and lemmatizing...]\n')
         prompts_stem_lem = []
         for tok_prompt in tokenized_prompts:
             stem_lem_arr = []
             for tok in tok_prompt:
-                stem_lem_arr.append(self.lemmatizer.lemmatize(self.stemmer.stem(tok)))
+                stem_lem_arr.append(
+                    self.lemmatizer.lemmatize(self.stemmer.stem(tok)))
             prompts_stem_lem.append(stem_lem_arr)
         tokenized_prompts = prompts_stem_lem
 
@@ -91,16 +101,18 @@ class IntentRecognition:
         self.vectorizer = TfidfVectorizer(analyzer=lambda x: x)
         self.x_vector = self.vectorizer.fit_transform(tokenized_prompts)
         print("\nVectorized Shape: ", self.x_vector.shape, '\n')
-        
-        if not os.path.exists('vectorizers'): os.mkdir('vectorizers')
+
+        if not os.path.exists('vectorizers'):
+            os.mkdir('vectorizers')
         pickle.dump(self.vectorizer, open("vectorizers/tfidf.pickle", "wb"))
 
         # convert to Dense format (X vector)
         self.x = self.x_vector.todense()
 
         # create 3 Y arrays for each intent model
-        self.cat_labels, self.subcat_labels, self.action_labels = list(set(self.cat_strarr)), list(set(self.subcat_strarr)), list(set(self.action_str_arr))
-        self.y_cat, self.y_subcat, self.y_action = [],[],[]
+        self.cat_labels, self.subcat_labels, self.action_labels = list(set(
+            self.cat_strarr)), list(set(self.subcat_strarr)), list(set(self.action_str_arr))
+        self.y_cat, self.y_subcat, self.y_action = [], [], []
         for cat_label, subcat_label, action_label in zip(self.cat_strarr, self.subcat_strarr, self.action_str_arr):
             onehot = np.zeros(len(self.cat_labels))
             onehot[self.cat_labels.index(cat_label)] = 1
@@ -111,36 +123,48 @@ class IntentRecognition:
             onehot = np.zeros(len(self.action_labels))
             onehot[self.action_labels.index(action_label)] = 1
             self.y_action.append(onehot)
-        self.y_cat, self.y_subcat, self.y_action = np.array(self.y_cat), np.array(self.y_subcat), np.array(self.y_action)
+        self.y_cat, self.y_subcat, self.y_action = np.array(
+            self.y_cat), np.array(self.y_subcat), np.array(self.y_action)
 
         # cache data
-        np.save('data/intent-resources/cat_labels.npy', np.array(self.cat_labels))
-        np.save('data/intent-resources/subcat_labels.npy', np.array(self.subcat_labels))
-        np.save('data/intent-resources/action_labels.npy', np.array(self.action_labels))
-
+        np.save('data/intent-resources/cat_labels.npy',
+                np.array(self.cat_labels))
+        np.save('data/intent-resources/subcat_labels.npy',
+                np.array(self.subcat_labels))
+        np.save('data/intent-resources/action_labels.npy',
+                np.array(self.action_labels))
 
     def __create_train_models(self, epochs=100):
-        xtrain_cat, xtest_cat, ytrain_cat, ytest_cat = train_test_split(self.x, self.y_cat, train_size=0.9)
-        xtrain_subcat, xtest_subcat, ytrain_subcat, ytest_subcat = train_test_split(self.x, self.y_subcat, train_size=0.9)
-        xtrain_action, xtest_action, ytrain_action, ytest_action = train_test_split(self.x, self.y_action, train_size=0.9)
-    
+        xtrain_cat, xtest_cat, ytrain_cat, ytest_cat = train_test_split(
+            self.x, self.y_cat, train_size=0.9)
+        xtrain_subcat, xtest_subcat, ytrain_subcat, ytest_subcat = train_test_split(
+            self.x, self.y_subcat, train_size=0.9)
+        xtrain_action, xtest_action, ytrain_action, ytest_action = train_test_split(
+            self.x, self.y_action, train_size=0.9)
+
         self.category_model = tf.keras.Sequential([
             tf.keras.layers.Dense(units=16, activation='relu'),
-            tf.keras.layers.Dense(units=len(self.cat_labels), activation='softmax')
+            tf.keras.layers.Dense(
+                units=len(self.cat_labels), activation='softmax')
         ])
         self.subcategory_model = tf.keras.Sequential([
             tf.keras.layers.Dense(units=16, activation='relu'),
-            tf.keras.layers.Dense(units=len(self.subcat_labels), activation='softmax')
+            tf.keras.layers.Dense(
+                units=len(self.subcat_labels), activation='softmax')
         ])
         self.action_model = tf.keras.Sequential([
             tf.keras.layers.Dense(units=16, activation='relu'),
-            tf.keras.layers.Dense(units=len(self.action_labels), activation='softmax')
+            tf.keras.layers.Dense(
+                units=len(self.action_labels), activation='softmax')
         ])
 
         print('\n[Training Category Model...]\n')
-        self.cat_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-        self.category_model.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
-        self.category_model.fit(xtrain_cat, ytrain_cat, batch_size=32, epochs=epochs, callbacks=[self.cat_callback])
+        self.cat_callback = tf.keras.callbacks.EarlyStopping(
+            monitor='loss', patience=3)
+        self.category_model.compile(
+            optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
+        self.category_model.fit(
+            xtrain_cat, ytrain_cat, batch_size=32, epochs=epochs, callbacks=[self.cat_callback])
         ypreds_cat = self.category_model.predict(xtest_cat)
         ypreds_cat_ = []
         for pred in ypreds_cat:
@@ -154,9 +178,12 @@ class IntentRecognition:
         print('\n[Model saved to models/category.model]\n')
 
         print('\n[Training Subcategory Model...]\n')
-        self.subcat_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-        self.subcategory_model.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
-        self.subcategory_model.fit(xtrain_subcat, ytrain_subcat, batch_size=32, epochs=epochs, callbacks=[self.subcat_callback])
+        self.subcat_callback = tf.keras.callbacks.EarlyStopping(
+            monitor='loss', patience=3)
+        self.subcategory_model.compile(
+            optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
+        self.subcategory_model.fit(
+            xtrain_subcat, ytrain_subcat, batch_size=32, epochs=epochs, callbacks=[self.subcat_callback])
         ypreds_subcat = self.subcategory_model.predict(xtest_subcat)
         ypreds_subcat_ = []
         for pred in ypreds_subcat:
@@ -170,9 +197,12 @@ class IntentRecognition:
         print('\n[Model saved to models/subcategory.model]\n')
 
         print('\n[Training Action Model...]\n')
-        self.action_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-        self.action_model.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
-        self.action_model.fit(xtrain_action, ytrain_action, batch_size=32, epochs=epochs, callbacks=[self.action_callback])
+        self.action_callback = tf.keras.callbacks.EarlyStopping(
+            monitor='loss', patience=3)
+        self.action_model.compile(
+            optimizer='adam', loss='binary_crossentropy', metrics='accuracy')
+        self.action_model.fit(xtrain_action, ytrain_action, batch_size=32,
+                              epochs=epochs, callbacks=[self.action_callback])
         ypreds_action = self.action_model.predict(xtest_action)
         ypreds_action_ = []
         for pred in ypreds_action:
@@ -185,7 +215,8 @@ class IntentRecognition:
         self.action_model.save('models/action.model')
         print('\n[Model saved to models/action.model]\n')
 
-        print(f'\n[Category: {accuracy_cat}, Subcategory: {accuracy_subcat}, Action: {accuracy_action}]\n')
+        print(
+            f'\n[Category: {accuracy_cat}, Subcategory: {accuracy_subcat}, Action: {accuracy_action}]\n')
 
     def prompt(self, prompt):
         prompt_tokenized = word_tokenize(prompt.lower())
@@ -193,7 +224,8 @@ class IntentRecognition:
         for tok in prompt_tokenized:
             stem_lem.append(self.lemmatizer.lemmatize(self.stemmer.stem(tok)))
         prompt_tokenized = stem_lem
-        prompt_vectorized = self.vectorizer.transform([prompt_tokenized]).todense()
+        prompt_vectorized = self.vectorizer.transform(
+            [prompt_tokenized]).todense()
         cat_pred = self.category_model.predict(prompt_vectorized)
         subcat_pred = self.subcategory_model.predict(prompt_vectorized)
         action_pred = self.action_model.predict(prompt_vectorized)
@@ -201,9 +233,10 @@ class IntentRecognition:
         subcategory = self.subcat_labels[np.argmax(subcat_pred)]
         action = self.action_labels[np.argmax(action_pred)]
         K.clear_session()
-        response = '{"category" : "%s", "sub_category" : "%s", "action" : "%s"}' % (category, subcategory, action)
+        response = '{"category" : "%s", "sub_category" : "%s", "action" : "%s"}' % (
+            category, subcategory, action)
         return response
-    
+
     def prompt_ner_play(self, sentence):
         artist = ''
         song = ''
@@ -211,12 +244,13 @@ class IntentRecognition:
         reply = self.ner_play(sentence)
         for ent in reply.ents:
             if 'song' in ent.label_:
-                song+=ent.text+' '
+                song += ent.text+' '
             if 'artist' in ent.label_:
-                artist+=ent.text+' '
+                artist += ent.text+' '
             if 'playlist' in ent.label_:
-                playlist+=ent.text+' '
-        response = '{"song" : "%s", "artist" : "%s", "playlist" : "%s"}' % (song, artist, playlist)
+                playlist += ent.text+' '
+        response = '{"song" : "%s", "artist" : "%s", "playlist" : "%s"}' % (
+            song, artist, playlist)
         return response
 
     def prompt_ner_timer(self, sentence):
@@ -226,17 +260,19 @@ class IntentRecognition:
         # print(reply.ents)
         for ent in reply.ents:
             if 'second' in ent.label_:
-                second+=ent.text+' '
+                second += ent.text+' '
             elif 'minute' in ent.label_:
-                minute+=ent.text+' '
+                minute += ent.text+' '
         # print(second, minute)
         try:
             if 'second' in second:
-                second = '1' # user said 'a' second 
+                second = '1'  # user said 'a' second
             if 'minute' in minute:
-                minute = '1' # user said 'a' minute
-            if not second == '1' and not second == '': second = w2n.word_to_num(second.strip())
-            if not minute == '1' and not minute == '': minute = w2n.word_to_num(minute.strip())
+                minute = '1'  # user said 'a' minute
+            if not second == '1' and not second == '':
+                second = w2n.word_to_num(second.strip())
+            if not minute == '1' and not minute == '':
+                minute = w2n.word_to_num(minute.strip())
             # print(second, minute)
 
         except:
@@ -252,13 +288,12 @@ class IntentRecognition:
         reply = self.ner_numeric(sentence)
         for ent in reply.ents:
             if 'numeric' in ent.label_:
-                numeric+=ent.text+' '
+                numeric += ent.text+' '
             if 'entity' in ent.label_:
-                entity+=ent.text+' '
+                entity += ent.text+' '
         try:
             numeric = w2n.word_to_num(numeric.strip())
         except:
-            print('\n[word2num error]\n')
             numeric = numeric
         response = '{"numeric" : "%s", "entity" : "%s"}' % (numeric, entity)
         return response
@@ -271,16 +306,20 @@ class IntentRecognition:
         reply = self.ner_light(sentence)
         for ent in reply.ents:
             if 'lightname' in ent.label_:
-                lightname+=ent.text+' '
+                lightname += ent.text+' '
             if 'brightness' in ent.label_:
-                brightness+=ent.text+' '
+                brightness += ent.text+' '
             if 'color' in ent.label_:
-                color+=ent.text+' '
+                color += ent.text+' '
             if 'command' in ent.label_:
-                command+=ent.text+' '
-        response = '{"lightname" : "%s", "brightness" : "%s", "color" : "%s", "command" : "%s"}' % (lightname, brightness, color, command)
+                command += ent.text+' '
+            try:
+                brightness = w2n.word_to_num(brightness.strip())
+            except:
+                brightness = brightness
+        response = '{"lightname" : "%s", "brightness" : "%s", "color" : "%s", "command" : "%s"}' % (
+            lightname, brightness, color, command)
         return response
-        
 
 
 if __name__ == "__main__":
