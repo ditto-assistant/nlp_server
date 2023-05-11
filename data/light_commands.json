@@ -552,6 +552,146 @@
         },
         {
             "words": [
+                "set",
+                "lights",
+                "to",
+                "night",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "put",
+                "the",
+                "house",
+                "to",
+                "night",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "toggle",
+                "night",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "lights",
+                "to",
+                "day",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "put",
+                "the",
+                "house",
+                "to",
+                "day",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "toggle",
+                "day",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "lights",
+                "to",
+                "sleep",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "put",
+                "the",
+                "house",
+                "to",
+                "sleep",
+                "mode"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-command",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "toggle",
+                "sleep",
+                "mode",
+                "please"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "O",
+                "O"
+            ]
+        },
+        {
+            "words": [
                 "hey",
                 "ditto",
                 "can",
@@ -908,4 +1048,3 @@
         }
     ]
 }
-
