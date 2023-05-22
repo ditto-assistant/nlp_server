@@ -352,7 +352,43 @@
             "words": [
                 "set",
                 "the",
-                "lights",
+                "light's",
+                "brightness",
+                "to",
+                "3"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "light's",
+                "brightness",
+                "to",
+                "3"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "O",
+                "O",
+                "B-brightness"
+            ]
+        },
+        {
+            "words": [
+                "change",
+                "the",
+                "light's",
                 "brightness",
                 "to",
                 "one"
