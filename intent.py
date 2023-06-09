@@ -54,7 +54,8 @@ class IntentRecognition:
                 open('vectorizers/tfidf.pickle', 'rb'))
             self.stemmer = SnowballStemmer('english')
             self.lemmatizer = WordNetLemmatizer()
-        except:
+        except BaseException as e:
+            print(e)
             print('\n[Unable to load intent model and its resources...]\n')
 
     def __load_ner_models(self):
