@@ -325,11 +325,75 @@ soundscapes,none,exit,stop the soundscape
 soundscapes,none,exit,stop the sound scape
 soundscapes,none,exit,stop sound scape
 soundscapes,none,exit,stop soundscape
-soundscapes,play,white noise,stplayop white noise
+soundscapes,play,white noise,play white noise
 soundscapes,play,white noise,play noise
 soundscapes,play,white noise,play white noise
 soundscapes,play,white noise,play the white noise
 soundscapes,play,white noise,white noise
+soundscapes,none,exit,stop white noise
+soundscapes,none,exit,stop noise
+soundscapes,none,exit,stop the white noise
+soundscapes,none,exit,stop the sound scape
+soundscapes,none,exit,stop the soundscape
+soundscapes,none,exit,stop the sound scape
+soundscapes,none,exit,stop sound scape
+soundscapes,none,exit,stop soundscape
+soundscapes,play,white noise,play white noise
+soundscapes,play,white noise,play noise
+soundscapes,play,white noise,play white noise please
+soundscapes,play,white noise,play white noise
+soundscapes,play,white noise,play the white noise
+soundscapes,play,white noise,white noise
+soundscapes,none,exit,stop thunderstorm
+soundscapes,none,exit,stop noise
+soundscapes,none,exit,stop the thunderstorm
+soundscapes,none,exit,stop the sound scape
+soundscapes,none,exit,stop the soundscape
+soundscapes,none,exit,stop the sound scape
+soundscapes,none,exit,stop sound scape
+soundscapes,none,exit,stop soundscape
+soundscapes,play,thunderstorm,play thunderstorm
+soundscapes,play,thunderstorm,play noise
+soundscapes,play,thunderstorm,play thunderstorm
+soundscapes,play,thunderstorm,play the thunder storm
+soundscapes,play,thunderstorm,thunderstorm
+soundscapes,none,exit,stop thunderstorm
+soundscapes,none,exit,stop noise
+soundscapes,none,exit,stop the thunderstorm
+soundscapes,none,exit,stop the sound scape
+soundscapes,none,exit,stop the soundscape
+soundscapes,play,thunderstorm,play thunderstorm
+soundscapes,play,thunderstorm,play thunder storm
+soundscapes,play,thunderstorm,play thunder noise
+soundscapes,play,thunderstorm,play thunderstorm noise
+soundscapes,play,thunderstorm,play thunderstorm please
+soundscapes,play,thunderstorm,play thunderstorm
+soundscapes,play,thunderstorm,play the thunderstorm
+soundscapes,play,thunderstorm,thunderstorm
+soundscapes,play,thunderstorm,thunder storm
+soundscapes,play,thunderstorm,play thunder storm
+soundscapes,play,thunderstorm,play the thunderstorm
+soundscapes,play,thunderstorm,play thunder noise
+soundscapes,play,thunderstorm,please play thunderstorm noise
+soundscapes,play,thunderstorm,play thunder storm please
+soundscapes,play,thunderstorm,play thunderstorm
+soundscapes,play,thunderstorm,play the thunderstorm
+soundscapes,play,thunderstorm,thunderstorm
+soundscapes,play,thunderstorm,thunder storm
+soundscapes,play,binaural beats,play binaural beats
+soundscapes,play,binaural beats,play binaural beats
+soundscapes,play,binaural beats,play thunder noise
+soundscapes,play,binaural beats,play binaural beats noise
+soundscapes,play,binaural beats,play binaural beats please
+soundscapes,play,binaural beats,play binaural beats
+soundscapes,play,binaural beats,play the binaural beats
+soundscapes,play,binaural beats,binaural beats sound please
+soundscapes,play,binaural beats,binaural beats
+soundscapes,none,exit,stop binaural beats
+soundscapes,none,exit,stop noise
+soundscapes,none,exit,stop  binaural beats
+soundscapes,none,exit,stop the binaural beats
+soundscapes,none,exit,stop the binaural frequencies
 timer,none,none,set a timer for 45 seconds.
 timer,none,none,set a timer for 1 minute and 30 seconds.
 timer,none,none,timer for 23 seconds.
