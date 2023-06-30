@@ -3,7 +3,7 @@ import os
 import pickle
 import time
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.memory import VectorStoreRetrieverMemory
 from langchain.chains import ConversationChain
 from langchain.prompts import PromptTemplate
@@ -25,7 +25,7 @@ Ditto:"""
 
 class DittoMemory:
     def __init__(self):
-        self.llm = OpenAI(temperature=0)
+        self.llm = ChatOpenAI(temperature=0.4, model_name='gpt-3.5-turbo')
         self.__create_load_memory()
 
     def __create_load_memory(self, reset=False):
@@ -59,7 +59,7 @@ class DittoMemory:
 
     def prompt(self, query):
 
-        stamp = str(datetime.utcfromtimestamp(time.time()/1e3))
+        stamp = str(datetime.utcfromtimestamp(time.time()))
         # embed timestamps to query
         query = f'Timestamp: {stamp}\nHuman: {query}'
 
