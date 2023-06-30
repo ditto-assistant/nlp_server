@@ -8,3 +8,8 @@ gevent
 flask-cors
 psutil
 plac
+faiss-cpu
+pydantic 
+tensorflow
+matplotlib
+dill

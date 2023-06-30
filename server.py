@@ -1,12 +1,16 @@
+from ditto_memory import DittoMemory
 import platform
 from flask import Flask
 from flask import request
 from flask_cors import CORS
 import json
 
-# load intent model 
+# load intent model
 from intent import IntentRecognition
 intent_model = IntentRecognition(train=False)
+
+# load ditto memory langchain agent
+ditto = DittoMemory()
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +22,35 @@ elif platform.system() == 'Darwin':
     OS = 'Darwin'
 
 # making requests to the intent model
+
+
+@app.route("/prompt/", methods=['POST'])
+def prompt():
+    requests = request.args
+
+    try:
+        if request.method == "POST":
+
+            # Request to send prompt to ditto
+            if 'prompt' in requests:
+                print('\nsending prompt to ditto memory langchain agent\n')
+                prompt = requests['prompt']
+                response = ditto.prompt(prompt)
+                return response
+
+            if 'reset' in requests:
+                print("\nresetting ditto langchain agent's memory\n")
+                ditto.reset_memory()
+                return '{"reset_conversation": "true"}'
+
+        else:
+            return '{"error": "invalid request"}'
+
+    except BaseException as e:
+        print(e)
+        return '{"internal error": "%s"}' % str(e)
+
+
 @app.route("/intent/", methods=['POST'])
 def intent_handler():
     requests = request.args
@@ -34,12 +67,14 @@ def intent_handler():
 
         else:
             return '{"error": "invalid request"}'
-        
+
     except BaseException as e:
         print(e)
         return '{"internal error": "%s"}' % str(e)
 
 # making requests to a NER model
+
+
 @app.route("/ner/", methods=['POST'])
 def ner_handler():
     requests = request.args
@@ -51,7 +86,7 @@ def ner_handler():
                 print('\nsending request to ner-timer\n')
                 prompt = requests['ner-timer']
                 ner_response = intent_model.prompt_ner_timer(prompt)
-            
+
             elif 'ner-light' in requests:
                 print('\nsending request to ner_light\n')
                 prompt = requests['ner-light']
@@ -61,7 +96,7 @@ def ner_handler():
                 print('\nsending request to ner_numeric\n')
                 prompt = requests['ner-numeric']
                 ner_response = intent_model.prompt_ner_numeric(prompt)
-            
+
             elif 'ner-play' in requests:
                 print('\nsending request to ner_play\n')
                 prompt = requests['ner-play']
@@ -72,7 +107,7 @@ def ner_handler():
 
         else:
             return '{"error": "invalid request"}'
-        
+
     except BaseException as e:
         print(e)
         return '{"internal error": "%s"}' % str(e)
