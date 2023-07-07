@@ -58,10 +58,18 @@ class DittoMemory:
         self.__create_load_memory(reset=True)
 
     def prompt(self, query):
-
         stamp = str(datetime.utcfromtimestamp(time.time()))
-        # embed timestamps to query
-        query = f'Timestamp: {stamp}\nHuman: {query}'
+        if '<STMEM>' in query:
+            raw_query = query.split('<STMEM>')[2]
+            print(raw_query)
+            mem_query = f'Timestamp: {stamp}\nHuman: {raw_query}'
+            query = query.split('<STMEM>')[1] + \
+                '\nCurrent Prompt: ' + mem_query
+        else:
+
+            # embed timestamps to query
+            query = f'Timestamp: {stamp}\nHuman: {query}'
+            mem_query = query
 
         prompt = PromptTemplate(
             input_variables=["history", "input"], template=TEMPLATE
@@ -77,7 +85,7 @@ class DittoMemory:
         res = conversation_with_memory.predict(
             input=query)
 
-        self.save_new_memory(query, res)
+        self.save_new_memory(mem_query, res)
 
         return res
 
