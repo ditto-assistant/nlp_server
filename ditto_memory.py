@@ -37,7 +37,7 @@ class DittoMemory:
             index = faiss.IndexFlatL2(embedding_size)
             embedding_fn = OpenAIEmbeddings().embed_query
             vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
-            retriever = vectorstore.as_retriever(search_kwargs=dict(k=10))
+            retriever = vectorstore.as_retriever(search_kwargs=dict(k=5))
             memory = VectorStoreRetrieverMemory(retriever=retriever)
 
             memory.save_context({"input": "Hi! What's up? "}, {
@@ -61,7 +61,6 @@ class DittoMemory:
         stamp = str(datetime.utcfromtimestamp(time.time()))
         if '<STMEM>' in query:
             raw_query = query.split('<STMEM>')[2]
-            print(raw_query)
             mem_query = f'Timestamp: {stamp}\nHuman: {raw_query}'
             query = query.split('<STMEM>')[1] + \
                 '\nCurrent Prompt: ' + mem_query
