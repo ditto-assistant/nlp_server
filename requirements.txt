@@ -13,4 +13,4 @@ pydantic
 tensorflow
 matplotlib
 dill
-langchain
+langchain==0.0.216
