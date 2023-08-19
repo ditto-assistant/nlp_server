@@ -1,5 +1,5 @@
-scikit-learn==1.0.2
-spacy==3.2.4
+scikit-learn
+spacy
 nltk
 word2number
 vosk
@@ -8,9 +8,12 @@ gevent
 flask-cors
 psutil
 plac
-faiss-cpu
-pydantic 
+faiss-cpu==1.7.4
+pydantic==1.10.8
 tensorflow
 matplotlib
 dill
 langchain==0.0.216
+typing-inspect==0.8.0
+typing-extensions==4.5.0
+chromadb==0.3.26
