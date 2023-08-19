@@ -25,7 +25,7 @@ Ditto:"""
 
 class DittoMemory:
     def __init__(self):
-        self.llm = ChatOpenAI(temperature=0.4, model_name='gpt-3.5-turbo')
+        self.llm = ChatOpenAI(temperature=0.4, model_name='gpt-3.5-turbo-16k')
         self.__create_load_memory()
 
     def __create_load_memory(self, reset=False):

@@ -236,6 +236,7 @@ class IntentRecognition:
         K.clear_session()
         response = '{"category" : "%s", "sub_category" : "%s", "action" : "%s"}' % (
             category, subcategory, action)
+        print(response)
         return response
 
     def prompt_ner_play(self, sentence):
