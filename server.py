@@ -10,6 +10,7 @@ from intent import IntentRecognition
 intent_model = IntentRecognition(train=False)
 
 # load ditto memory langchain agent
+print('\n[Loading Ditto Memory...]\n')
 ditto = DittoMemory()
 
 app = Flask(__name__)

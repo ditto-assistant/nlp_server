@@ -1,3 +1,8 @@
 chatbot/
-
+langchain/
 __pycache__
+<<<<<<< HEAD
+.env
+=======
+.env
+>>>>>>> 7d8492a49e3449cc0c0877735410ece7a62ce23a
