@@ -3,6 +3,9 @@ FROM python:3.11.4-slim-bullseye as builder
 RUN apt update && apt install -y git
 RUN apt install -y build-essential gcc
 
+# initialize default OPENAI_API_KEY to 'key'
+ENV OPENAI_API_KEY=key
+
 COPY data /data
 COPY memory /memory
 COPY models /models
@@ -18,9 +21,6 @@ COPY requirements.txt requirements.txt
 COPY server.py server.py
 COPY start_server.py start_server.py
 
-
-ENV HOST=0.0.0.0
-ENV LISTEN_PORT 32032
 EXPOSE 32032
 
 RUN pip install --upgrade pip

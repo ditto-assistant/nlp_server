@@ -15,7 +15,7 @@ https://towardsdatascience.com/train-ner-with-custom-training-data-using-spacy-5
 import pandas as pd
 import nltk
 from nltk import pos_tag
-import json 
+import json
 import re
 
 import random
@@ -26,10 +26,10 @@ from spacy.training.example import Example
 from tqdm import tqdm
 
 # which model to create
-PLAY=0
-LIGHT=1
-TIMER=0
-NUM=0
+PLAY = 0
+LIGHT = 0
+TIMER = 0
+NUM = 1
 
 EPOCHS = 50
 
@@ -51,14 +51,14 @@ elif NUM:
 sentences = []
 entities = []
 
-for ndx,data in enumerate(json_data['training_data']):
+for ndx, data in enumerate(json_data['training_data']):
 
     if PLAY:
         words = data['words']
         labels = data['labels']
 
         ent_ndx = []
-        for ndx,x in enumerate(labels):
+        for ndx, x in enumerate(labels):
             if 'song' in x or 'artist' in x or 'playlist' in x:
                 if 'song' in x:
                     tag = 'SONG'
@@ -75,7 +75,7 @@ for ndx,data in enumerate(json_data['training_data']):
         labels = data['labels']
 
         ent_ndx = []
-        for ndx,x in enumerate(labels):
+        for ndx, x in enumerate(labels):
             if 'lightname' in x:
                 tag = 'LIGHTNAME'
                 ent_ndx.append([ndx, x])
@@ -94,21 +94,21 @@ for ndx,data in enumerate(json_data['training_data']):
         labels = data['labels']
 
         ent_ndx = []
-        for ndx,x in enumerate(labels):
+        for ndx, x in enumerate(labels):
             if 'second' in x or 'minute' in x:
-                if 'second' in x: 
+                if 'second' in x:
                     tag = 'SECOND'
                     ent_ndx.append([ndx, x])
                 elif 'minute' in x:
                     tag = 'MINUTE'
                     ent_ndx.append([ndx, x])
-    
+
     elif NUM:
         words = data['words']
         labels = data['labels']
 
         ent_ndx = []
-        for ndx,x in enumerate(labels):
+        for ndx, x in enumerate(labels):
             if 'numeric' in x:
                 tag = 'NUMERIC'
                 ent_ndx.append([ndx, x])
@@ -121,7 +121,7 @@ for ndx,data in enumerate(json_data['training_data']):
         sentence += x+" "
     if '(' in sentence or ')' in sentence or '+' in sentence or '?' in sentence or '[' in sentence:
         continue
-    
+
     ent = []
     curr_ndx = 0
     exiting = False
@@ -134,40 +134,41 @@ for ndx,data in enumerate(json_data['training_data']):
                 exiting = True
             curr_ndx = end
             break
-        if exiting: break
+        if exiting:
+            break
         ent.append((beg, end, x[1]))
-    if exiting: continue
+    if exiting:
+        continue
     sentences.append(sentence)
     entities.append(ent)
 
 
-
 TRAIN_DATA = []
 
-for sent,ent in zip(sentences,entities):
+for sent, ent in zip(sentences, entities):
     ent_dict = dict()
     ent_dict['entities'] = ent
-    TRAIN_DATA.append((sent,ent_dict))
+    TRAIN_DATA.append((sent, ent_dict))
 
 # training time!
 model = None
 if PLAY:
-    output_dir=Path("models/ner/play")
+    output_dir = Path("models/ner/play")
 elif TIMER:
-    output_dir=Path("models/ner/timer")
+    output_dir = Path("models/ner/timer")
 elif NUM:
-    output_dir=Path("models/ner/numeric")
+    output_dir = Path("models/ner/numeric")
 elif LIGHT:
-    output_dir=Path("models/ner/light")
+    output_dir = Path("models/ner/light")
 
 if model is not None:
-    nlp = spacy.load(model)  
+    nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 else:
-    nlp = spacy.blank('en')  
+    nlp = spacy.blank('en')
     print("Created blank 'en' model")
 
-#set up the pipeline
+# set up the pipeline
 
 if 'ner' not in nlp.pipe_names:
     ner = nlp.add_pipe('ner')
@@ -189,8 +190,8 @@ with nlp.disable_pipes(*other_pipes):  # only train NER
             doc = nlp.make_doc(text)
             example = Example.from_dict(doc, annotations)
             nlp.update(
-                [example],  
-                drop=0.5,  
+                [example],
+                drop=0.5,
                 sgd=optimizer,
                 losses=losses)
         print(losses)
