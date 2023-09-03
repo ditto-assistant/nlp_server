@@ -1,0 +1,7 @@
+.env
+.env.example
+.dockerignore
+.git
+.gitignore
+README.md
+justfile

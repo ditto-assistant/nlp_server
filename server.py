@@ -3,14 +3,17 @@ import platform
 from flask import Flask
 from flask import request
 from flask_cors import CORS
-import json
+import logging
+
+log = logging.getLogger('server')
+logging.basicConfig(level=logging.DEBUG)
 
 # load intent model
 from intent import IntentRecognition
 intent_model = IntentRecognition(train=False)
 
 # load ditto memory langchain agent
-print('\n[Loading Ditto Memory...]\n')
+log.info('\n[Loading Ditto Memory...]\n')
 ditto = DittoMemory()
 
 app = Flask(__name__)
@@ -34,13 +37,13 @@ def prompt():
 
             # Request to send prompt to ditto
             if 'prompt' in requests:
-                print('\nsending prompt to ditto memory langchain agent\n')
+                log.debug('\nsending prompt to ditto memory langchain agent\n')
                 prompt = requests['prompt']
                 response = ditto.prompt(prompt)
                 return response
 
             if 'reset' in requests:
-                print("\nresetting ditto langchain agent's memory\n")
+                log.debug("\nresetting ditto langchain agent's memory\n")
                 ditto.reset_memory()
                 return '{"reset_conversation": "true"}'
 
@@ -48,8 +51,8 @@ def prompt():
             return '{"error": "invalid request"}'
 
     except BaseException as e:
-        print(e)
-        return '{"internal error": "%s"}' % str(e)
+        log.error(e)
+        return '{"error": "%s"}' % str(e)
 
 
 @app.route("/intent/", methods=['POST'])
@@ -61,7 +64,7 @@ def intent_handler():
 
             # Request to send prompt to ditto
             if 'prompt' in requests:
-                print('\nsending prompt to intent model\n')
+                log.debug('\nsending prompt to intent model\n')
                 prompt = requests['prompt']
                 intent = intent_model.prompt(prompt)
                 return intent
@@ -70,8 +73,8 @@ def intent_handler():
             return '{"error": "invalid request"}'
 
     except BaseException as e:
-        print(e)
-        return '{"internal error": "%s"}' % str(e)
+        log.error(e)
+        return '{"error": "%s"}' % str(e)
 
 # making requests to a NER model
 
@@ -84,39 +87,39 @@ def ner_handler():
         if request.method == "POST":
 
             if 'ner-timer' in requests:
-                print('\nsending request to ner-timer\n')
+                log.debug('\nsending request to ner-timer\n')
                 prompt = requests['ner-timer']
                 ner_response = intent_model.prompt_ner_timer(prompt)
 
             elif 'ner-light' in requests:
-                print('\nsending request to ner_light\n')
+                log.debug('\nsending request to ner_light\n')
                 prompt = requests['ner-light']
                 ner_response = intent_model.prompt_ner_light(prompt)
 
             elif 'ner-numeric' in requests:
-                print('\nsending request to ner_numeric\n')
+                log.debug('\nsending request to ner_numeric\n')
                 prompt = requests['ner-numeric']
                 ner_response = intent_model.prompt_ner_numeric(prompt)
 
             elif 'ner-play' in requests:
-                print('\nsending request to ner_play\n')
+                log.debug('\nsending request to ner_play\n')
                 prompt = requests['ner-play']
                 ner_response = intent_model.prompt_ner_play(prompt)
 
-            print(ner_response)
+            log.debug(ner_response)
             return ner_response
 
         else:
             return '{"error": "invalid request"}'
 
     except BaseException as e:
-        print(e)
-        return '{"internal error": "%s"}' % str(e)
+        log.error(e)
+        return '{"error": "%s"}' % str(e)
 
 
-@app.route("/", methods=['POST'])
-def post_handler():
-    return '{"nlp_server_status": "on"}'
+@app.route("/status", methods=['GET'])
+def status_handler():
+    return '{"status": "on"}'
 
 
 class Server():

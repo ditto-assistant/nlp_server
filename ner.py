@@ -1,6 +1,3 @@
-from __future__ import unicode_literals, print_function
-
-from sqlalchemy import NUMERIC
 '''
 Named Entity Recognition model.
 
@@ -12,9 +9,7 @@ https://raw.githubusercontent.com/Skuldur/virtual-assistant-tutorial/master/comm
 refs:
 https://towardsdatascience.com/train-ner-with-custom-training-data-using-spacy-525ce748fab7
 '''
-import pandas as pd
-import nltk
-from nltk import pos_tag
+from __future__ import unicode_literals, print_function
 import json
 import re
 

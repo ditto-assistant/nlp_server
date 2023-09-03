@@ -20,14 +20,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from word2number import w2n
+import logging
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+log = logging.getLogger('intent')
+logging.basicConfig(level=logging.DEBUG)
 
 
 class IntentRecognition:
 
     def __init__(self, train=0):
         self.train = train
-        print('\n[Fitting Neurons...]\n')
+        log.debug('Fitting Neurons...')
         if train:
             self.__load_data()
             self.__transform_data()
@@ -55,8 +59,8 @@ class IntentRecognition:
             self.stemmer = SnowballStemmer('english')
             self.lemmatizer = WordNetLemmatizer()
         except BaseException as e:
-            print(e)
-            print('\n[Unable to load intent model and its resources...]\n')
+            log.debug(e)
+            log.debug('\n[Unable to load intent model and its resources...]\n')
 
     def __load_ner_models(self):
         try:
@@ -65,7 +69,7 @@ class IntentRecognition:
             self.ner_numeric = spacy.load('models/ner/numeric')
             self.ner_light = spacy.load('models/ner/light')
         except:
-            print('\n[Unable to locate one or more NER models...]\n')
+            log.debug('\n[Unable to locate one or more NER models...]\n')
             self.ner_play, self.ner_timer, self.ner_numeric, self.ner_light = [], [], [], []
 
     def __load_data(self):
@@ -83,11 +87,11 @@ class IntentRecognition:
         # load lemmatizer
         self.lemmatizer = WordNetLemmatizer()
 
-        print('\n[Tokenizing...]\n')
+        log.debug('\n[Tokenizing...]\n')
         tokenized_prompts = list(
             map(lambda prompt: word_tokenize(prompt), self.prompt_strarr))
 
-        print('\n[Stemming and lemmatizing...]\n')
+        log.debug('\n[Stemming and lemmatizing...]\n')
         prompts_stem_lem = []
         for tok_prompt in tokenized_prompts:
             stem_lem_arr = []
@@ -97,11 +101,11 @@ class IntentRecognition:
             prompts_stem_lem.append(stem_lem_arr)
         tokenized_prompts = prompts_stem_lem
 
-        print('\n[Vectorizing...]\n')
+        log.debug('\n[Vectorizing...]\n')
         # vectorize sentence arrays
         self.vectorizer = TfidfVectorizer(analyzer=lambda x: x)
         self.x_vector = self.vectorizer.fit_transform(tokenized_prompts)
-        print("\nVectorized Shape: ", self.x_vector.shape, '\n')
+        log.debug("\nVectorized Shape: ", self.x_vector.shape, '\n')
 
         if not os.path.exists('vectorizers'):
             os.mkdir('vectorizers')
@@ -159,7 +163,7 @@ class IntentRecognition:
                 units=len(self.action_labels), activation='softmax')
         ])
 
-        print('\n[Training Category Model...]\n')
+        log.debug('\n[Training Category Model...]\n')
         self.cat_callback = tf.keras.callbacks.EarlyStopping(
             monitor='loss', patience=3)
         self.category_model.compile(
@@ -173,12 +177,12 @@ class IntentRecognition:
             onehot[np.argmax(pred)] = 1
             ypreds_cat_.append(onehot)
         accuracy_cat = accuracy_score(ytest_cat, ypreds_cat_)
-        print(f'\n[Category Model Accuracy: {accuracy_cat}]\n')
+        log.debug(f'\n[Category Model Accuracy: {accuracy_cat}]\n')
         # save as Keras model for local instance
         self.category_model.save('models/category.model')
-        print('\n[Model saved to models/category.model]\n')
+        log.debug('\n[Model saved to models/category.model]\n')
 
-        print('\n[Training Subcategory Model...]\n')
+        log.debug('\n[Training Subcategory Model...]\n')
         self.subcat_callback = tf.keras.callbacks.EarlyStopping(
             monitor='loss', patience=3)
         self.subcategory_model.compile(
@@ -192,12 +196,12 @@ class IntentRecognition:
             onehot[np.argmax(pred)] = 1
             ypreds_subcat_.append(onehot)
         accuracy_subcat = accuracy_score(ytest_subcat, ypreds_subcat_)
-        print(f'\n[Subcategory Model Accuracy: {accuracy_subcat}]\n')
+        log.debug(f'\n[Subcategory Model Accuracy: {accuracy_subcat}]\n')
         # save as Keras model for local instance
         self.subcategory_model.save('models/subcategory.model')
-        print('\n[Model saved to models/subcategory.model]\n')
+        log.debug('\n[Model saved to models/subcategory.model]\n')
 
-        print('\n[Training Action Model...]\n')
+        log.debug('\n[Training Action Model...]\n')
         self.action_callback = tf.keras.callbacks.EarlyStopping(
             monitor='loss', patience=3)
         self.action_model.compile(
@@ -211,12 +215,12 @@ class IntentRecognition:
             onehot[np.argmax(pred)] = 1
             ypreds_action_.append(onehot)
         accuracy_action = accuracy_score(ytest_action, ypreds_action_)
-        print(f'\n[Action Model Accuracy: {accuracy_action}]\n')
+        log.debug(f'\n[Action Model Accuracy: {accuracy_action}]\n')
         # save as Keras model for local instance
         self.action_model.save('models/action.model')
-        print('\n[Model saved to models/action.model]\n')
+        log.debug('\n[Model saved to models/action.model]\n')
 
-        print(
+        log.debug(
             f'\n[Category: {accuracy_cat}, Subcategory: {accuracy_subcat}, Action: {accuracy_action}]\n')
 
     def prompt(self, prompt):
@@ -236,7 +240,7 @@ class IntentRecognition:
         K.clear_session()
         response = '{"category" : "%s", "sub_category" : "%s", "action" : "%s"}' % (
             category, subcategory, action)
-        print(response)
+        log.debug(response)
         return response
 
     def prompt_ner_play(self, sentence):
@@ -259,13 +263,13 @@ class IntentRecognition:
         second = ''
         minute = ''
         reply = self.ner_timer(sentence)
-        # print(reply.ents)
+        # log.debug(reply.ents)
         for ent in reply.ents:
             if 'second' in ent.label_:
                 second += ent.text+' '
             elif 'minute' in ent.label_:
                 minute += ent.text+' '
-        # print(second, minute)
+        # log.debug(second, minute)
         try:
             if 'second' in second:
                 second = '1'  # user said 'a' second
@@ -275,10 +279,10 @@ class IntentRecognition:
                 second = w2n.word_to_num(second.strip())
             if not minute == '1' and not minute == '':
                 minute = w2n.word_to_num(minute.strip())
-            # print(second, minute)
+            # log.debug(second, minute)
 
         except:
-            print('\n[word2num error]\n')
+            log.debug('\n[word2num error]\n')
             second = second
             minute = minute
         response = '{"second" : "%s", "minute" : "%s"}' % (second, minute)
