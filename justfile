@@ -3,6 +3,10 @@ set dotenv-load
 
 # Run container, detaching (daemonize)
 run:
+    docker run -d --env-file .env -p 32032:32032 --name nlp_server nlp_server
+
+# Run container, detaching (daemonize) and removing container once stopped. Good for dev.
+run-rm:
     docker run -d --rm --env-file .env -p 32032:32032 --name nlp_server nlp_server
 
 # Run container, interactive mode
