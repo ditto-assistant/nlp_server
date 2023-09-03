@@ -1,4 +1,4 @@
-'''
+"""
 Named Entity Recognition model.
 
 author: Omar Barazanji
@@ -8,7 +8,7 @@ https://raw.githubusercontent.com/Skuldur/virtual-assistant-tutorial/master/comm
 
 refs:
 https://towardsdatascience.com/train-ner-with-custom-training-data-using-spacy-525ce748fab7
-'''
+"""
 from __future__ import unicode_literals, print_function
 import json
 import re
@@ -31,90 +31,95 @@ EPOCHS = 50
 # def create_load_data():
 # load in and organize data
 if PLAY:
-    with open('data/play_commands.json') as f:
+    with open("data/play_commands.json") as f:
         json_data = json.load(f)
 if LIGHT:
-    with open('data/light_commands.json') as f:
+    with open("data/light_commands.json") as f:
         json_data = json.load(f)
 elif TIMER:
-    with open('data/timer_commands.json') as f:
+    with open("data/timer_commands.json") as f:
         json_data = json.load(f)
 elif NUM:
-    with open('data/numeric_commands.json') as f:
+    with open("data/numeric_commands.json") as f:
         json_data = json.load(f)
 
 sentences = []
 entities = []
 
-for ndx, data in enumerate(json_data['training_data']):
-
+for ndx, data in enumerate(json_data["training_data"]):
     if PLAY:
-        words = data['words']
-        labels = data['labels']
+        words = data["words"]
+        labels = data["labels"]
 
         ent_ndx = []
         for ndx, x in enumerate(labels):
-            if 'song' in x or 'artist' in x or 'playlist' in x:
-                if 'song' in x:
-                    tag = 'SONG'
+            if "song" in x or "artist" in x or "playlist" in x:
+                if "song" in x:
+                    tag = "SONG"
                     ent_ndx.append([ndx, x])
-                elif 'artist' in x:
-                    tag = 'ARTIST'
+                elif "artist" in x:
+                    tag = "ARTIST"
                     ent_ndx.append([ndx, x])
-                elif 'playlist' in x:
-                    tag = 'PLAYLIST'
+                elif "playlist" in x:
+                    tag = "PLAYLIST"
                     ent_ndx.append([ndx, x])
 
     if LIGHT:
-        words = data['words']
-        labels = data['labels']
+        words = data["words"]
+        labels = data["labels"]
 
         ent_ndx = []
         for ndx, x in enumerate(labels):
-            if 'lightname' in x:
-                tag = 'LIGHTNAME'
+            if "lightname" in x:
+                tag = "LIGHTNAME"
                 ent_ndx.append([ndx, x])
-            if 'brightness' in x:
-                tag = 'BRIGHTNESS'
+            if "brightness" in x:
+                tag = "BRIGHTNESS"
                 ent_ndx.append([ndx, x])
-            if 'color' in x:
-                tag = 'COLOR'
+            if "color" in x:
+                tag = "COLOR"
                 ent_ndx.append([ndx, x])
-            if 'command' in x:
-                tag = 'COMMAND'
+            if "command" in x:
+                tag = "COMMAND"
                 ent_ndx.append([ndx, x])
 
     elif TIMER:
-        words = data['words']
-        labels = data['labels']
+        words = data["words"]
+        labels = data["labels"]
 
         ent_ndx = []
         for ndx, x in enumerate(labels):
-            if 'second' in x or 'minute' in x:
-                if 'second' in x:
-                    tag = 'SECOND'
+            if "second" in x or "minute" in x:
+                if "second" in x:
+                    tag = "SECOND"
                     ent_ndx.append([ndx, x])
-                elif 'minute' in x:
-                    tag = 'MINUTE'
+                elif "minute" in x:
+                    tag = "MINUTE"
                     ent_ndx.append([ndx, x])
 
     elif NUM:
-        words = data['words']
-        labels = data['labels']
+        words = data["words"]
+        labels = data["labels"]
 
         ent_ndx = []
         for ndx, x in enumerate(labels):
-            if 'numeric' in x:
-                tag = 'NUMERIC'
+            if "numeric" in x:
+                tag = "NUMERIC"
                 ent_ndx.append([ndx, x])
-            if 'entity' in x:
-                tag = 'ENTITY'
+            if "entity" in x:
+                tag = "ENTITY"
                 ent_ndx.append([ndx, x])
 
-    sentence = ''
+    sentence = ""
     for x in words:
-        sentence += x+" "
-    if '(' in sentence or ')' in sentence or '+' in sentence or '?' in sentence or '[' in sentence:
+        sentence += x + " "
+    if (
+        "(" in sentence
+        or ")" in sentence
+        or "+" in sentence
+        or "?" in sentence
+        or "[" in sentence
+    ):
         continue
 
     ent = []
@@ -142,7 +147,7 @@ TRAIN_DATA = []
 
 for sent, ent in zip(sentences, entities):
     ent_dict = dict()
-    ent_dict['entities'] = ent
+    ent_dict["entities"] = ent
     TRAIN_DATA.append((sent, ent_dict))
 
 # training time!
@@ -160,22 +165,22 @@ if model is not None:
     nlp = spacy.load(model)
     print("Loaded model '%s'" % model)
 else:
-    nlp = spacy.blank('en')
+    nlp = spacy.blank("en")
     print("Created blank 'en' model")
 
 # set up the pipeline
 
-if 'ner' not in nlp.pipe_names:
-    ner = nlp.add_pipe('ner')
+if "ner" not in nlp.pipe_names:
+    ner = nlp.add_pipe("ner")
     # nlp.add_pipe(ner, last=True)
 else:
-    ner = nlp.get_pipe('ner')
+    ner = nlp.get_pipe("ner")
 
 for _, annotations in TRAIN_DATA:
-    for ent in annotations.get('entities'):
+    for ent in annotations.get("entities"):
         ner.add_label(ent[2])
 
-other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
+other_pipes = [pipe for pipe in nlp.pipe_names if pipe != "ner"]
 with nlp.disable_pipes(*other_pipes):  # only train NER
     optimizer = nlp.begin_training()
     for itn in range(EPOCHS):
@@ -184,11 +189,7 @@ with nlp.disable_pipes(*other_pipes):  # only train NER
         for text, annotations in tqdm(TRAIN_DATA):
             doc = nlp.make_doc(text)
             example = Example.from_dict(doc, annotations)
-            nlp.update(
-                [example],
-                drop=0.5,
-                sgd=optimizer,
-                losses=losses)
+            nlp.update([example], drop=0.5, sgd=optimizer, losses=losses)
         print(losses)
 
 if output_dir is not None:
