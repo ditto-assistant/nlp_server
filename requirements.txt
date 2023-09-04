@@ -18,3 +18,5 @@ typing-inspect==0.8.0
 typing-extensions==4.5.0
 chromadb==0.3.26
 openai
+requests
+cloud-tpu-client

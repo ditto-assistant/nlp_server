@@ -1,10 +1,28 @@
 # uncomment to load .env file
-# set dotenv-load
+set dotenv-load
 
-# run server
+# Run container, detaching (daemonize)
 run:
-    (source ../ditto/bin/activate; python main.py)
+    docker run -d --env-file .env -p 32032:32032 --name nlp_server nlp_server
 
-# create venv and install requirements
-install:
-    (cd ..; python -m venv ditto; source ditto/bin/activate; cd nlp_server; pip install -r requirements.txt)
+# Run container, detaching (daemonize) and removing container once stopped. Good for dev.
+run-rm:
+    docker run -d --rm --env-file .env -p 32032:32032 --name nlp_server nlp_server
+
+# Run container, interactive mode
+run-it:
+    docker run --env-file .env -it -p 32032:32032 --name nlp_server nlp_server
+
+logs:
+    docker logs -f nlp_server
+
+stop:
+    docker stop nlp_server
+
+# Run without the container
+rundev:
+    python main.py
+
+# Build the docker image
+build:
+    docker build -t nlp_server .
