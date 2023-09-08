@@ -6,7 +6,7 @@ from flask_cors import CORS
 import logging
 
 log = logging.getLogger("server")
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # load intent model
 from intent import IntentRecognition
@@ -37,13 +37,13 @@ def prompt():
         if request.method == "POST":
             # Request to send prompt to ditto
             if "prompt" in requests:
-                log.debug("\nsending prompt to ditto memory langchain agent\n")
+                log.info("\nsending prompt to ditto memory langchain agent\n")
                 prompt = requests["prompt"]
                 response = ditto.prompt(prompt)
                 return response
 
             if "reset" in requests:
-                log.debug("\nresetting ditto langchain agent's memory\n")
+                log.info("\nresetting ditto langchain agent's memory\n")
                 ditto.reset_memory()
                 return '{"reset_conversation": "true"}'
 
@@ -63,7 +63,7 @@ def intent_handler():
         if request.method == "POST":
             # Request to send prompt to ditto
             if "prompt" in requests:
-                log.debug("\nsending prompt to intent model\n")
+                log.info("\nsending prompt to intent model\n")
                 prompt = requests["prompt"]
                 intent = intent_model.prompt(prompt)
                 return intent
@@ -86,26 +86,26 @@ def ner_handler():
     try:
         if request.method == "POST":
             if "ner-timer" in requests:
-                log.debug("\nsending request to ner-timer\n")
+                log.info("\nsending request to ner-timer\n")
                 prompt = requests["ner-timer"]
                 ner_response = intent_model.prompt_ner_timer(prompt)
 
             elif "ner-light" in requests:
-                log.debug("\nsending request to ner_light\n")
+                log.info("\nsending request to ner_light\n")
                 prompt = requests["ner-light"]
                 ner_response = intent_model.prompt_ner_light(prompt)
 
             elif "ner-numeric" in requests:
-                log.debug("\nsending request to ner_numeric\n")
+                log.info("\nsending request to ner_numeric\n")
                 prompt = requests["ner-numeric"]
                 ner_response = intent_model.prompt_ner_numeric(prompt)
 
             elif "ner-play" in requests:
-                log.debug("\nsending request to ner_play\n")
+                log.info("\nsending request to ner_play\n")
                 prompt = requests["ner-play"]
                 ner_response = intent_model.prompt_ner_play(prompt)
 
-            log.debug(ner_response)
+            log.info(ner_response)
             return ner_response
 
         else:

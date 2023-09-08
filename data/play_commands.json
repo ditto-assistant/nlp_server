@@ -11,6 +11,216 @@
     "training_data": [
         {
             "words": [
+                "start",
+                "playing",
+                "some",
+                "rock",
+                "classics"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "put",
+                "on",
+                "the",
+                "top",
+                "40",
+                "hits"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "shuffle",
+                "some",
+                "chill",
+                "indie",
+                "songs"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "some",
+                "classic",
+                "jazz",
+                "tunes"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "let's",
+                "enjoy",
+                "the",
+                "best",
+                "of",
+                "pop",
+                "music"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "start",
+                "playing",
+                "some",
+                "hip-hop",
+                "classics"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "put",
+                "on",
+                "your",
+                "favorite",
+                "country",
+                "playlist"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "shuffle",
+                "the",
+                "greatest",
+                "hits",
+                "of",
+                "the",
+                "80s"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "some",
+                "chill",
+                "electronic",
+                "beats"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "let's",
+                "listen",
+                "to",
+                "the",
+                "best",
+                "indie",
+                "rock",
+                "anthems"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "Can",
+                "I",
+                "hear",
+                "some",
+                "bossa",
+                "nova"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "some",
+                "bossa",
+                "nova"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
                 "play",
                 "don't",
                 "pan",
@@ -179,7 +389,6 @@
                 "I-playlist",
                 "I-playlist",
                 "O"
-
             ]
         },
         {
@@ -194,7 +403,6 @@
                 "O",
                 "B-playlist",
                 "O"
-
             ]
         },
         {
@@ -497,6 +705,162 @@
                 "B-playlist",
                 "I-playlist",
                 "O"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "Lo-Fi",
+                "Hip",
+                "Hop",
+                "music"
+            ],
+            "labels": [
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "start",
+                "a",
+                "chill",
+                "jazz",
+                "radio",
+                "station"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "I-playlist",
+                "I-playlist",
+                "O",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "shuffle",
+                "classical",
+                "compositions"
+            ],
+            "labels": [
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "some",
+                "acoustic",
+                "guitar",
+                "melodies"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "let's",
+                "listen",
+                "to",
+                "R&B",
+                "hits"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "ambient",
+                "sounds",
+                "playlist"
+            ],
+            "labels": [
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "start",
+                "some",
+                "indie",
+                "rock",
+                "music"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "give",
+                "me",
+                "some",
+                "folk",
+                "songs"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "on",
+                "the",
+                "soul",
+                "classics"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "some",
+                "mellow",
+                "electronic",
+                "beats"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "I-playlist"
             ]
         }
     ]

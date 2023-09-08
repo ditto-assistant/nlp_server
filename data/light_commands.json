@@ -1081,6 +1081,92 @@
                 "B-lightname",
                 "I-lightname"
             ]
+        },
+        {
+            "words": [
+                "turn",
+                "on",
+                "the",
+                "hallway",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "O",
+                "B-lightname",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "turn",
+                "off",
+                "the",
+                "hallway",
+                "lights"
+            ],
+            "labels": [
+                "O",
+                "B-command",
+                "O",
+                "B-lightname",
+                "I-lightname"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "hallway",
+                "lights",
+                "to",
+                "red"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "hallway",
+                "lights",
+                "to",
+                "green"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "hallway",
+                "lights",
+                "to",
+                "blue"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
         }
     ]
 }
