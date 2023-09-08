@@ -481,7 +481,11 @@ conv,none,exit,"thank you, that's enough"
 conv,none,exit,"Thank you Ditto, that's enough"
 vacuum,none,start,start the vacuum cleaner
 vacuum,none,start,begin vacuuming
+vacuum,none,start,start the vacuum
+vacuum,none,start,start the vacuum
 vacuum,none,start,commence cleaning
+vacuum,none,stop,stop the vacuum
+vacuum,none,stop,stop the vacuum
 vacuum,none,stop,stop the vacuum
 vacuum,none,stop,pause the cleaning
 vacuum,none,stop,halt the vacuum cleaner
@@ -495,6 +499,10 @@ vacuum,none,start,begin the vacuuming process
 vacuum,none,start,activate the vacuum cleaner
 vacuum,none,stop,terminate vacuuming
 vacuum,none,stop,cease cleaning
+vacuum,none,stop,cease cleaning
+vacuum,none,stop,cease cleaning
+vacuum,none,pause,pause the vacuum
+vacuum,none,pause,pause the vacuum
 vacuum,none,stop,end the cleaning session
 vacuum,none,pause,pause the vacuum cleaner
 vacuum,none,pause,temporarily halt cleaning
@@ -512,4 +520,8 @@ vacuum,none,pause,temporarily stop the vacuum
 vacuum,none,resume,continue the cleanup
 vacuum,none,resume,proceed with vacuuming
 vacuum,none,resume,carry on with cleaning
-vacuum,none,resume,restart vacuum operation
+vacuum,none,resume,resume vacuum
+vacuum,none,resume,resume vacuum
+vacuum,none,resume,resume vacuum
+vacuum,none,resume,resume vacuuming
+vacuum,none,resume,continue vacuuming
