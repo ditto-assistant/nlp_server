@@ -380,4 +380,4 @@ class IntentRecognition:
 
 
 if __name__ == "__main__":
-    intent = IntentRecognition(train=False)
+    intent = IntentRecognition(train=True)
