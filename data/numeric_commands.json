@@ -6,7 +6,7 @@
         "B-numeric"
     ],
     "training_data": [
-        { 
+        {
             "words": [
                 "set",
                 "the",
@@ -198,6 +198,170 @@
             "labels": [
                 "B-entity",
                 "O",
+                "O",
+                "B-numeric"
+            ]
+        },
+        {
+            "words": [
+                "adjust",
+                "the",
+                "volume",
+                "to",
+                "50",
+                "percent"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric",
+                "I-numeric"
+            ]
+        },
+        {
+            "words": [
+                "increase",
+                "the",
+                "volume",
+                "to",
+                "75",
+                "percent"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric",
+                "I-numeric"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "volume",
+                "to",
+                "level",
+                "8"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-entity",
+                "O",
+                "O",
+                "B-numeric"
+            ]
+        },
+        {
+            "words": [
+                "adjust",
+                "volume",
+                "to",
+                "twenty"
+            ],
+            "labels": [
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric"
+            ]
+        },
+        {
+            "words": [
+                "increase",
+                "volume",
+                "to",
+                "5",
+                "dB"
+            ],
+            "labels": [
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric",
+                "I-numeric"
+            ]
+        },
+        {
+            "words": [
+                "lower",
+                "the",
+                "volume",
+                "to",
+                "3",
+                "decibels"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric",
+                "I-numeric"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "volume",
+                "to",
+                "10"
+            ],
+            "labels": [
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric"
+            ]
+        },
+        {
+            "words": [
+                "adjust",
+                "the",
+                "volume",
+                "to",
+                "70",
+                "percent"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-entity",
+                "O",
+                "B-numeric",
+                "I-numeric"
+            ]
+        },
+        {
+            "words": [
+                "increase",
+                "volume",
+                "to",
+                "level",
+                "6"
+            ],
+            "labels": [
+                "O",
+                "B-entity",
+                "O",
+                "O",
+                "B-numeric"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "volume",
+                "to",
+                "45"
+            ],
+            "labels": [
+                "O",
+                "B-entity",
                 "O",
                 "B-numeric"
             ]

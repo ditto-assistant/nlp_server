@@ -20,7 +20,8 @@
     "ner":[
       "B-entity",
       "B-numeric",
-      "I-entity"
+      "I-entity",
+      "I-numeric"
     ]
   },
   "pipeline":[
