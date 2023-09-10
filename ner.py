@@ -21,10 +21,10 @@ from spacy.training.example import Example
 from tqdm import tqdm
 
 # which model to create
-PLAY = 1
+PLAY = 0
 LIGHT = 0
 TIMER = 0
-NUM = 0
+NUM = 1
 
 EPOCHS = 100
 
