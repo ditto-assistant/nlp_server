@@ -481,3 +481,65 @@ vacuum,none,resume,resume vacuum
 vacuum,none,resume,resume vacuum
 vacuum,none,resume,resume vacuuming
 vacuum,none,resume,continue vacuuming
+volume,none,none,set the volume to maximum
+volume,none,none,turn the volume up to 100%
+volume,none,none,raise the volume to full
+volume,none,none,max out the volume
+volume,none,none,increase the volume to the max
+volume,none,none,crank up the volume to 100%
+volume,none,none,adjust volume to 100%
+volume,none,none,set volume level to 100%
+volume,none,none,make it 100% volume
+volume,none,none,set the volume to 75%
+volume,none,none,turn up the volume to 75%
+volume,none,none,raise the volume to three-quarters
+volume,none,none,adjust volume to 75%
+volume,none,none,set the volume to half
+volume,none,none,turn the volume up to 50%
+volume,none,none,raise the volume to 50%
+volume,none,none,set volume level to 50%
+volume,none,none,make it 50% volume
+volume,none,none,set the volume to 25%
+volume,none,none,turn down the volume to 25%
+volume,none,none,lower the volume to one-quarter
+volume,none,none,adjust volume to 25%
+volume,none,none,set the volume to minimum
+volume,none,none,reduce the volume to 10%
+volume,none,none,lower the sound to 10%
+volume,none,none,decrease the volume to ten percent
+volume,none,none,adjust volume to 10%
+volume,none,none,turn the volume down to 5%
+volume,none,none,lower the volume to five percent
+volume,none,none,decrease the sound to 5%
+volume,none,none,adjust volume to 5%
+volume,none,none,set the volume to maximum
+volume,none,none,turn the volume up to 100%
+volume,none,none,raise the volume to full
+volume,none,none,max out the volume
+volume,none,none,increase the volume to the max
+volume,none,none,crank up the volume to 100%
+volume,none,none,adjust volume to 100%
+volume,none,none,set volume level to 100%
+volume,none,none,make it 100% volume
+volume,none,none,set the volume to 75%
+volume,none,none,turn up the volume to 75%
+volume,none,none,raise the volume to three-quarters
+volume,none,none,adjust volume to 75%
+volume,none,none,set the volume to half
+volume,none,none,turn the volume up to 50%
+volume,none,none,raise the volume to 50%
+volume,none,none,set volume level to 50%
+volume,none,none,make it 50% volume
+volume,none,none,set the volume to 23
+volume,none,none,turn up the volume to 25
+volume,none,none,lower the volume to one-quarter
+volume,none,none,adjust volume to 25%
+volume,none,none,set the volume to minimum
+volume,none,none,reduce the volume to 10%
+volume,none,none,lower the sound to 10%
+volume,none,none,decrease the volume to ten percent
+volume,none,none,adjust volume to 10%
+volume,none,none,turn the volume down to 5%
+volume,none,none,lower the volume to 40
+volume,none,none,increase the sound to 50
+volume,none,none,adjust volume to 5
