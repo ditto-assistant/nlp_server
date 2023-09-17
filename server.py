@@ -75,30 +75,30 @@ def intent_handler():
 
 
 # making requests to a NER model
-@app.route("/ner/", methods=["POST"])
-def ner_handler():
+@app.route("/ner/<entity_id>", methods=["POST"])
+def ner_handler(entity_id: str):
     requests = request.args
+    if "prompt" not in requests:
+        return ErrMissingArg("prompt")
+    prompt = requests["prompt"]
     ner_response = '{"response:" "None"}'
     try:
-        if "ner-timer" in requests:
-            log.info("sending request to ner-timer")
-            prompt = requests["ner-timer"]
-            ner_response = intent_model.prompt_ner_timer(prompt)
+        match entity_id:
+            case "timer":
+                log.info("sending request to ner-timer")
+                ner_response = intent_model.prompt_ner_timer(prompt)
 
-        elif "ner-light" in requests:
-            log.info("sending request to ner_light")
-            prompt = requests["ner-light"]
-            ner_response = intent_model.prompt_ner_light(prompt)
+            case "light":
+                log.info("sending request to ner_light")
+                ner_response = intent_model.prompt_ner_light(prompt)
 
-        elif "ner-numeric" in requests:
-            log.info("sending request to ner_numeric")
-            prompt = requests["ner-numeric"]
-            ner_response = intent_model.prompt_ner_numeric(prompt)
+            case "numeric":
+                log.info("sending request to ner_numeric")
+                ner_response = intent_model.prompt_ner_numeric(prompt)
 
-        elif "ner-play" in requests:
-            log.info("sending request to ner_play")
-            prompt = requests["ner-play"]
-            ner_response = intent_model.prompt_ner_play(prompt)
+            case "play":
+                log.info("sending request to ner_play")
+                ner_response = intent_model.prompt_ner_play(prompt)
 
         log.info(ner_response)
         return ner_response
