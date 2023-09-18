@@ -58,7 +58,7 @@ def reset_memory(user_id: str):
 
 
 # Makes requests to the intent model
-@app.route("/intent/", methods=["POST"])
+@app.route("/intent", methods=["POST"])
 def intent_handler():
     requests = request.args
     try:
@@ -68,6 +68,8 @@ def intent_handler():
             prompt = requests["prompt"]
             intent = intent_model.prompt(prompt)
             return intent
+        else:
+            return ErrMissingArg("prompt")
 
     except BaseException as e:
         log.error(e)
