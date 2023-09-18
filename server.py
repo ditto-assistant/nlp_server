@@ -32,13 +32,12 @@ elif platform.system() == "Darwin":
 def prompt(user_id: str):
     requests = request.args
     try:
-        if "prompt" in requests:
-            log.info("sending prompt to ditto memory langchain agent")
-            prompt = requests["prompt"]
-            response = ditto.prompt(prompt, user_id)
-            return response
-        else:
+        if "prompt" not in requests:
             return ErrMissingArg("prompt")
+        prompt = requests["prompt"]
+        log.info(f"sending user: {user_id} prompt to ditto: {prompt}")
+        response = ditto.prompt(prompt, user_id)
+        return response
 
     except BaseException as e:
         log.error(e)
@@ -48,7 +47,7 @@ def prompt(user_id: str):
 @app.route("/users/<user_id>/reset_memory", methods=["POST"])
 def reset_memory(user_id: str):
     try:
-        log.info("resetting ditto langchain agent's memory")
+        log.info(f"resetting ditto langchain agent's memory for user: {user_id}")
         ditto.reset_memory(user_id)
         return '{"action": "reset_memory", "status": "ok"}'
 
@@ -63,13 +62,12 @@ def intent_handler():
     requests = request.args
     try:
         # Request to send prompt to ditto
-        if "prompt" in requests:
-            log.info("sending prompt to intent model")
-            prompt = requests["prompt"]
-            intent = intent_model.prompt(prompt)
-            return intent
-        else:
+        if "prompt" not in requests:
             return ErrMissingArg("prompt")
+        prompt = requests["prompt"]
+        log.info(f"sending prompt to intent model: {prompt}")
+        intent = intent_model.prompt(prompt)
+        return intent
 
     except BaseException as e:
         log.error(e)
