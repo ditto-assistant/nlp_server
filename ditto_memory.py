@@ -13,7 +13,7 @@ from langchain.vectorstores import FAISS
 import logging
 
 log = logging.getLogger("ditto_memory")
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 TEMPLATE = """The following is a conversation between an AI named Ditto and a human that are best friends. Ditto is helpful and answers factual questions correctly but maintains a friendly relationship with the human.
 
@@ -37,7 +37,7 @@ class DittoMemory:
         mem_file = f"{mem_dir}/ditto_memory.pkl"
         if not os.path.exists(mem_dir):
             os.makedirs(mem_dir)
-            log.debug(f"Created memory directory for {user_id}")
+            log.info(f"Created memory directory for {user_id}")
         if not os.path.exists(mem_file) or reset:
             embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
             index = faiss.IndexFlatL2(embedding_size)
@@ -54,10 +54,10 @@ class DittoMemory:
                 {"output": "Me too!"},
             )
             pickle.dump(self.memory[user_id], open(mem_file, "wb"))
-            log.debug(f"Created memory file for {user_id}")
+            log.info(f"Created memory file for {user_id}")
         else:
             self.memory[user_id] = pickle.load(open(mem_file, "rb"))
-            log.debug(f"Loaded memory file for {user_id}")
+            log.info(f"Loaded memory file for {user_id}")
 
     def save_new_memory(self, prompt, response, user_id="ditto"):
         self.__create_load_memory(user_id=user_id)
@@ -65,11 +65,11 @@ class DittoMemory:
         mem_file = f"{mem_dir}/ditto_memory.pkl"
         self.memory[user_id].save_context({"input": prompt}, {"output": response})
         pickle.dump(self.memory[user_id], open(mem_file, "wb"))
-        log.debug(f"Saved new memory for {user_id}")
+        log.info(f"Saved new memory for {user_id}")
 
     def reset_memory(self, user_id="ditto"):
         self.__create_load_memory(reset=True, user_id=user_id)
-        log.debug(f"Reset memory for {user_id}")
+        log.info(f"Reset memory for {user_id}")
 
     def prompt(self, query, user_id="ditto"):
         self.__create_load_memory(user_id=user_id)
@@ -89,7 +89,7 @@ class DittoMemory:
         )
         res = conversation_with_memory.predict(input=query)
         self.save_new_memory(mem_query, res, user_id)
-        log.debug(f"Handled prompt for {user_id}")
+        log.info(f"Handled prompt for {user_id}")
         return res
 
 
