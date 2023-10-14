@@ -35,7 +35,7 @@ def prompt(user_id: str):
         if "prompt" not in requests:
             return ErrMissingArg("prompt")
         prompt = requests["prompt"]
-        log.info(f"sending user: {user_id} prompt to ditto: {prompt}")
+        log.info(f"sending user: {user_id} prompt to memory agent: {prompt.split('<STMEM>')[-1]}")
         response = ditto.prompt(prompt, user_id)
         return response
 
