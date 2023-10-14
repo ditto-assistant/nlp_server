@@ -27,7 +27,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 log = logging.getLogger("intent")
 logging.basicConfig(level=logging.DEBUG)
 
-TRAIN = False
+TRAIN = True
 
 
 class IntentRecognition:

@@ -14,7 +14,7 @@ from intent import IntentRecognition
 intent_model = IntentRecognition(train=False)
 
 # load ditto memory langchain agent
-log.info("\n[Loading Ditto Memory...]\n")
+log.info("[Loading Ditto Memory...]")
 ditto = DittoMemory()
 
 app = Flask(__name__)
@@ -26,94 +26,86 @@ if platform.system() == "Linux":
 elif platform.system() == "Darwin":
     OS = "Darwin"
 
-# making requests to the intent model
 
-
-@app.route("/prompt/", methods=["POST"])
-def prompt():
+# Makes requests to the ditto memory langchain agent
+@app.route("/users/<user_id>/prompt", methods=["POST"])
+def prompt(user_id: str):
     requests = request.args
-
     try:
-        if request.method == "POST":
-            # Request to send prompt to ditto
-            if "prompt" in requests:
-                log.info("\nsending prompt to ditto memory langchain agent\n")
-                prompt = requests["prompt"]
-                response = ditto.prompt(prompt)
-                return response
-
-            if "reset" in requests:
-                log.info("\nresetting ditto langchain agent's memory\n")
-                ditto.reset_memory()
-                return '{"reset_conversation": "true"}'
-
-        else:
-            return '{"error": "invalid request"}'
+        if "prompt" not in requests:
+            return ErrMissingArg("prompt")
+        prompt = requests["prompt"]
+        log.info(f"sending user: {user_id} prompt to ditto: {prompt}")
+        response = ditto.prompt(prompt, user_id)
+        return response
 
     except BaseException as e:
         log.error(e)
-        return '{"error": "%s"}' % str(e)
+        return ErrException(e)
 
 
-@app.route("/intent/", methods=["POST"])
+@app.route("/users/<user_id>/reset_memory", methods=["POST"])
+def reset_memory(user_id: str):
+    try:
+        log.info(f"resetting ditto langchain agent's memory for user: {user_id}")
+        ditto.reset_memory(user_id)
+        return '{"action": "reset_memory", "status": "ok"}'
+
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+
+# Makes requests to the intent model
+@app.route("/intent", methods=["POST"])
 def intent_handler():
     requests = request.args
-
     try:
-        if request.method == "POST":
-            # Request to send prompt to ditto
-            if "prompt" in requests:
-                log.info("\nsending prompt to intent model\n")
-                prompt = requests["prompt"]
-                intent = intent_model.prompt(prompt)
-                return intent
-
-        else:
-            return '{"error": "invalid request"}'
+        # Request to send prompt to ditto
+        if "prompt" not in requests:
+            return ErrMissingArg("prompt")
+        prompt = requests["prompt"]
+        log.info(f"sending prompt to intent model: {prompt}")
+        intent = intent_model.prompt(prompt)
+        return intent
 
     except BaseException as e:
         log.error(e)
-        return '{"error": "%s"}' % str(e)
+        return ErrException(e)
 
 
 # making requests to a NER model
-
-
-@app.route("/ner/", methods=["POST"])
-def ner_handler():
+@app.route("/ner/<entity_id>", methods=["POST"])
+def ner_handler(entity_id: str):
     requests = request.args
+    if "prompt" not in requests:
+        return ErrMissingArg("prompt")
+    prompt = requests["prompt"]
     ner_response = '{"response:" "None"}'
     try:
-        if request.method == "POST":
-            if "ner-timer" in requests:
-                log.info("\nsending request to ner-timer\n")
-                prompt = requests["ner-timer"]
+        match entity_id:
+            case "timer":
+                log.info("sending request to ner-timer")
                 ner_response = intent_model.prompt_ner_timer(prompt)
 
-            elif "ner-light" in requests:
-                log.info("\nsending request to ner_light\n")
-                prompt = requests["ner-light"]
+            case "light":
+                log.info("sending request to ner_light")
                 ner_response = intent_model.prompt_ner_light(prompt)
 
-            elif "ner-numeric" in requests:
-                log.info("\nsending request to ner_numeric\n")
-                prompt = requests["ner-numeric"]
+            case "numeric":
+                log.info("sending request to ner_numeric")
                 ner_response = intent_model.prompt_ner_numeric(prompt)
 
-            elif "ner-play" in requests:
-                log.info("\nsending request to ner_play\n")
-                prompt = requests["ner-play"]
+            case "play":
+                log.info("sending request to ner_play")
                 ner_response = intent_model.prompt_ner_play(prompt)
 
-            log.info(ner_response)
-            return ner_response
-
-        else:
-            return '{"error": "invalid request"}'
+        log.info(ner_response)
+        return ner_response
 
     except BaseException as e:
         log.error(e)
-        return '{"error": "%s"}' % str(e)
+        return ErrException(e)
 
 
 @app.route("/status", methods=["GET"])
@@ -129,3 +121,15 @@ class Server:
 if __name__ == "__main__":
     server = Server()
     # app.run(port='32032', host='0.0.0.0')
+
+
+# def ErrWrongMethod(method: str, should_be="POST"):
+#     return '{"error": "request method is %s but should be %s"}' % method, should_be
+
+
+def ErrMissingArg(arg: str):
+    return '{"error": "missing argument %s"}' % arg
+
+
+def ErrException(e: BaseException):
+    return '{"error": "%s"}' % e
