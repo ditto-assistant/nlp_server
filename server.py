@@ -5,21 +5,32 @@ from flask import request
 from flask_cors import CORS
 import logging
 
+# set up logging for server
 log = logging.getLogger("server")
 logging.basicConfig(level=logging.INFO)
 
 # load intent model
 from intent import IntentRecognition
 
+# import short term memory store
+from ditto_stmem import ShortTermMemoryStore
+
+# load intent model
 intent_model = IntentRecognition(train=False)
 
 # load ditto memory langchain agent
 log.info("[Loading Ditto Memory...]")
 ditto = DittoMemory()
 
+# load ditto short term memory store
+log.info("[Loading Ditto Short Term Memory Store...]")
+ditto_stmem = ShortTermMemoryStore()
+
+# set Flask app and enable CORS
 app = Flask(__name__)
 CORS(app)
 
+# set OS variable
 OS = "Windows"
 if platform.system() == "Linux":
     OS = "Linux"
@@ -35,8 +46,16 @@ def prompt(user_id: str):
         if "prompt" not in requests:
             return ErrMissingArg("prompt")
         prompt = requests["prompt"]
-        log.info(f"sending user: {user_id} prompt to memory agent: {prompt.split('<STMEM>')[-1]}")
-        response = ditto.prompt(prompt, user_id)
+
+        # add short term memory to prompt
+        prompt_with_stmem = ditto_stmem.get_prompt_with_stmem(user_id, prompt)
+
+        log.info(f"sending user: {user_id} prompt to memory agent: {prompt}")
+        response = ditto.prompt(prompt_with_stmem, user_id)
+
+        # save response to short term memory
+        ditto_stmem.save_response_to_stmem(user_id, prompt, response)
+
         return response
 
     except BaseException as e:
@@ -47,8 +66,9 @@ def prompt(user_id: str):
 @app.route("/users/<user_id>/reset_memory", methods=["POST"])
 def reset_memory(user_id: str):
     try:
-        log.info(f"resetting ditto langchain agent's memory for user: {user_id}")
+        log.info(f"resetting ditto's long and short-term memory for user: {user_id}")
         ditto.reset_memory(user_id)
+        ditto_stmem.reset_stmem(user_id)
         return '{"action": "reset_memory", "status": "ok"}'
 
     except BaseException as e:
