@@ -1,3 +1,5 @@
+import json
+import requests as requests_lib
 from ditto_memory import DittoMemory
 import platform
 from flask import Flask
@@ -15,6 +17,14 @@ from intent import IntentRecognition
 # import short term memory store
 from ditto_stmem import ShortTermMemoryStore
 
+# import ditto database handler
+from database.db import DittoDB
+
+import os
+
+DITTO_UNIT_IP = os.environ.get("DITTO_UNIT_IP", "localhost")
+DITTO_UNIT_PORT = os.environ.get("DITTO_UNIT_PORT", "42032")
+
 # load intent model
 intent_model = IntentRecognition(train=False)
 
@@ -25,6 +35,10 @@ ditto = DittoMemory()
 # load ditto short term memory store
 log.info("[Loading Ditto Short Term Memory Store...]")
 ditto_stmem = ShortTermMemoryStore()
+
+# load ditto database handler
+log.info("[Loading Ditto Database Handler...]")
+ditto_db = DittoDB()
 
 # set Flask app and enable CORS
 app = Flask(__name__)
@@ -38,23 +52,56 @@ elif platform.system() == "Darwin":
     OS = "Darwin"
 
 
+def get_ditto_unit_on_bool():
+    try:
+        res = requests_lib.get(
+            f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto/?status=1",
+            timeout=30,
+        )
+        res = json.loads(str(res.content.decode().strip()))
+        status = res["status"]
+        # log.info(f"Ditto unit status: {status}")
+    except BaseException as e:
+        log.error(e)
+        # log.info("Ditto unit is off")
+        status = "off"
+    ditto_unit_off = True if status == "off" else False
+    ditto_unit_on = True if not ditto_unit_off else False
+    return ditto_unit_on
+
+def send_prompt_to_ditto_unit(prompt):
+    try:
+        requests_lib.post(
+            f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto/?prompt={prompt}",
+            timeout=30,
+        )
+        log.info(f"sent prompt to ditto unit: {prompt}")
+    except BaseException as e:
+        log.error(e)
+        log.info("Ditto unit is off")
+
+def send_prompt_to_llm(user_id, prompt):
+    # add short term memory to prompt
+    prompt_with_stmem = ditto_stmem.get_prompt_with_stmem(user_id, prompt)
+
+    log.info(f"sending user: {user_id} prompt to memory agent: {prompt}")
+    response = ditto.prompt(prompt_with_stmem, user_id)
+
+    # save response to short term memory
+    ditto_stmem.save_response_to_stmem(user_id, prompt, response)
+
+    return json.dumps({"response": response})
+
 # Makes requests to the ditto memory langchain agent
-@app.route("/users/<user_id>/prompt", methods=["POST"])
-def prompt(user_id: str):
+@app.route("/users/<user_id>/prompt_llm", methods=["POST", "GET"])
+def prompt_llm(user_id: str):
     requests = request.args
     try:
         if "prompt" not in requests:
             return ErrMissingArg("prompt")
         prompt = requests["prompt"]
 
-        # add short term memory to prompt
-        prompt_with_stmem = ditto_stmem.get_prompt_with_stmem(user_id, prompt)
-
-        log.info(f"sending user: {user_id} prompt to memory agent: {prompt}")
-        response = ditto.prompt(prompt_with_stmem, user_id)
-
-        # save response to short term memory
-        ditto_stmem.save_response_to_stmem(user_id, prompt, response)
+        response = send_prompt_to_llm(user_id, prompt)
 
         return response
 
@@ -62,18 +109,162 @@ def prompt(user_id: str):
         log.error(e)
         return ErrException(e)
 
+@app.route("/users/<user_id>/prompt_ditto", methods=["POST", "GET"])
+def prompt_ditto(user_id: str):
+    requests = request.args
+    try:
+        if "prompt" not in requests:
+            return ErrMissingArg("prompt")
+        
+        # get user's prompt from request
+        prompt = requests["prompt"]
 
-@app.route("/users/<user_id>/reset_memory", methods=["POST"])
+        # write prompt to database
+        ditto_db.write_prompt_to_db(user_id, prompt)
+
+        # check if ditto unit is on
+        ditto_unit_on = get_ditto_unit_on_bool()
+
+        # if ditto unit is on, send prompt to ditto unit
+        if ditto_unit_on:
+            # ditto unit will write prompt and response to database
+            send_prompt_to_ditto_unit(prompt)
+            return '{"response": "success"}'
+        else:
+            # ditto unit is off, send prompt to memory agent
+            response = send_prompt_to_llm(user_id, prompt)['response']
+
+            # write response to database
+            ditto_db.write_response_to_db(user_id, response)
+
+            return '{"response": "success"}'
+
+
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+@app.route("/users/<user_id>/reset_memory", methods=["POST", "GET"])
 def reset_memory(user_id: str):
     try:
         log.info(f"resetting ditto's long and short-term memory for user: {user_id}")
         ditto.reset_memory(user_id)
         ditto_stmem.reset_stmem(user_id)
+        log.info(f"resetting prompt and response history for user: {user_id}")
+        ditto_db.reset_conversation(user_id)
         return '{"action": "reset_memory", "status": "ok"}'
 
     except BaseException as e:
         log.error(e)
         return ErrException(e)
+
+# endpoint to mute ditto unit's mic
+@app.route("/users/<user_id>/mute_ditto_mic", methods=["POST", "GET"])
+def mute_ditto_mic(user_id: str):
+    try:
+        log.info(f"toggling ditto unit's mic for user: {user_id}")
+        res = requests_lib.post(
+            f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto/?toggleMic=1",
+            timeout=30,
+        )
+        return str(res.content.decode().strip())
+
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+@app.route("/users/<user_id>/write_prompt", methods=["POST", "GET"])
+def write_prompt(user_id: str):
+    requests = request.args
+    try:
+        if "prompt" not in requests:
+            return ErrMissingArg("prompt")
+        
+        # get user's prompt from request
+        prompt = requests["prompt"]      
+
+        log.info(f"saving ditto unit prompt to database.")
+
+        # save prompt to database
+        ditto_db.write_prompt_to_db(user_id, prompt)  
+
+        return '{"response": "success"}'
+
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+@app.route("/users/<user_id>/write_response", methods=["POST", "GET"])
+def write_response(user_id: str):
+    requests = request.args
+    try:
+        if "response" not in requests:
+            return ErrMissingArg("response")
+        
+        # get user's prompt from request
+        response = requests["response"]      
+
+        log.info(f"saving ditto unit response to database.")
+
+        # save prompt to database
+        ditto_db.write_response_to_db(user_id, response)  
+
+        return '{"response": "success"}'
+
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+@app.route("/users/<user_id>/get_prompt_response_count", methods=["GET"])
+def get_prompt_response_count(user_id: str):
+    try:
+        count = ditto_db.get_prompt_response_count(user_id)
+        return '{"historyCount": %d}' % count
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+@app.route("/users/<user_id>/get_conversation_history", methods=["GET"])
+def get_conversation_history(user_id: str):
+    try:
+        prompts, responses = ditto_db.get_conversation_history(user_id)
+        return '{"prompts": %s, "responses": %s}' % (prompts, responses)
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+    
+# endpoint to get ditto unit status
+@app.route("/users/<user_id>/get_ditto_unit_status", methods=["GET"])
+def get_ditto_unit_status(user_id: str):    
+    try:
+        ditto_unit_on = get_ditto_unit_on_bool()
+        status = "on" if ditto_unit_on else "off"
+        return '{"status": "%s"}' % status
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+# endpoint to get ditto unit's mic status
+@app.route("/users/<user_id>/get_ditto_mic_status", methods=["GET"])
+def get_ditto_mic_status(user_id: str):
+    try:
+        ditto_unit_on = get_ditto_unit_on_bool()
+        if ditto_unit_on:
+            res = requests_lib.get(
+                f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto?dittoMicStatus=1",
+                timeout=30,
+            )
+            res = json.loads(str(res.content.decode().strip()))
+            status = res["ditto_mic_status"]
+            # log.info(f"Ditto unit mic status: {status}")
+        else:
+            status = "off"
+            # log.info("Ditto unit is off")
+    except BaseException as e:
+        log.error(e)
+        # log.info("Ditto unit is off")
+        status = "off"
+    return '{"ditto_mic_status": "%s"}' % status
 
 
 # Makes requests to the intent model
