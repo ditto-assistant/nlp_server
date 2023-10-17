@@ -16,7 +16,7 @@ run-it:
 logs:
     docker logs -f nlp_server
 
-stop:
+stop: backup
     docker stop nlp_server
 
 # Run without the container
