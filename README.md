@@ -1,5 +1,5 @@
 # nlp_server
-NLP server housing intent and NER models as well as Langchain memory agent for Ditto assistant clients.
+NLP server housing intent and NER models as well as Langchain memory agent for Ditto [assistant](http://github.com/omarzanji/assistant) clients.
 
 ## Running Locally with Docker 
 1. Rename `.env.example` to `.env` and set `OPENAI_API_KEY`.
