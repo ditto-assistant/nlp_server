@@ -132,7 +132,7 @@ def prompt_ditto(user_id: str):
             return '{"response": "success"}'
         else:
             # ditto unit is off, send prompt to memory agent
-            response = json.loads(send_prompt_to_llm(user_id, prompt)['response'])
+            response = json.loads(send_prompt_to_llm(user_id, prompt))['response']
 
             # write response to database
             ditto_db.write_response_to_db(user_id, response)
