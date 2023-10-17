@@ -26,3 +26,8 @@ rundev:
 # Build the docker image
 build:
     docker build -t nlp_server .
+
+# Backup your vector store and convo db
+backup:
+    docker cp nlp_server:memory .
+    docker cp nlp_server:database .

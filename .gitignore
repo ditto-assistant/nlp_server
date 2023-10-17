@@ -2,4 +2,3 @@ chatbot/
 langchain/
 __pycache__
 .env
-memory/
