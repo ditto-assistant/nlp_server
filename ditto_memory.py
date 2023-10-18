@@ -12,24 +12,27 @@ from langchain.docstore import InMemoryDocstore
 from langchain.vectorstores import FAISS
 import logging
 
+# import google search agent
+from google_search_agent import GoogleSearchAgent
+
 log = logging.getLogger("ditto_memory")
 logging.basicConfig(level=logging.INFO)
 
-TEMPLATE = """The following is a conversation between an AI named Ditto and a human that are best friends. Ditto is helpful and answers factual questions correctly but maintains a friendly relationship with the human.
+from templates.llm_tools import LLM_TOOLS_TEMPLATE
+from templates.default import DEFAULT_TEMPLATE
 
-Relevant pieces from past memories with the user:
-{history}
-
-(You do not need to use these past memories if not relevant)
-
-Current conversation:
-{input}
-Ditto:"""
-
+# check is SERPER_API_KEY is set in os.environ
+if "SERPER_API_KEY" not in os.environ:
+    log.info("SERPER_API_KEY not set in os.environ... Loading default template")
+    TEMPLATE = DEFAULT_TEMPLATE
+else:
+    log.info("Found SERPER_API_KEY. Loading LLM Tools template")
+    TEMPLATE = LLM_TOOLS_TEMPLATE
 
 class DittoMemory:
     def __init__(self):
         self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+        self.google_search_agent = GoogleSearchAgent()
         self.memory = {}
 
     def __create_load_memory(self, reset=False, user_id="ditto"):
@@ -88,7 +91,17 @@ class DittoMemory:
             llm=self.llm, prompt=prompt, memory=self.memory[user_id], verbose=False
         )
         res = conversation_with_memory.predict(input=query)
-        self.save_new_memory(mem_query, res, user_id)
+
+        if "GOOGLE_SEARCH" in res:
+            log.info(f"Handling prompt for {user_id} with Google Search Agent")
+            res = res.split("GOOGLE_SEARCH")[-1].strip()
+            res = self.google_search_agent.handle_google_search(res)
+            res = res + '\n-LLM Tools: Google Search-' 
+            memory_res = 'Google Search Agent: ' + res
+        else:
+            memory_res = res
+
+        self.save_new_memory(mem_query, memory_res, user_id)
         log.info(f"Handled prompt for {user_id}")
         return res
 

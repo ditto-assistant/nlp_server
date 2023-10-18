@@ -15,8 +15,10 @@ COPY . ./
 HEALTHCHECK --start-period=10s --interval=1m --retries=3 \
     CMD python healthcheck.py
 
-# initialize default OPENAI_API_KEY to 'key'
+# initialize default API key values to 'key'
 ENV OPENAI_API_KEY=key
+ENV SERPER_API_KEY=key
+
 EXPOSE 32032
 CMD python main.py
 
