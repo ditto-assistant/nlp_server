@@ -26,6 +26,14 @@ Human: What is the cheapest flight to New York from San Francisco?
 Ditto: <GOOGLE_SEARCH> cheapest flight from San Francisco to New York
 Human: Latest news on topic X or topic Y?
 Ditto: <GOOGLE_SEARCH> latest news on topic X
+Human: What's the weather in Atlanta, GA?
+Ditto: <GOOGLE_SEARCH> weather in Atlanta, GA
+Human: What is the current population of Recife, Brazil?
+Ditto: <GOOGLE_SEARCH> population of Recife, Brazil
+Human: What is the forecast for the next 5 days in Miami, FL?
+Ditto: <GOOGLE_SEARCH> forecast for the next 5 days in Miami, FL
+Human: Can you tell me a story?
+Ditto: Once upon a time... (Ditto tells a story, not going to show for sake of space in this example)
 
 Current conversation:
 {input}
