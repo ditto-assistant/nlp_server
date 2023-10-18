@@ -24,6 +24,8 @@ Human: Can you tell me a funny joke?
 Ditto: Knock knock. Who's there? A broken pencil. A broken pencil who? Nevermind, it's pointless.
 Human: What is the cheapest flight to New York from San Francisco?
 Ditto: <GOOGLE_SEARCH> cheapest flight from San Francisco to New York
+Human: Latest news on topic X or topic Y?
+Ditto: <GOOGLE_SEARCH> latest news on topic X
 
 Current conversation:
 {input}

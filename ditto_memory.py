@@ -94,10 +94,11 @@ class DittoMemory:
 
         if "GOOGLE_SEARCH" in res:
             log.info(f"Handling prompt for {user_id} with Google Search Agent")
-            res = res.split("GOOGLE_SEARCH")[-1].strip()
+            ditto_command = '<GOOGLE_SEARCH>'
+            ditto_query = res.split("GOOGLE_SEARCH")[-1].strip()
             res = self.google_search_agent.handle_google_search(res)
             res = res + '\n-LLM Tools: Google Search-' 
-            memory_res = 'Google Search Agent: ' + res
+            memory_res = f'{ditto_command} {ditto_query} \nGoogle Search Agent: ' + res
         else:
             memory_res = res
 
