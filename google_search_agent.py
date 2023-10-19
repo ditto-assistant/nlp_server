@@ -9,15 +9,13 @@ from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.utilities import SerpAPIWrapper
 
-# load env
-from dotenv import load_dotenv
-load_dotenv()
-
 # import logger
 import logging
 
 log = logging.getLogger("google_search_agent")
 logging.basicConfig(level=logging.INFO)
+
+from fallback_agent import GoogleSearchFallbackAgent
 
 class GoogleSearchAgent():
 
@@ -38,13 +36,10 @@ class GoogleSearchAgent():
             )
         ]
 
-        
         self.agent = initialize_agent(
             tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=verbose)
-        
-        fallback_agent_tools = load_tools(["google-serper"], llm=llm)
-        self.fallback_agent = initialize_agent(
-            fallback_agent_tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION , verbose=verbose)
+
+        self.fallback = GoogleSearchFallbackAgent(verbose=verbose)        
 
     def handle_google_search(self, query):
         '''
@@ -54,9 +49,9 @@ class GoogleSearchAgent():
             response = self.agent.run(query)
         except Exception as e:
             log.info(f"Error running google search agent: {e}")
-            log.info(f"Running fallback agent: {e}")
+            log.info(f"Running fallback agent...")
             try:
-                response = self.fallback_agent.run(query)
+                response = self.fallback.fallback_agent.run(query)
             except Exception as e:
                 log.info(f"Error running fallback agent: {e}")
                 response = f"Error running google search agent: {e}"
@@ -67,6 +62,6 @@ class GoogleSearchAgent():
     
 if __name__ == "__main__":
     google_search_agent = GoogleSearchAgent(verbose=True)
-    query = "What's the weather in New York?"
+    query = "Whats the weather like in New York?"
     response = google_search_agent.handle_google_search(query)
     log.info(f"Response: {response}")
