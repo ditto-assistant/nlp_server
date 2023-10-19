@@ -77,13 +77,14 @@ class DittoMemory:
     def prompt(self, query, user_id="ditto"):
         self.__create_load_memory(user_id=user_id)
         stamp = str(datetime.utcfromtimestamp(time.time()))
+        if user_id=="ditto": user_id = "Human" # default to human if user_id is not provided
         if "<STMEM>" in query:
             raw_query = query.split("<STMEM>")[2]
-            mem_query = f"Timestamp: {stamp}\nHuman: {raw_query}"
+            mem_query = f"Timestamp: {stamp}\n{user_id}: {raw_query}"
             query = query.split("<STMEM>")[1] + "\nCurrent Prompt: " + mem_query
         else:
             # embed timestamps to query
-            query = f"Timestamp: {stamp}\nHuman: {query}"
+            query = f"Timestamp: {stamp}\n{user_id}: {query}"
             mem_query = query
 
         prompt = PromptTemplate(input_variables=["history", "input"], template=TEMPLATE)

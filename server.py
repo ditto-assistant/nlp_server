@@ -1,4 +1,5 @@
 import json
+import shutil
 import requests as requests_lib
 from ditto_memory import DittoMemory
 import platform
@@ -22,9 +23,6 @@ from database.db import DittoDB
 
 import os
 
-DITTO_UNIT_IP = os.environ.get("DITTO_UNIT_IP", "localhost")
-DITTO_UNIT_PORT = os.environ.get("DITTO_UNIT_PORT", "42032")
-
 # load intent model
 intent_model = IntentRecognition(train=False)
 
@@ -40,6 +38,7 @@ ditto_stmem = ShortTermMemoryStore()
 log.info("[Loading Ditto Database Handler...]")
 ditto_db = DittoDB()
 
+
 # set Flask app and enable CORS
 app = Flask(__name__)
 CORS(app)
@@ -51,11 +50,32 @@ if platform.system() == "Linux":
 elif platform.system() == "Darwin":
     OS = "Darwin"
 
+# load users.json and copy example_users.json if users.json does not exist
+USERS = None
+if not os.path.exists("users.json"):
+    log.info("users.json does not exist. Copying example_users.json...")
+    shutil.copyfile("example_users.json", "users.json")
+    log.info("Please fill out users.json with your user information and restart the server.")
+    exit()
+else: # load users.json
+    log.info("Loading users.json...")
+    with open("users.json") as f:
+        USERS = json.load(f)
+        log.info("users.json loaded.")
 
-def get_ditto_unit_on_bool():
+def get_user_obj(user_id):
+    for user in USERS["users"]:
+        if user["user_id"] == user_id:
+            return user
+    return None
+
+def get_ditto_unit_on_bool(user_id="ditto"):
     try:
+        user_obj = get_user_obj(user_id)
+        ditto_unit_ip = user_obj["ditto_unit_ip"]
+        ditto_unit_port = user_obj["ditto_unit_port"]
         res = requests_lib.get(
-            f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto/?status=1",
+            f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?status=1",
             timeout=30,
         )
         res = json.loads(str(res.content.decode().strip()))
@@ -69,10 +89,13 @@ def get_ditto_unit_on_bool():
     ditto_unit_on = True if not ditto_unit_off else False
     return ditto_unit_on
 
-def send_prompt_to_ditto_unit(prompt):
+def send_prompt_to_ditto_unit(user_id, prompt):
     try:
+        user_obj = get_user_obj(user_id)
+        ditto_unit_ip = user_obj["ditto_unit_ip"]
+        ditto_unit_port = user_obj["ditto_unit_port"]
         requests_lib.post(
-            f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto/?prompt={prompt}",
+            f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?prompt={prompt}",
             timeout=30,
         )
         log.info(f"sent prompt to ditto unit: {prompt}")
@@ -123,12 +146,12 @@ def prompt_ditto(user_id: str):
         ditto_db.write_prompt_to_db(user_id, prompt)
 
         # check if ditto unit is on
-        ditto_unit_on = get_ditto_unit_on_bool()
+        ditto_unit_on = get_ditto_unit_on_bool(user_id)
 
         # if ditto unit is on, send prompt to ditto unit
         if ditto_unit_on:
             # ditto unit will write prompt and response to database
-            send_prompt_to_ditto_unit(prompt)
+            send_prompt_to_ditto_unit(user_id, prompt)
             return '{"response": "success"}'
         else:
             # ditto unit is off, send prompt to memory agent
@@ -162,9 +185,12 @@ def reset_memory(user_id: str):
 @app.route("/users/<user_id>/mute_ditto_mic", methods=["POST", "GET"])
 def mute_ditto_mic(user_id: str):
     try:
+        user_obj = get_user_obj(user_id)
+        ditto_unit_ip = user_obj["ditto_unit_ip"]
+        ditto_unit_port = user_obj["ditto_unit_port"]
         log.info(f"toggling ditto unit's mic for user: {user_id}")
         res = requests_lib.post(
-            f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto/?toggleMic=1",
+            f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?toggleMic=1",
             timeout=30,
         )
         return str(res.content.decode().strip())
@@ -237,7 +263,7 @@ def get_conversation_history(user_id: str):
 @app.route("/users/<user_id>/get_ditto_unit_status", methods=["GET"])
 def get_ditto_unit_status(user_id: str):    
     try:
-        ditto_unit_on = get_ditto_unit_on_bool()
+        ditto_unit_on = get_ditto_unit_on_bool(user_id)
         status = "on" if ditto_unit_on else "off"
         return '{"status": "%s"}' % status
     except BaseException as e:
@@ -248,10 +274,13 @@ def get_ditto_unit_status(user_id: str):
 @app.route("/users/<user_id>/get_ditto_mic_status", methods=["GET"])
 def get_ditto_mic_status(user_id: str):
     try:
-        ditto_unit_on = get_ditto_unit_on_bool()
+        user_obj = get_user_obj(user_id)
+        ditto_unit_ip = user_obj["ditto_unit_ip"]
+        ditto_unit_port = user_obj["ditto_unit_port"]
+        ditto_unit_on = get_ditto_unit_on_bool(user_id)
         if ditto_unit_on:
             res = requests_lib.get(
-                f"http://{DITTO_UNIT_IP}:{DITTO_UNIT_PORT}/ditto?dittoMicStatus=1",
+                f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto?dittoMicStatus=1",
                 timeout=30,
             )
             res = json.loads(str(res.content.decode().strip()))

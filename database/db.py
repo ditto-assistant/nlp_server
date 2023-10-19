@@ -24,24 +24,22 @@ class DittoDB:
         param user_id: The user's id.
         return: The number of prompts and responses in the user's database.
         """
-        SQL = sqlite3.connect(self.get_user_db_path(user_id))
-        cur = SQL.cursor()
-        prompt_count = cur.execute("SELECT COUNT(*) FROM prompts").fetchone()[0]
-        response_count = cur.execute("SELECT COUNT(*) FROM responses").fetchone()[0]
-        SQL.close()
+        try:
+            SQL = sqlite3.connect(self.get_user_db_path(user_id))
+            cur = SQL.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
+            SQL.commit()
+            cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
+            SQL.commit()
+            prompt_count = cur.execute("SELECT COUNT(*) FROM prompts").fetchone()[0]
+            response_count = cur.execute("SELECT COUNT(*) FROM responses").fetchone()[0]
+            SQL.close()
+        except Exception as e:
+            prompt_count = 0
+            response_count = 0
         return int(prompt_count) + int(response_count)
 
-
     def get_conversation_history(self, user_id: str):
-        SQL = sqlite3.connect(self.get_user_db_path(user_id))
-        cur = SQL.cursor()
-        req = cur.execute("SELECT * FROM prompts")
-        prompts = req.fetchall()
-        SQL.commit()
-        cur.execute("SELECT * FROM responses")
-        responses = req.fetchall()
-        SQL.commit()
-        SQL.close()
 
         def create_response_arrays(arr):
             response = dict()
@@ -49,11 +47,37 @@ class DittoDB:
                 response[str(ndx)] = [x[0], x[1]]
             return json.dumps(response)
 
-        return create_response_arrays(prompts), create_response_arrays(responses)
+        try:
+
+            SQL = sqlite3.connect(self.get_user_db_path(user_id))
+            cur = SQL.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
+            SQL.commit()
+            cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
+            SQL.commit()
+            req = cur.execute("SELECT * FROM prompts")
+            prompts = req.fetchall()
+            SQL.commit()
+            cur.execute("SELECT * FROM responses")
+            responses = req.fetchall()
+            SQL.commit()
+            SQL.close()
+
+            return create_response_arrays(prompts), create_response_arrays(responses)
+        
+        except Exception as e:
+
+            prompts = []
+            responses = []
+            return None  
 
     def reset_conversation(self, user_id: str):
         SQL = sqlite3.connect(self.get_user_db_path(user_id))
         cur = SQL.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
+        SQL.commit()
+        cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
+        SQL.commit()
         cur.execute("DELETE FROM prompts")
         cur.execute("DELETE FROM responses")
         SQL.commit()
@@ -69,8 +93,7 @@ class DittoDB:
             % (response.replace("'", "''"), str(int(time.time())))
         )
         SQL.commit()
-        SQL.close()
-        
+        SQL.close()    
 
     def write_prompt_to_db(self, user_id: str, prompt: str):
         SQL = sqlite3.connect(self.get_user_db_path(user_id))
