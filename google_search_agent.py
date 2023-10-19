@@ -8,7 +8,11 @@ from langchain.agents import AgentType
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 
+# import logger
+import logging
 
+log = logging.getLogger("google_search_agent")
+logging.basicConfig(level=logging.INFO)
 
 class GoogleSearchAgent():
 
@@ -29,6 +33,13 @@ class GoogleSearchAgent():
         '''
         This function handles GOOGLE_SEARCH commands from Ditto Memory agent.
         '''
-        response = self.agent.run(query)
+        try:
+            response = self.agent.run(query)
+        except Exception as e:
+            log.info(f"Error running google search agent: {e}")
+            response = f"Error running google search agent: {e}"
+            if 'LLM output' in response:
+                response = response.split('`')[1]
+            
         return response
     

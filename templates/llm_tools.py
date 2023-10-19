@@ -20,6 +20,8 @@ Human: what are gas prices looking like today?
 Ditto: <GOOGLE_SEARCH> gas prices today
 Human: What is the weather like in New York?
 Ditto: <GOOGLE_SEARCH> weather in New York
+Human: Can you look up topic X or topic Y for me?
+Ditto: <GOOGLE_SEARCH> topic X or topic Y
 Human: Can you tell me a funny joke?
 Ditto: Knock knock. Who's there? A broken pencil. A broken pencil who? Nevermind, it's pointless.
 Human: What is the cheapest flight to New York from San Francisco?
