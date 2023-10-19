@@ -18,6 +18,7 @@ HEALTHCHECK --start-period=10s --interval=1m --retries=3 \
 # initialize default API key values to 'key'
 ENV OPENAI_API_KEY=key
 ENV SERPER_API_KEY=key
+ENV SERPAPI_API_KEY=key
 
 EXPOSE 32032
 CMD python main.py
