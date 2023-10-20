@@ -6,11 +6,19 @@ from langchain.agents import load_tools
 from langchain.agents import initialize_agent, Tool
 from langchain.agents import AgentType
 from langchain.llms import OpenAI
+from langchain.llms import HuggingFaceHub
+
 from langchain.chat_models import ChatOpenAI
 from langchain.utilities import SerpAPIWrapper
 
-# import logger
 import logging
+import os
+
+#load env
+from dotenv import load_dotenv
+load_dotenv()
+
+LLM = os.environ.get("LLM")
 
 log = logging.getLogger("google_search_agent")
 logging.basicConfig(level=logging.INFO)
@@ -26,7 +34,11 @@ class GoogleSearchAgent():
         '''
         This function initializes the agent.
         '''
-        llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
+        if LLM == "openai":
+            llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
+        else:
+            repo_id = "codellama/CodeLlama-13b-hf"
+            llm = HuggingFaceHub(repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000})
         search = SerpAPIWrapper()
         tools = [
             Tool(
@@ -62,6 +74,6 @@ class GoogleSearchAgent():
     
 if __name__ == "__main__":
     google_search_agent = GoogleSearchAgent(verbose=True)
-    query = "Whats the weather like in New York?"
+    query = "What is the weather in Golden CO?"
     response = google_search_agent.handle_google_search(query)
     log.info(f"Response: {response}")

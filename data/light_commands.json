@@ -1167,6 +1167,164 @@
                 "O",
                 "B-color"
             ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "bedroom",
+                "lights",
+                "to",
+                "candlelight"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "kitchen",
+                "lights",
+                "to",
+                "candlelight"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "storage",
+                "room",
+                "lights",
+                "to",
+                "candlelight"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "storage",
+                "room",
+                "and",
+                "the",
+                "bedroom",
+                "lights",
+                "to",
+                "red"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "I-lightname",  
+                "I-lightname",
+                "B-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "living",
+                "room",
+                "lights",
+                "and",
+                "the",
+                "bedroom",
+                "lights",
+                "to",
+                "orange"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "I-lightname",
+                "I-lightname",
+                "O",
+                "I-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "living",
+                "room",
+                "and",
+                "bedroom",
+                "lights",
+                "to",
+                "candlelight"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "I-lightname",
+                "I-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
+        },
+        {
+            "words": [
+                "set",
+                "the",
+                "bedroom",
+                "and",
+                "storage",
+                "room",
+                "lights",
+                "to",
+                "purple"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-lightname",
+                "I-lightname",
+                "I-lightname",
+                "I-lightname",
+                "I-lightname",
+                "O",
+                "B-color"
+            ]
         }
     ]
 }

@@ -4,3 +4,4 @@ __pycache__
 .env
 memory/
 users.json
+gcp/

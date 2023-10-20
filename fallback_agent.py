@@ -7,12 +7,19 @@ from langchain.agents import initialize_agent
 from langchain.agents import AgentType
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import HuggingFaceHub
 
-# import logger
 import logging
+import os
 
 log = logging.getLogger("google_search_fallback_agent")
 logging.basicConfig(level=logging.INFO)
+
+# load env
+from dotenv import load_dotenv
+load_dotenv()
+
+LLM = os.environ.get("LLM")
 
 class GoogleSearchFallbackAgent():
 
@@ -23,7 +30,11 @@ class GoogleSearchFallbackAgent():
         '''
         This function initializes the agent.
         '''
-        llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
+        if LLM == "openai":
+            llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
+        else:
+            repo_id = "codellama/CodeLlama-13b-hf"
+            llm = HuggingFaceHub(repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000})
         
         fallback_agent_tools = load_tools(["google-serper"], llm=llm)
         self.fallback_agent = initialize_agent(

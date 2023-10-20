@@ -3,7 +3,10 @@ import os
 import pickle
 import time
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
+
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import HuggingFaceHub
 from langchain.memory import VectorStoreRetrieverMemory
 from langchain.chains import ConversationChain
 from langchain.prompts import PromptTemplate
@@ -11,6 +14,10 @@ import faiss
 from langchain.docstore import InMemoryDocstore
 from langchain.vectorstores import FAISS
 import logging
+
+
+from dotenv import load_dotenv
+load_dotenv()
 
 # import google search agent
 from google_search_agent import GoogleSearchAgent
@@ -29,9 +36,18 @@ else:
     log.info("Found SERPER_API_KEY. Loading LLM Tools template")
     TEMPLATE = LLM_TOOLS_TEMPLATE
 
+LLM = os.environ.get("LLM")
+
 class DittoMemory:
     def __init__(self):
-        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+        if LLM == "openai":
+            self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+        else:
+            # repo_id = "google/flan-t5-xxl"
+            repo_id = "codellama/CodeLlama-13b-hf"
+            self.llm = HuggingFaceHub(
+                repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000}
+            )
         self.google_search_agent = GoogleSearchAgent()
         self.memory = {}
 
@@ -42,10 +58,17 @@ class DittoMemory:
             os.makedirs(mem_dir)
             log.info(f"Created memory directory for {user_id}")
         if not os.path.exists(mem_file) or reset:
-            embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
-            index = faiss.IndexFlatL2(embedding_size)
-            embedding_fn = OpenAIEmbeddings().embed_query
-            vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
+            if LLM == "openai":
+
+                embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
+                index = faiss.IndexFlatL2(embedding_size)
+                embedding_fn = OpenAIEmbeddings().embed_query
+                vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
+            else:
+                embedding_size = 768  # Dimensions of the HuggingFaceEmbeddings
+                index = faiss.IndexFlatL2(embedding_size)
+                embedding_fn = HuggingFaceEmbeddings().embed_query
+                vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
             retriever = vectorstore.as_retriever(search_kwargs=dict(k=5))
             self.memory[user_id] = VectorStoreRetrieverMemory(retriever=retriever)
             self.memory[user_id].save_context(
