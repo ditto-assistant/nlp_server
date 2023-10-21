@@ -39,11 +39,11 @@ class GoogleSearchAgent():
         else:
             repo_id = "codellama/CodeLlama-13b-hf"
             llm = HuggingFaceHub(repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000})
-        search = SerpAPIWrapper()
+        self.search = SerpAPIWrapper()
         tools = [
             Tool(
                 name="Intermediate Answer",
-                func=search.run,
+                func=self.search.run,
                 description="useful for when you need to ask with search",
             )
         ]

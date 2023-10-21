@@ -8,6 +8,7 @@ from langchain.agents import AgentType
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import HuggingFaceHub
+from langchain.utilities import GoogleSerperAPIWrapper
 
 import logging
 import os
@@ -37,6 +38,7 @@ class GoogleSearchFallbackAgent():
             llm = HuggingFaceHub(repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000})
         
         fallback_agent_tools = load_tools(["google-serper"], llm=llm)
+        self.search = GoogleSerperAPIWrapper()
         self.fallback_agent = initialize_agent(
             fallback_agent_tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION , verbose=verbose)
         

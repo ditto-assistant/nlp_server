@@ -1,5 +1,5 @@
-scikit-learn
-spacy
+scikit-learn==1.3.1
+spacy==3.7.2
 nltk
 word2number
 vosk

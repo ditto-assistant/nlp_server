@@ -22,6 +22,9 @@ load_dotenv()
 # import google search agent
 from google_search_agent import GoogleSearchAgent
 
+# import example store
+from ditto_example_store import DittoExampleStore
+
 log = logging.getLogger("ditto_memory")
 logging.basicConfig(level=logging.INFO)
 
@@ -32,14 +35,17 @@ from templates.default import DEFAULT_TEMPLATE
 if "SERPER_API_KEY" not in os.environ:
     log.info("SERPER_API_KEY not set in os.environ... Loading default template")
     TEMPLATE = DEFAULT_TEMPLATE
+    TEMPLATE_TYPE = 'DEFAULT'
 else:
     log.info("Found SERPER_API_KEY. Loading LLM Tools template")
     TEMPLATE = LLM_TOOLS_TEMPLATE
+    TEMPLATE_TYPE = 'SELF-ASK-WITH-SEARCH'
 
 LLM = os.environ.get("LLM")
 
 class DittoMemory:
-    def __init__(self):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
         if LLM == "openai":
             self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
         else:
@@ -48,10 +54,11 @@ class DittoMemory:
             self.llm = HuggingFaceHub(
                 repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000}
             )
-        self.google_search_agent = GoogleSearchAgent()
+        self.google_search_agent = GoogleSearchAgent(verbose=verbose)
+        self.example_store = DittoExampleStore()
         self.memory = {}
 
-    def __create_load_memory(self, reset=False, user_id="ditto"):
+    def __create_load_memory(self, reset=False, user_id="Human"):
         mem_dir = f"memory/{user_id}"
         mem_file = f"{mem_dir}/ditto_memory.pkl"
         if not os.path.exists(mem_dir):
@@ -72,12 +79,12 @@ class DittoMemory:
             retriever = vectorstore.as_retriever(search_kwargs=dict(k=5))
             self.memory[user_id] = VectorStoreRetrieverMemory(retriever=retriever)
             self.memory[user_id].save_context(
-                {"input": "Hi! What's up? "},
-                {"output": "Hi! My name is Ditto. Nice to meet you!"},
+                {f"{user_id}": "Hi! What's up? "},
+                {"Ditto": "Hi! My name is Ditto. Nice to meet you!"},
             )
             self.memory[user_id].save_context(
-                {"input": "Hey Ditto! Nice to meet you too. Glad we can be talking."},
-                {"output": "Me too!"},
+                {f"{user_id}": "Hey Ditto! Nice to meet you too. Glad we can be talking."},
+                {"Ditto": "Me too!"},
             )
             pickle.dump(self.memory[user_id], open(mem_file, "wb"))
             log.info(f"Created memory file for {user_id}")
@@ -85,22 +92,31 @@ class DittoMemory:
             self.memory[user_id] = pickle.load(open(mem_file, "rb"))
             log.info(f"Loaded memory file for {user_id}")
 
-    def save_new_memory(self, prompt, response, user_id="ditto"):
+    def save_new_memory(self, prompt, response, user_id="Human"):
         self.__create_load_memory(user_id=user_id)
         mem_dir = f"memory/{user_id}"
         mem_file = f"{mem_dir}/ditto_memory.pkl"
-        self.memory[user_id].save_context({"input": prompt}, {"output": response})
+        self.memory[user_id].save_context({f"{user_id}": prompt}, {"Ditto": response})
         pickle.dump(self.memory[user_id], open(mem_file, "wb"))
         log.info(f"Saved new memory for {user_id}")
 
-    def reset_memory(self, user_id="ditto"):
+    def reset_memory(self, user_id="Human"):
         self.__create_load_memory(reset=True, user_id=user_id)
         log.info(f"Reset memory for {user_id}")
 
-    def prompt(self, query, user_id="ditto"):
+    def add_example_to_query(self, query, examples):
+        query_prefix = "\n(You do not need to use these past memories if not relevant)" \
+            + "\n\nTools:\n" \
+            + "Ditto has access to the following tools, and they can be used in the following ways:\n" \
+            + "1. GOOGLE_SEARCH: <GOOGLE_SEARCH> <query>\n" \
+            + "1.a GOOGLE_SEARCH can be used to search the web for information. Only use this tool if the user's prompt can be better answered by searching the web."\
+            + "\n\nIf the user's prompt can be answered by one of these tools, Ditto will use it to answer the question. Otherwise, Ditto will answer the question itself.\n\n"
+        query = query_prefix + str(examples).replace(query, "") + "\nCurrent conversation:\n" + query
+        return query
+    
+    def prompt(self, query, user_id="Human"):
         self.__create_load_memory(user_id=user_id)
         stamp = str(datetime.utcfromtimestamp(time.time()))
-        if user_id=="ditto": user_id = "Human" # default to human if user_id is not provided
         if "<STMEM>" in query:
             raw_query = query.split("<STMEM>")[2]
             mem_query = f"Timestamp: {stamp}\n{user_id}: {raw_query}"
@@ -109,10 +125,14 @@ class DittoMemory:
             # embed timestamps to query
             query = f"Timestamp: {stamp}\n{user_id}: {query}"
             mem_query = query
-
-        prompt = PromptTemplate(input_variables=["history", "input"], template=TEMPLATE)
+        if TEMPLATE_TYPE == 'DEFAULT':
+            prompt = PromptTemplate(input_variables=["history", "input"], template=TEMPLATE)
+        else:
+            examples = self.example_store.get_example(query)
+            query = self.add_example_to_query(query, examples)
+            prompt = PromptTemplate(input_variables=["history", "input"], template=TEMPLATE, memory=self.memory[user_id])
         conversation_with_memory = ConversationChain(
-            llm=self.llm, prompt=prompt, memory=self.memory[user_id], verbose=False
+            llm=self.llm, prompt=prompt, memory=self.memory[user_id], verbose=self.verbose
         )
         res = conversation_with_memory.predict(input=query)
 
@@ -132,4 +152,6 @@ class DittoMemory:
 
 
 if __name__ == "__main__":
-    ditto = DittoMemory()
+    ditto = DittoMemory(
+        verbose=True
+    )
