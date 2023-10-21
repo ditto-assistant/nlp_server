@@ -163,7 +163,7 @@ def reset_memory(user_id: str):
     try:
         log.info(f"resetting ditto's long and short-term memory for user: {user_id}")
         ditto.reset_memory(user_id)
-        ditto_stmem.reset_stmem(user_id)
+        ditto.short_term_mem_store.reset_stmem(user_id)
         log.info(f"resetting prompt and response history for user: {user_id}")
         ditto_db.reset_conversation(user_id)
         return '{"action": "reset_memory", "status": "ok"}'
