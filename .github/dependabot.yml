@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    # Allow up to 3 open pull requests at a time
+    open-pull-requests-limit: 3
+    ignore:
+      # segmentation-models-pytorch requires older timm, can't update
+      - dependency-name: "timm"
