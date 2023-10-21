@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check and format files using the black formatter
+      - name: format files using the black formatter
         uses: rickstaa/action-black@v1
         with:
           black_args: "."
@@ -15,7 +15,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-      - name: Deploy to GitHub Pages
+      - name: push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
