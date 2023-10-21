@@ -23,3 +23,5 @@ cloud-tpu-client
 google-search-results==2.4.2
 huggingface_hub==0.18.0
 sentence_transformers==2.2.2
+tiktoken==0.4.0
+simsimd==3.0.0

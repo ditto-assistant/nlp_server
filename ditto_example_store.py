@@ -57,12 +57,12 @@ class DittoExampleStore:
             example_selector=self.example_store,
             example_prompt=self.example_template,
             prefix="Below are some examples of how how to use the tools:",
-            suffix="{query}",
+            suffix=" {query}",
             input_variables=["query"],
         )
 
     def get_example(self, query:str):
-        example = str(self.mmr_prompt.format(query=query))
+        example = str(self.mmr_prompt.format(query=query)).replace(query, "")
         return example
     
 if __name__ == "__main__":

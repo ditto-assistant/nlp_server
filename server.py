@@ -30,10 +30,6 @@ intent_model = IntentRecognition(train=False)
 log.info("[Loading Ditto Memory...]")
 ditto = DittoMemory()
 
-# load ditto short term memory store
-log.info("[Loading Ditto Short Term Memory Store...]")
-ditto_stmem = ShortTermMemoryStore()
-
 # load ditto database handler
 log.info("[Loading Ditto Database Handler...]")
 ditto_db = DittoDB()
@@ -104,14 +100,9 @@ def send_prompt_to_ditto_unit(user_id, prompt):
         log.info("Ditto unit is off")
 
 def send_prompt_to_llm(user_id, prompt):
-    # add short term memory to prompt
-    prompt_with_stmem = ditto_stmem.get_prompt_with_stmem(user_id, prompt)
 
     log.info(f"sending user: {user_id} prompt to memory agent: {prompt}")
-    response = ditto.prompt(prompt_with_stmem, user_id)
-
-    # save response to short term memory
-    ditto_stmem.save_response_to_stmem(user_id, prompt, response)
+    response = ditto.prompt(prompt, user_id)
 
     return json.dumps({"response": response})
 
