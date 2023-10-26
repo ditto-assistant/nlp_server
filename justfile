@@ -16,7 +16,7 @@ run-it:
 logs:
     docker logs -f nlp_server
 
-stop:
+stop: backup
     docker stop nlp_server
 
 # Run without the container
@@ -26,3 +26,8 @@ rundev:
 # Build the docker image
 build:
     docker build -t nlp_server .
+
+# Backup your vector store and convo db
+backup:
+    docker cp nlp_server:memory .
+    docker cp nlp_server:database .
