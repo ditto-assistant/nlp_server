@@ -15,9 +15,6 @@ logging.basicConfig(level=logging.INFO)
 # load intent model
 from intent import IntentRecognition
 
-# import short term memory store
-from ditto_stmem import ShortTermMemoryStore
-
 # import ditto database handler
 from database.db import DittoDB
 
