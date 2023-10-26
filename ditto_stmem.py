@@ -20,7 +20,7 @@ class ShortTermMemoryStore:
     def set_stmem(self, user_id, stmem):
         '''Updates the short term memory store with the latest STMEM string for the user_id'''
         log.info(f"Updating short term memory store for user: {user_id}")
-        self.stmem_store[user_id] = stmem
+        self.stmem_store[user_id] = stmem.copy()
     
     def get_stmem(self, user_id):
         '''Returns the latest STMEM string for the user_id'''
@@ -32,18 +32,21 @@ class ShortTermMemoryStore:
         log.info(f"Resetting short term memory store for user: {user_id}")
         self.stmem_store[user_id] = []
 
-    def get_prompt_with_stmem(self, user_id, query):
+    def get_prompt_with_stmem(self, query, user_id='Human'):
         '''Returns the prompt with the short term memory buffer injected'''
 
         stmem = self.get_stmem(user_id)
-        query_with_short_term_memory = query
+        query_with_short_term_memory = f"Current Prompt:\n{user_id}: {query}"
         
-        if len(stmem) > 1:
-            query_with_short_term_memory = "<STMEM>Short Term Memory Buffer:\n"
-            for q, r, s in stmem:
-                query_with_short_term_memory += f"Human: ({s}): " + q + "\n"
-                query_with_short_term_memory += f"AI: " + r + "\n"
-            query_with_short_term_memory += f"<STMEM>{query}"
+        if len(stmem) > 0:
+            query_with_short_term_memory = "Short Term Memory Buffer:\n"
+            for mem in stmem:
+                q, response, stamp = mem
+                query_with_short_term_memory += f"{user_id}: ({stamp}): " + q + "\n"
+                query_with_short_term_memory += f"AI: " + response + "\n"
+        
+            query_with_short_term_memory += f"Current Prompt:\n{user_id}: {query}"
+
         return query_with_short_term_memory
         
     
@@ -55,4 +58,7 @@ class ShortTermMemoryStore:
         if len(stmem) > 5: # if the STMEM string is longer than 5, remove the oldest prompt/response pair
             stmem = stmem[1:]
         self.set_stmem(user_id, stmem) # update the STMEM string in the short term memory store
-                
+
+# name  == main
+if __name__ == "__main__":
+    stmem = ShortTermMemoryStore()

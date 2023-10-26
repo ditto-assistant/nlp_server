@@ -3,7 +3,10 @@ import os
 import pickle
 import time
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
+
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import HuggingFaceHub
 from langchain.memory import VectorStoreRetrieverMemory
 from langchain.chains import ConversationChain
 from langchain.prompts import PromptTemplate
@@ -12,46 +15,74 @@ from langchain.docstore import InMemoryDocstore
 from langchain.vectorstores import FAISS
 import logging
 
+
+from dotenv import load_dotenv
+load_dotenv()
+
+# import google search agent
+from google_search_agent import GoogleSearchAgent
+
+# import example store
+from ditto_example_store import DittoExampleStore
+
+# import short term memory store
+from ditto_stmem import ShortTermMemoryStore
+
 log = logging.getLogger("ditto_memory")
 logging.basicConfig(level=logging.INFO)
 
-TEMPLATE = """The following is a conversation between an AI named Ditto and a human that are best friends. Ditto is helpful and answers factual questions correctly but maintains a friendly relationship with the human.
-
-Relevant pieces from past memories with the user:
-{history}
-
-(You do not need to use these past memories if not relevant)
-
-Current conversation:
-{input}
-Ditto:"""
-
+from templates.llm_tools import LLM_TOOLS_TEMPLATE
+from templates.default import DEFAULT_TEMPLATE
 
 class DittoMemory:
-    def __init__(self):
-        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+    def __init__(self, verbose=False):
+        self.verbose = verbose
+        self.__handle_params()
+        self.short_term_mem_store = ShortTermMemoryStore()
+        self.google_search_agent = GoogleSearchAgent(verbose=verbose)
+        self.example_store = DittoExampleStore()
         self.memory = {}
 
-    def __create_load_memory(self, reset=False, user_id="ditto"):
+    def __handle_params(self):
+        self.llm_provider = os.environ["LLM"]
+        self.template_type = "DEFAULT" if "SERPER_API_KEY" not in os.environ else "SELF-ASK-WITH-SEARCH"
+        self.template = DEFAULT_TEMPLATE if "SERPER_API_KEY" not in os.environ else LLM_TOOLS_TEMPLATE
+        if self.llm_provider == "huggingface":
+            # repo_id = "google/flan-t5-xxl"
+            repo_id = "codellama/CodeLlama-13b-hf"
+            self.llm = HuggingFaceHub(
+                repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000}
+            )
+        else: # default to openai
+            self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+            
+
+    def __create_load_memory(self, reset=False, user_id="Human"):
         mem_dir = f"memory/{user_id}"
         mem_file = f"{mem_dir}/ditto_memory.pkl"
         if not os.path.exists(mem_dir):
             os.makedirs(mem_dir)
             log.info(f"Created memory directory for {user_id}")
         if not os.path.exists(mem_file) or reset:
-            embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
-            index = faiss.IndexFlatL2(embedding_size)
-            embedding_fn = OpenAIEmbeddings().embed_query
-            vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
+            if self.llm_provider == "openai":
+                embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
+                index = faiss.IndexFlatL2(embedding_size)
+                embedding_fn = OpenAIEmbeddings().embed_query
+                vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
+            else:
+                embedding_size = 768  # Dimensions of the HuggingFaceEmbeddings
+                index = faiss.IndexFlatL2(embedding_size)
+                embedding_fn = HuggingFaceEmbeddings().embed_query
+                vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
             retriever = vectorstore.as_retriever(search_kwargs=dict(k=5))
             self.memory[user_id] = VectorStoreRetrieverMemory(retriever=retriever)
             self.memory[user_id].save_context(
-                {"input": "Hi! What's up? "},
-                {"output": "Hi! My name is Ditto. Nice to meet you!"},
+                {f"{user_id}": "Hi! What's up? "},
+                {"Ditto": "Hi! My name is Ditto. Nice to meet you!"},
             )
             self.memory[user_id].save_context(
-                {"input": "Hey Ditto! Nice to meet you too. Glad we can be talking."},
-                {"output": "Me too!"},
+                {f"{user_id}": "Hey Ditto! Nice to meet you too. Glad we can be talking."},
+                {"Ditto": "Me too!"},
             )
             pickle.dump(self.memory[user_id], open(mem_file, "wb"))
             log.info(f"Created memory file for {user_id}")
@@ -59,39 +90,69 @@ class DittoMemory:
             self.memory[user_id] = pickle.load(open(mem_file, "rb"))
             log.info(f"Loaded memory file for {user_id}")
 
-    def save_new_memory(self, prompt, response, user_id="ditto"):
+    def save_new_memory(self, prompt, response, user_id="Human"):
         self.__create_load_memory(user_id=user_id)
         mem_dir = f"memory/{user_id}"
         mem_file = f"{mem_dir}/ditto_memory.pkl"
-        self.memory[user_id].save_context({"input": prompt}, {"output": response})
+        self.memory[user_id].save_context({f"{user_id}": prompt}, {"Ditto": response})
         pickle.dump(self.memory[user_id], open(mem_file, "wb"))
         log.info(f"Saved new memory for {user_id}")
 
-    def reset_memory(self, user_id="ditto"):
+    def reset_memory(self, user_id="Human"):
         self.__create_load_memory(reset=True, user_id=user_id)
         log.info(f"Reset memory for {user_id}")
 
-    def prompt(self, query, user_id="ditto"):
+    def add_example_to_query(self, query, stmem_query, examples):
+        query_prefix = "\n(You do not need to use these past memories if not relevant)" \
+            + "\n\nTools:\n" \
+            + "Ditto has access to the following tools, and they can be used in the following ways:\n" \
+            + "1. GOOGLE_SEARCH: <GOOGLE_SEARCH> <query>\n" \
+            + "1.a GOOGLE_SEARCH can be used to search the web for information. Only use this tool if the user's prompt can be better answered by searching the web."\
+            + "\n\nIf the user's prompt can be answered by one of these tools, Ditto will use it to answer the question. Otherwise, Ditto will answer the question itself.\n\n"
+        query = query_prefix + examples + "\n" + stmem_query
+        return query
+    
+    def prompt(self, query, user_id="Human"):
+
         self.__create_load_memory(user_id=user_id)
         stamp = str(datetime.utcfromtimestamp(time.time()))
-        if "<STMEM>" in query:
-            raw_query = query.split("<STMEM>")[2]
-            mem_query = f"Timestamp: {stamp}\nHuman: {raw_query}"
-            query = query.split("<STMEM>")[1] + "\nCurrent Prompt: " + mem_query
-        else:
-            # embed timestamps to query
-            query = f"Timestamp: {stamp}\nHuman: {query}"
-            mem_query = query
 
-        prompt = PromptTemplate(input_variables=["history", "input"], template=TEMPLATE)
-        conversation_with_memory = ConversationChain(
-            llm=self.llm, prompt=prompt, memory=self.memory[user_id], verbose=False
-        )
-        res = conversation_with_memory.predict(input=query)
-        self.save_new_memory(mem_query, res, user_id)
+        mem_query = f"Timestamp: {stamp}\n{query}"
+
+        if self.template_type == 'DEFAULT':
+            prompt = PromptTemplate(input_variables=["history", "input"], template=self.template)
+            stmem_query = self.short_term_mem_store.get_prompt_with_stmem(user_id, query)
+            conversation_with_memory = ConversationChain(
+                llm=self.llm, prompt=prompt, memory=self.memory[user_id], verbose=self.verbose
+            )
+            res = conversation_with_memory.predict(input=stmem_query)
+        else:
+            stmem_query = self.short_term_mem_store.get_prompt_with_stmem(query, user_id)
+            examples = self.example_store.get_example(query)
+            query_with_examples = self.add_example_to_query(query, stmem_query, examples)
+            prompt = PromptTemplate(input_variables=["history", "input"], template=self.template, memory=self.memory[user_id])
+            conversation_with_memory = ConversationChain(
+                llm=self.llm, prompt=prompt, memory=self.memory[user_id], verbose=self.verbose
+            )
+            res = conversation_with_memory.predict(input=query_with_examples)
+
+        if "GOOGLE_SEARCH" in res:
+            log.info(f"Handling prompt for {user_id} with Google Search Agent")
+            ditto_command = '<GOOGLE_SEARCH>'
+            ditto_query = res.split("GOOGLE_SEARCH")[-1].strip()
+            res = self.google_search_agent.handle_google_search(res)
+            res = res + '\n-LLM Tools: Google Search-' 
+            memory_res = f'{ditto_command} {ditto_query} \nGoogle Search Agent: ' + res
+        else:
+            memory_res = res
+
+        self.save_new_memory(mem_query, memory_res, user_id)
+        self.short_term_mem_store.save_response_to_stmem(user_id, query, memory_res)
         log.info(f"Handled prompt for {user_id}")
         return res
 
 
 if __name__ == "__main__":
-    ditto = DittoMemory()
+    ditto = DittoMemory(
+        verbose=True
+    )
