@@ -3,3 +3,5 @@ langchain/
 __pycache__
 .env
 memory/
+users.json
+gcp/

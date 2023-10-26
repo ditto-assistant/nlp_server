@@ -1,0 +1,14 @@
+{
+    "users" : [
+        {
+            "user_id" : "User1",
+            "ditto_unit_ip" : "localhost",
+            "ditto_unit_port" : 42032
+        },
+        {
+            "user_id" : "User2",
+            "ditto_unit_ip" : "localhost",
+            "ditto_unit_port" : 42032
+        }
+    ]
+}
