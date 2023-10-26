@@ -10,8 +10,8 @@ NLP server housing intent and NER models as well as Langchain memory agent for D
 ## Set up Google Search API for LLM (optional)
 1. Main Google Search Agent:
     1. Create an account on [serpapi.com](http://serpapi.com/) and set `SERPAPI_API_KEY` to your API key in `.env`.
-2. Fallback Agent:
-    2. Create an account on [serper.dev](http://serper.dev/) and set `SERPER_API_KEY` to your API key in `.env`.
+2. Fallback Agent: 
+    1. Create an account on [serper.dev](http://serper.dev/) and set `SERPER_API_KEY` to your API key in `.env`.
 
 ## Changing LLM Provider
 1. If you prefer using HuggingFace's API, set `HUGGINGFACEHUB_API_TOKEN` to your HuggingFace API key and set `LLM=huggingface` in `.env`.
