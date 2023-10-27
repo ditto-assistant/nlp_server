@@ -2,6 +2,7 @@ import sqlite3
 import json
 import time
 
+
 class DittoDB:
     """
     This class contains helper functions for operations around a user's database.
@@ -29,7 +30,9 @@ class DittoDB:
             cur = SQL.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
             SQL.commit()
-            cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
+            cur.execute(
+                "CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)"
+            )
             SQL.commit()
             prompt_count = cur.execute("SELECT COUNT(*) FROM prompts").fetchone()[0]
             response_count = cur.execute("SELECT COUNT(*) FROM responses").fetchone()[0]
@@ -40,7 +43,6 @@ class DittoDB:
         return int(prompt_count) + int(response_count)
 
     def get_conversation_history(self, user_id: str):
-
         def create_response_arrays(arr):
             response = dict()
             for ndx, x in enumerate(arr):
@@ -48,12 +50,13 @@ class DittoDB:
             return json.dumps(response)
 
         try:
-
             SQL = sqlite3.connect(self.get_user_db_path(user_id))
             cur = SQL.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
             SQL.commit()
-            cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
+            cur.execute(
+                "CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)"
+            )
             SQL.commit()
             req = cur.execute("SELECT * FROM prompts")
             prompts = req.fetchall()
@@ -64,12 +67,11 @@ class DittoDB:
             SQL.close()
 
             return create_response_arrays(prompts), create_response_arrays(responses)
-        
-        except Exception as e:
 
+        except Exception as e:
             prompts = []
             responses = []
-            return None  
+            return None
 
     def reset_conversation(self, user_id: str):
         SQL = sqlite3.connect(self.get_user_db_path(user_id))
@@ -93,7 +95,7 @@ class DittoDB:
             % (response.replace("'", "''"), str(int(time.time())))
         )
         SQL.commit()
-        SQL.close()    
+        SQL.close()
 
     def write_prompt_to_db(self, user_id: str, prompt: str):
         SQL = sqlite3.connect(self.get_user_db_path(user_id))
