@@ -5,6 +5,7 @@ from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.prompts import PromptTemplate, FewShotPromptTemplate
 
+
 class DittoImageRAGExampleStore:
     def __init__(self):
         # example template will be used to match query / example pairs.
@@ -41,8 +42,7 @@ class DittoImageRAGExampleStore:
             {
                 "query": "What do you think about this shirt?",
                 "response": "<QA> What color is the shirt?\n<QA Response> blue\n<QA> What is the style of the shirt?\n<QA Response> floral\n<DONE> It looks like you are wearing a blue floral shirt. It looks nice!",
-            }
-
+            },
         ]
 
     def create_example_store(self):

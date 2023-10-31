@@ -126,7 +126,7 @@ def send_prompt_to_llm(user_id, prompt):
 def image_rag(user_id: str):
     requests = request.args
     if "prompt" not in requests:
-            return ErrMissingArg("prompt")
+        return ErrMissingArg("prompt")
     if "mode" not in requests:
         return ErrMissingArg("mode")
     if "image" not in request.files:
@@ -134,11 +134,15 @@ def image_rag(user_id: str):
     try:
         prompt = requests["prompt"]
         mode = requests["mode"]
-        image = request.files['image'].read()
+        image = request.files["image"].read()
         if mode == "caption":
-            image_rag_response = ditto_image_rag.prompt(prompt, image, caption_image=True)
+            image_rag_response = ditto_image_rag.prompt(
+                prompt, image, caption_image=True
+            )
         elif mode == "qa":
-            image_rag_response = ditto_image_rag.prompt(prompt, image, caption_image=False)
+            image_rag_response = ditto_image_rag.prompt(
+                prompt, image, caption_image=False
+            )
         else:
             return ErrException(f"Invalid mode: {mode}")
         return json.dumps({"response": image_rag_response})
@@ -407,6 +411,7 @@ if __name__ == "__main__":
 
 # def ErrWrongMethod(method: str, should_be="POST"):
 #     return '{"error": "request method is %s but should be %s"}' % method, should_be
+
 
 def ErrMissingFile(file: str):
     return '{"error": "missing file %s"}' % file
