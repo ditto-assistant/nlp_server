@@ -1,7 +1,7 @@
-'''
+"""
 This module will perform retrieval augmented generation (RAG) over an image via access to
 vision transformers hosted in vison_server.
-'''
+"""
 
 import logging
 import os
@@ -22,6 +22,7 @@ import base64
 from io import BytesIO
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 log = logging.getLogger("image_rag")
@@ -49,8 +50,8 @@ user's query: {query}{caption}
 response:
 """
 
-class DittoImageRAG:
 
+class DittoImageRAG:
     def __init__(self):
         self.vision_server_ip = os.getenv("vision_server_ip")
         self.vision_server_port = int(os.getenv("vision_server_port", 52032))
@@ -67,7 +68,7 @@ class DittoImageRAG:
         except BaseException as e:
             log.error(e)
             return False
-        
+
     def init_llm_agent(self):
         self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
         self.prompt_template = PromptTemplate(
@@ -75,8 +76,7 @@ class DittoImageRAG:
             template=TEMPLATE,
         )
         self.example_store = DittoImageRAGExampleStore()
-        
-        
+
     def get_caption(self, image):
         if not self.check_if_vision_server_running():
             log.error("Vision server is not running")
@@ -84,14 +84,14 @@ class DittoImageRAG:
         else:
             try:
                 url = f"{self.vision_server_url}/caption"
-                files = {'image': image}
+                files = {"image": image}
                 raw_response = requests.post(url, files=files)
-                response = json.loads(raw_response.content.decode())['response']
+                response = json.loads(raw_response.content.decode())["response"]
                 return response
             except BaseException as e:
                 log.error(e)
                 return None
-            
+
     def get_qa(self, query, image):
         if not self.check_if_vision_server_running():
             log.error("Vision server is not running")
@@ -99,60 +99,63 @@ class DittoImageRAG:
         else:
             try:
                 url = f"{self.vision_server_url}/qa"
-                files = {'image': image}
-                params = {'prompt': query}
+                files = {"image": image}
+                params = {"prompt": query}
                 raw_response = requests.post(url, files=files, params=params)
-                response = json.loads(raw_response.content.decode())['response']
+                response = json.loads(raw_response.content.decode())["response"]
                 return response
             except BaseException as e:
                 log.error(e)
                 return None
-            
 
     def prompt(self, user_query, image, caption_image=False):
         log.info("Prompting image rag agent")
         print()
         print(f"user's query: {user_query}")
 
-        if caption_image==False:
-            caption = ''
+        if caption_image == False:
+            caption = ""
         else:
             raw_caption = self.get_caption(image)
             caption = f"\nimage's caption: {raw_caption}"
             print(f"image's caption: {raw_caption}")
 
-        # construct prompt with examples 
+        # construct prompt with examples
         examples = self.example_store.get_examples(user_query)
-        prompt = self.prompt_template.format(examples=examples, query=user_query, caption=caption)
+        prompt = self.prompt_template.format(
+            examples=examples, query=user_query, caption=caption
+        )
 
         max_iterations = 5
 
         for i in range(max_iterations):
             res = self.llm.call_as_llm(prompt)
-            if '<QA>' in res:
-                llm_query = str(res).split('<QA>')[-1].strip().split('\n')[0]
+            if "<QA>" in res:
+                llm_query = str(res).split("<QA>")[-1].strip().split("\n")[0]
                 qa = self.get_qa(llm_query, image)
                 llm_command = f"\n<QA> {llm_query}" + f"\n<QA Response> {qa}"
                 prompt += llm_command
                 print(llm_command)
 
-            elif '<DONE>' in res:
-                response = str(res).split('<DONE>')[-1].strip().split('\n')[0]
+            elif "<DONE>" in res:
+                response = str(res).split("<DONE>")[-1].strip().split("\n")[0]
                 print(f"\n<DONE> {response}")
                 break
 
-            if i==(max_iterations-1):
+            if i == (max_iterations - 1):
                 prompt += f"\n<DONE> "
                 response = self.llm.call_as_llm(prompt)
                 print(f"\n<DONE> {prompt+response}")
                 break
-        
+
         return response
-    
+
+
 if __name__ == "__main__":
     from PIL import Image
+
     image_rag = DittoImageRAG()
-    image_path = 'river-sunset.png'
+    image_path = "river-sunset.png"
     image = Image.open(image_path).convert("RGB")
     buffered = BytesIO()
     image.save(buffered, format="JPEG")
