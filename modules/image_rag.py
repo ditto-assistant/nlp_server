@@ -12,6 +12,12 @@ import json
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 
+# import example store
+try:
+    from modules.image_rag_example_store import DittoImageRAGExampleStore
+except:
+    from image_rag_example_store import DittoImageRAGExampleStore
+
 import base64
 from io import BytesIO
 
@@ -35,38 +41,15 @@ Tools:
 2.1 Command: <DONE> response
 2.2 Example: <DONE> I see a red car that is parked in the driveway. The car looks like a Tesla.
 
-Examples:
-
-user's query: can you tell me a description of the image?
-image's caption: a picture of a car
-<QA> What is the color of the car?
-<QA Response> red
-<QA> What is the make of the car?
-<QA Response> Tesla
-<QA> Where is the car parked?
-<QA Response> driveway
-<DONE> I see a red car that is parked in the driveway. The car looks like a Tesla.
-
-user's query: how many fingers am I holding up?
-<QA> How many fingers are there?
-<QA Response> 5
-<DONE> I see 5 fingers.
-
-user's query: can you tell me a description of the image?
-image's caption: man has brown hair
-<QA> What is the man doing?
-<QA Response> sitting
-<QA> What color is the man's eyes?
-<QA Response> blue
-<DONE> I see a man with brown hair and blue eyes sitting.
+{examples}
 
 Current Prompt:
 
 user's query: {query}{caption}
+response:
 """
 
-
-class ImageRAG:
+class DittoImageRAG:
 
     def __init__(self):
         self.vision_server_ip = os.getenv("vision_server_ip")
@@ -88,9 +71,10 @@ class ImageRAG:
     def init_llm_agent(self):
         self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
         self.prompt_template = PromptTemplate(
-            input_variables=["query", "caption"],
+            input_variables=["examples", "query", "caption"],
             template=TEMPLATE,
         )
+        self.example_store = DittoImageRAGExampleStore()
         
         
     def get_caption(self, image):
@@ -136,10 +120,14 @@ class ImageRAG:
             raw_caption = self.get_caption(image)
             caption = f"\nimage's caption: {raw_caption}"
             print(f"image's caption: {raw_caption}")
-        
-        prompt = self.prompt_template.format(query=user_query, caption=caption)
 
-        for i in range(3):
+        # construct prompt with examples 
+        examples = self.example_store.get_examples(user_query)
+        prompt = self.prompt_template.format(examples=examples, query=user_query, caption=caption)
+
+        max_iterations = 5
+
+        for i in range(max_iterations):
             res = self.llm.call_as_llm(prompt)
             if '<QA>' in res:
                 llm_query = str(res).split('<QA>')[-1].strip().split('\n')[0]
@@ -153,7 +141,7 @@ class ImageRAG:
                 print(f"\n<DONE> {response}")
                 break
 
-            elif i==2:
+            if i==(max_iterations-1):
                 prompt += f"\n<DONE> "
                 response = self.llm.call_as_llm(prompt)
                 print(f"\n<DONE> {prompt+response}")
@@ -163,13 +151,12 @@ class ImageRAG:
     
 if __name__ == "__main__":
     from PIL import Image
-    image_rag = ImageRAG()
-    path = 'C:/Users/ozanj/Pictures/Screenshots/'
-    image = 'Screenshot_20221110_022606.png'
-    full_path = path + image
-    image = Image.open(full_path).convert("RGB")
+    image_rag = DittoImageRAG()
+    image_path = 'river-sunset.png'
+    image = Image.open(image_path).convert("RGB")
     buffered = BytesIO()
     image.save(buffered, format="JPEG")
     base64_str = base64.b64encode(buffered.getvalue())
-    query = "What color is my shirt?"
-    response = image_rag.prompt(user_query=query, image=base64_str, caption_image=False)
+    query = "Can you describe this image? I want to know where it is, what time of day it is, what the weather is like, and what color the sun is."
+    # query = 'Tell me 2 things about this.'
+    response = image_rag.prompt(user_query=query, image=base64_str, caption_image=True)
