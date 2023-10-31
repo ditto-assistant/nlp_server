@@ -8,6 +8,10 @@ from flask import request
 from flask_cors import CORS
 import logging
 
+from PIL import Image
+from io import BytesIO
+import base64
+
 # set up logging for server
 log = logging.getLogger("server")
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +21,9 @@ from intent import IntentRecognition
 
 # import ditto database handler
 from database.db import DittoDB
+
+# import ditto image rag agent
+from modules.image_rag import DittoImageRAG
 
 import os
 
@@ -30,6 +37,10 @@ ditto = DittoMemory()
 # load ditto database handler
 log.info("[Loading Ditto Database Handler...]")
 ditto_db = DittoDB()
+
+# load ditto image rag agent
+log.info("[Loading Ditto Image RAG Agent...]")
+ditto_image_rag = DittoImageRAG()
 
 
 # set Flask app and enable CORS
@@ -107,6 +118,34 @@ def send_prompt_to_llm(user_id, prompt):
     response = ditto.prompt(prompt, user_id)
 
     return json.dumps({"response": response})
+
+
+# Makes requests to the ditto image rag agent
+### TODO: finish implementing this endpoint...
+@app.route("/users/<user_id>/image_rag", methods=["POST"])
+def image_rag(user_id: str):
+    requests = request.args
+    if "prompt" not in requests:
+            return ErrMissingArg("prompt")
+    if "mode" not in requests:
+        return ErrMissingArg("mode")
+    if "image" not in request.files:
+        return ErrMissingFile("image")
+    try:
+        prompt = requests["prompt"]
+        mode = requests["mode"]
+        image = request.files['image'].read()
+        if mode == "caption":
+            image_rag_response = ditto_image_rag.prompt(prompt, image, caption_image=True)
+        elif mode == "qa":
+            image_rag_response = ditto_image_rag.prompt(prompt, image, caption_image=False)
+        else:
+            return ErrException(f"Invalid mode: {mode}")
+        return json.dumps({"response": image_rag_response})
+
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
 
 
 # Makes requests to the ditto memory langchain agent
@@ -368,6 +407,9 @@ if __name__ == "__main__":
 
 # def ErrWrongMethod(method: str, should_be="POST"):
 #     return '{"error": "request method is %s but should be %s"}' % method, should_be
+
+def ErrMissingFile(file: str):
+    return '{"error": "missing file %s"}' % file
 
 
 def ErrMissingArg(arg: str):

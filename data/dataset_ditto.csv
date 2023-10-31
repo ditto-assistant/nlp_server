@@ -543,6 +543,71 @@ volume,none,none,turn the volume down to 5%
 volume,none,none,lower the volume to 40
 volume,none,none,increase the sound to 50
 volume,none,none,adjust volume to 5
+vision,none,caption,tell me what you see
+vision,none,caption,what do you see?
+vision,none,qa,how many fingers am I holding up?
+vision,none,qa,how many fingers am I holding up in front of you?
+vision,none,qa,how many fingers am I holding up in front of you?
+vision,none,qa,what color is my shirt that I'm wearing?
+vision,none,qa,what color is my shirt?
+vision,none,caption,Describe the scene in front of you.
+vision,none,caption,What's the story in this image?
+vision,none,caption,Share your perspective on this picture.
+vision,none,caption,Give me a detailed description of what you see.
+vision,none,caption,Can you narrate the elements in this image?
+vision,none,caption,Create a visual description of what you see using your own words.
+vision,none,caption,caption this photo.
+vision,none,caption,describe what you see.
+vision,none,caption,Please describe what you see.
+vision,none,caption,caption what you see.
+vision,none,caption,please describe what you see.
+vision,none,caption,can you caption this photo?
+vision,none,caption,What emotions does this image evoke?
+vision,none,caption,Tell me about the colors and shapes you observe.
+vision,none,caption,Provide a vivid portrayal of this scene.
+vision,none,caption,Write a poetic description of this image.
+vision,none,caption,Offer your artistic interpretation of this picture.
+vision,none,caption,Share your perception of this photograph.
+vision,none,qa,What stands out in this visual composition?
+vision,none,qa,How many people are in the image?
+vision,none,qa,What is the main subject of the photo
+vision,none,qa,Is there any text or writing in the picture?
+vision,none,qa,Are there any animals in the photograph?
+vision,none,qa,Is this image indoors or outdoors?
+vision,none,qa,What time of day does this image depict?
+vision,none,qa,What is the location of this scene?
+vision,none,qa,Describe the overall mood of this picture.
+vision,none,qa,Is there any action or movement in the image
+vision,none,qa,What is the predominant color in this visual
+vision,none,qa,Can you identify any landmarks in the image?
+vision,none,qa,What season does this photo seem to represent?
+vision,none,qa,Are there any vehicles in the picture?
+vision,none,qa,Do you see any vehicles in this picture?
+vision,none,qa,Do you see any cats in this picture
+vision,none,qa,Do you see any dogs?
+vision,none,qa,Do you see any animals
+vision,none,qa,Do you see any people
+vision,none,qa,Do you see any architectural elements in this image?
+vision,none,qa,Is this image from a specific historical period
+vision,none,qa,What emotions do you associate with this scene?
+vision,none,qa,How would you describe the lighting in the image?
+vision,none,qa,How would you describe the lighting in this room
+vision,none,qa,what color is this phone?
+vision,none,qa,what color is this
+vision,none,qa,What am I wearing and what color and what style and what am I doing?
+vision,none,qa,What do you think about this shirt?
+vision,none,qa,What do you think about this shirt? Does it go with my hair?
+vision,none,qa,Do you like what I am wearing?
+vision,none,qa,What am I wearing?
+vision,none,qa,do you like my outfit
+vision,none,qa,"hello, do you like my outfit"
+vision,none,qa,Can you tell me what I am wearing?
+vision,none,qa,"Could you describe my outfit, including the color and style?"
+vision,none,qa,I'd love to hear your thoughts on the shirt I'm wearing. How do you feel about it?
+vision,none,qa,"How do you think this shirt complements my hair, and do you like it?"
+vision,none,qa,I'm curious about my attire - do you find it appealing?
+vision,none,qa,Can you give me details about my current attire?
+vision,none,qa,Could you provide a description of my outfit for me?
 conv,none,none,"hi, how are you doing?"
 conv,none,none,i'm fine. how about yourself?
 conv,none,none,i'm pretty good. thanks for asking.
