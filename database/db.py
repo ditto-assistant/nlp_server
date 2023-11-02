@@ -1,6 +1,11 @@
+import logging
 import sqlite3
 import json
 import time
+
+# setup logging for this module
+log = logging.getLogger("db")
+log.setLevel(logging.INFO)
 
 
 class DittoDB:
@@ -9,15 +14,22 @@ class DittoDB:
     """
 
     def __init__(self):
-        pass
+        self.SQL = sqlite3.connect("database/ditto.db")
+        self.run_sql_file("database/create_tables.sqlite")
+        version = (
+            self.SQL.cursor()
+            .execute("SELECT id FROM migrations ORDER BY id desc LIMIT 1")
+            .fetchone()[0]
+        )
+        log.info(f"Connected to ditto.db! version: {version}")
 
-    def get_user_db_path(self, user_id: str) -> str:
+    def run_sql_file(self, file_path: str):
         """
-        This function returns the path to the user's database.
-        param user_id: The user's id.
-        return: The path to the user's database.
+        This function runs a sql file.
+        param file_path: The path to the sql file.
         """
-        return f"database/{user_id}.db"
+        with open(file_path, "r") as f:
+            self.SQL.cursor().executescript(f.read())
 
     def get_prompt_response_count(self, user_id: str) -> int:
         """
@@ -26,21 +38,25 @@ class DittoDB:
         return: The number of prompts and responses in the user's database.
         """
         try:
-            SQL = sqlite3.connect(self.get_user_db_path(user_id))
-            cur = SQL.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
-            SQL.commit()
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)"
-            )
-            SQL.commit()
+            cur = self.SQL.cursor()
             prompt_count = cur.execute("SELECT COUNT(*) FROM prompts").fetchone()[0]
             response_count = cur.execute("SELECT COUNT(*) FROM responses").fetchone()[0]
-            SQL.close()
         except Exception as e:
             prompt_count = 0
             response_count = 0
         return int(prompt_count) + int(response_count)
+
+    def get_conversation(
+        self, user_id: str, conversation_id: str, offset: int, limit: int, order: str
+    ):
+        return (
+            self.SQL.cursor()
+            .execute(
+                "SELECT id, prompt, response, timestamp FROM chats WHERE conv_id = ? ORDER BY timestamp ? LIMIT ? OFFSET ?",
+                (conversation_id, order, limit, offset),
+            )
+            .fetchall()
+        )
 
     def get_conversation_history(self, user_id: str):
         def create_response_arrays(arr):
@@ -50,21 +66,7 @@ class DittoDB:
             return json.dumps(response)
 
         try:
-            SQL = sqlite3.connect(self.get_user_db_path(user_id))
-            cur = SQL.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
-            SQL.commit()
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)"
-            )
-            SQL.commit()
-            req = cur.execute("SELECT * FROM prompts")
-            prompts = req.fetchall()
-            SQL.commit()
-            cur.execute("SELECT * FROM responses")
-            responses = req.fetchall()
-            SQL.commit()
-            SQL.close()
+            cur = self.SQL.cursor()
 
             return create_response_arrays(prompts), create_response_arrays(responses)
 
@@ -73,38 +75,59 @@ class DittoDB:
             responses = []
             return None
 
-    def reset_conversation(self, user_id: str):
-        SQL = sqlite3.connect(self.get_user_db_path(user_id))
-        cur = SQL.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
-        SQL.commit()
-        cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
-        SQL.commit()
-        cur.execute("DELETE FROM prompts")
-        cur.execute("DELETE FROM responses")
-        SQL.commit()
-        SQL.close()
-
-    def write_response_to_db(self, user_id: str, response: str):
-        SQL = sqlite3.connect(self.get_user_db_path(user_id))
-        cur = SQL.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS responses(response VARCHAR, timestamp)")
-        SQL.commit()
-        cur.execute(
-            "INSERT INTO responses VALUES('%s', '%s')"
-            % (response.replace("'", "''"), str(int(time.time())))
+    def new_conversation(self, user_id: str):
+        """
+        This function creates a new conversation for the user.
+        param user_id: The user's id.
+        return: The conversation id.
+        """
+        self.SQL.cursor().execute(
+            """
+            INSERT INTO conversations (user_id, created_at, updated_at, viewed_at)
+            VALUES (?, datetime('now'), datetime('now'), datetime('now'))
+            """,
+            (user_id),
         )
-        SQL.commit()
-        SQL.close()
 
     def write_prompt_to_db(self, user_id: str, prompt: str):
-        SQL = sqlite3.connect(self.get_user_db_path(user_id))
-        cur = SQL.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS prompts(prompt VARCHAR, timestamp)")
-        SQL.commit()
-        cur.execute(
-            "INSERT INTO prompts VALUES('%s', '%s')"
-            % (prompt.replace("'", "''"), str(int(time.time())))
+        conv_id = self.latest_id("conversations", "user_id", user_id)
+        self.SQL.cursor().execute(
+            """
+            INSERT INTO chats (conv_id, prompt, timestamp)
+            VALUES(?, ?, datetime('now'))
+            """,
+            (conv_id, prompt),
         )
-        SQL.commit()
-        SQL.close()
+
+    def write_response_to_latest_prompt(self, user_id: str, response: str):
+        conv_id = self.latest_id("conversations", "user_id", user_id)
+        chat_id = self.latest_id("chats", "conv_id", conv_id)
+        self.SQL.cursor().execute(
+            """
+            UPDATE chats 
+            SET response = ?
+            WHERE id = ?
+            """,
+            (response, chat_id),
+        )
+
+    def latest_id(self, table: str, ref_id_field: str, ref_id: str) -> int:
+        """
+        Returns the latest primary key ID for a given reference ID in a specified table.
+
+        Args:
+            table (str): The name of the table to search.
+            ref_id_field (str): The name of the reference ID field in the table.
+            ref_id (str): The reference ID to search for.
+
+        Returns:
+            int: The latest primary key ID for the given reference ID.
+        """
+        return (
+            self.SQL.cursor()
+            .execute(
+                f"SELECT id FROM {table} WHERE {ref_id_field} = ? ORDER BY id DESC LIMIT 1",
+                ref_id,
+            )
+            .fetchone()[0]
+        )

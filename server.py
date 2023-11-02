@@ -196,7 +196,7 @@ def prompt_ditto(user_id: str):
             response = json.loads(send_prompt_to_llm(user_id, prompt))["response"]
 
             # write response to database
-            ditto_db.write_response_to_db(user_id, response)
+            ditto_db.write_response_to_latest_prompt(user_id, response)
 
             return '{"response": "success"}'
 
@@ -212,7 +212,7 @@ def reset_memory(user_id: str):
         ditto.reset_memory(user_id)
         ditto.short_term_mem_store.reset_stmem(user_id)
         log.info(f"resetting prompt and response history for user: {user_id}")
-        ditto_db.reset_conversation(user_id)
+        ditto_db.new_conversation(user_id)
         return '{"action": "reset_memory", "status": "ok"}'
 
     except BaseException as e:
@@ -274,10 +274,23 @@ def write_response(user_id: str):
         log.info(f"saving ditto unit response to database.")
 
         # save prompt to database
-        ditto_db.write_response_to_db(user_id, response)
+        ditto_db.write_response_to_latest_prompt(user_id, response)
 
         return '{"response": "success"}'
 
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+
+@app.route("/users/<user_id>/conversations/<conversation_id>", methods=["GET"])
+def get_conversation(user_id: str, conversation_id: str):
+    offset = request.args.get("offset")
+    limit = request.args.get("limit")
+    order = request.args.get("order")
+
+    try:
+        return ditto_db.get_conversation(user_id, conversation_id, offset, limit, order)
     except BaseException as e:
         log.error(e)
         return ErrException(e)

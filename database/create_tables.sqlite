@@ -1,0 +1,56 @@
+CREATE TABLE IF NOT EXISTS users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username VARCHAR NOT NULL,
+    ditto_unit_url VARCHAR
+);
+
+INSERT INTO
+    users (username, ditto_unit_url)
+SELECT
+    'user1',
+    'http://localhost:42032'
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            users
+    );
+
+CREATE TABLE IF NOT EXISTS chats(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conv_id id,
+    prompt VARCHAR NOT NULL,
+    response VARCHAR,
+    timestamp NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS conversations(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id id,
+    created_at timestamp NOT NULL,
+    updated_at timestamp NOT NULL,
+    viewed_at timestamp NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS migrations(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR NOT NULL,
+    executed_at timestamp NOT NULL
+);
+
+INSERT INTO
+    migrations (name, executed_at)
+SELECT
+    'create_tables',
+    datetime('now')
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            migrations
+        WHERE
+            name = 'create_tables'
+            AND id = 1
+    );
