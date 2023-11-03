@@ -84,12 +84,12 @@ class DittoMemory:
             retriever = vectorstore.as_retriever(search_kwargs=dict(k=5))
             self.memory[user_id] = VectorStoreRetrieverMemory(retriever=retriever)
             self.memory[user_id].save_context(
-                {f"{user_id}": "Hi! What's up? "},
+                {f"Human": "Hi! What's up? "},
                 {"Ditto": "Hi! My name is Ditto. Nice to meet you!"},
             )
             self.memory[user_id].save_context(
                 {
-                    f"{user_id}": "Hey Ditto! Nice to meet you too. Glad we can be talking."
+                    f"Human": "Hey Ditto! Nice to meet you too. Glad we can be talking."
                 },
                 {"Ditto": "Me too!"},
             )
@@ -99,11 +99,12 @@ class DittoMemory:
             self.memory[user_id] = pickle.load(open(mem_file, "rb"))
             log.info(f"Loaded memory file for {user_id}")
 
-    def save_new_memory(self, prompt, response, user_id="Human"):
+    def save_new_memory(self, prompt, response, user_id="Human", face_name="none"):
+        user_name = face_name if not face_name == "none" else user_id
         self.__create_load_memory(user_id=user_id)
         mem_dir = f"memory/{user_id}"
         mem_file = f"{mem_dir}/ditto_memory.pkl"
-        self.memory[user_id].save_context({f"{user_id}": prompt}, {"Ditto": response})
+        self.memory[user_id].save_context({f"{user_name}": prompt}, {"Ditto": response})
         pickle.dump(self.memory[user_id], open(mem_file, "wb"))
         log.info(f"Saved new memory for {user_id}")
 
@@ -119,11 +120,12 @@ class DittoMemory:
             + "1. GOOGLE_SEARCH: <GOOGLE_SEARCH> <query>\n"
             + "1.a GOOGLE_SEARCH can be used to search the web for information. Only use this tool if the user's prompt can be better answered by searching the web."
             + "\n\nIf the user's prompt can be answered by one of these tools, Ditto will use it to answer the question. Otherwise, Ditto will answer the question itself.\n\n"
+            + "If the user's name is set to 'unknown', this means you are talking to someone you do not know. You can ask for their name to scan their face!\n\n"
         )
         query = query_prefix + examples + "\n" + stmem_query
         return query
 
-    def prompt(self, query, user_id="Human"):
+    def prompt(self, query, user_id="Human", face_name="none"):
         self.__create_load_memory(user_id=user_id)
         stamp = str(datetime.utcfromtimestamp(time.time()))
 
@@ -134,7 +136,7 @@ class DittoMemory:
                 input_variables=["history", "input"], template=self.template
             )
             stmem_query = self.short_term_mem_store.get_prompt_with_stmem(
-                user_id, query
+                user_id, query, face_name=face_name
             )
             conversation_with_memory = ConversationChain(
                 llm=self.llm,
@@ -145,7 +147,7 @@ class DittoMemory:
             res = conversation_with_memory.predict(input=stmem_query)
         else:
             stmem_query = self.short_term_mem_store.get_prompt_with_stmem(
-                query, user_id
+                query, user_id, face_name=face_name
             )
             examples = self.example_store.get_example(query)
             query_with_examples = self.add_example_to_query(
@@ -174,7 +176,7 @@ class DittoMemory:
         else:
             memory_res = res
 
-        self.save_new_memory(mem_query, memory_res, user_id)
+        self.save_new_memory(mem_query, memory_res, user_id, face_name=face_name)
         self.short_term_mem_store.save_response_to_stmem(user_id, query, memory_res)
         log.info(f"Handled prompt for {user_id}")
         return res

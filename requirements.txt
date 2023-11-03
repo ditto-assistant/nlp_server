@@ -10,7 +10,7 @@ psutil
 plac
 faiss-cpu==1.7.4
 pydantic==1.10.8
-tensorflow
+tensorflow==2.13.0
 matplotlib
 dill
 langchain==0.0.216
