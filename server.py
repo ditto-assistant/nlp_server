@@ -126,9 +126,9 @@ def send_prompt_to_llm(user_id, prompt):
 def image_rag(user_id: str):
     requests = request.args
     if "prompt" not in requests:
-        return ErrMissingArg("prompt")
+        return ErrMissingQuery("prompt")
     if "mode" not in requests:
-        return ErrMissingArg("mode")
+        return ErrMissingQuery("mode")
     if "image" not in request.files:
         return ErrMissingFile("image")
     try:
@@ -158,7 +158,7 @@ def prompt_llm(user_id: str):
     requests = request.args
     try:
         if "prompt" not in requests:
-            return ErrMissingArg("prompt")
+            return ErrMissingQuery("prompt")
         prompt = requests["prompt"]
 
         response = send_prompt_to_llm(user_id, prompt)
@@ -170,15 +170,14 @@ def prompt_llm(user_id: str):
         return ErrException(e)
 
 
-@app.route("/users/<user_id>/prompt_ditto", methods=["POST", "GET"])
+@app.route(
+    "/users/<user_id>/prompt_ditto",
+    methods=["POST"],
+)
 def prompt_ditto(user_id: str):
-    requests = request.args
     try:
-        if "prompt" not in requests:
-            return ErrMissingArg("prompt")
-
-        # get user's prompt from request
-        prompt = requests["prompt"]
+        body = request.get_json()
+        prompt = body["prompt"]
 
         # write prompt to database
         ditto_db.write_prompt_to_db(user_id, prompt)
@@ -188,10 +187,12 @@ def prompt_ditto(user_id: str):
 
         # if ditto unit is on, send prompt to ditto unit
         if ditto_unit_on:
+            log.debug(f"sending prompt to ditto unit: {prompt}")
             # ditto unit will write prompt and response to database
             send_prompt_to_ditto_unit(user_id, prompt)
             return '{"response": "success"}'
         else:
+            log.debug(f"ditto unit is off. sending prompt to memory agent: {prompt}")
             # ditto unit is off, send prompt to memory agent
             response = json.loads(send_prompt_to_llm(user_id, prompt))["response"]
 
@@ -244,7 +245,7 @@ def write_prompt(user_id: str):
     requests = request.args
     try:
         if "prompt" not in requests:
-            return ErrMissingArg("prompt")
+            return ErrMissingQuery("prompt")
 
         # get user's prompt from request
         prompt = requests["prompt"]
@@ -266,7 +267,7 @@ def write_response(user_id: str):
     requests = request.args
     try:
         if "response" not in requests:
-            return ErrMissingArg("response")
+            return ErrMissingQuery("response")
 
         # get user's prompt from request
         response = requests["response"]
@@ -285,12 +286,18 @@ def write_response(user_id: str):
 
 @app.route("/users/<user_id>/conversations/<conversation_id>", methods=["GET"])
 def get_conversation(user_id: str, conversation_id: str):
-    offset = request.args.get("offset")
-    limit = request.args.get("limit")
-    order = request.args.get("order")
-
+    offset = request.args.get("offset", default=0)
+    limit = request.args.get("limit", default=5)
+    order = request.args.get("order", default="DESC")
+    if order.upper() not in ["ASC", "DESC"]:
+        return ErrInvalidQuery("order", order)
+    is_asc = True if order.upper() == "ASC" else False
     try:
-        return ditto_db.get_conversation(user_id, conversation_id, offset, limit, order)
+        conv = ditto_db.get_conversation(
+            user_id, conversation_id, offset, limit, is_asc
+        )
+        log.info(f"conversation: {conv}")
+        return conv
     except BaseException as e:
         log.error(e)
         return ErrException(e)
@@ -361,7 +368,7 @@ def intent_handler():
     try:
         # Request to send prompt to ditto
         if "prompt" not in requests:
-            return ErrMissingArg("prompt")
+            return ErrMissingQuery("prompt")
         prompt = requests["prompt"]
         log.info(f"sending prompt to intent model: {prompt}")
         intent = intent_model.prompt(prompt)
@@ -378,7 +385,7 @@ def intent_handler():
 def ner_handler(entity_id: str):
     requests = request.args
     if "prompt" not in requests:
-        return ErrMissingArg("prompt")
+        return ErrMissingQuery("prompt")
     prompt = requests["prompt"]
     ner_response = '{"response:" "None"}'
     try:
@@ -430,8 +437,12 @@ def ErrMissingFile(file: str):
     return '{"error": "missing file %s"}' % file
 
 
-def ErrMissingArg(arg: str):
-    return '{"error": "missing argument %s"}' % arg
+def ErrMissingQuery(key: str):
+    return '{"error": "missing query param %s"}' % key
+
+
+def ErrInvalidQuery(key: str, val: str):
+    return '{"error": "invalid query param %s: %s"}' % (key, val)
 
 
 def ErrException(e: BaseException):

@@ -47,13 +47,14 @@ class DittoDB:
         return int(prompt_count) + int(response_count)
 
     def get_conversation(
-        self, user_id: str, conversation_id: str, offset: int, limit: int, order: str
+        self, user_id: int, conv_id: int, offset: int, limit: int, is_asc: bool
     ):
+        order = "ASC" if is_asc else "DESC"
         return (
             self.SQL.cursor()
             .execute(
-                "SELECT id, prompt, response, timestamp FROM chats WHERE conv_id = ? ORDER BY timestamp ? LIMIT ? OFFSET ?",
-                (conversation_id, order, limit, offset),
+                f"SELECT id, timestamp, prompt, response FROM chats WHERE conv_id = ? ORDER BY timestamp {order} LIMIT ? OFFSET ?",
+                (conv_id, limit, offset),
             )
             .fetchall()
         )
@@ -75,31 +76,34 @@ class DittoDB:
             responses = []
             return None
 
-    def new_conversation(self, user_id: str):
+    def new_conversation(self, user_id: int):
         """
         This function creates a new conversation for the user.
         param user_id: The user's id.
         return: The conversation id.
         """
-        self.SQL.cursor().execute(
+        result = self.SQL.cursor().execute(
             """
             INSERT INTO conversations (user_id, created_at, updated_at, viewed_at)
             VALUES (?, datetime('now'), datetime('now'), datetime('now'))
             """,
             (user_id),
         )
+        self.SQL.commit()
 
-    def write_prompt_to_db(self, user_id: str, prompt: str):
+    def write_prompt_to_db(self, user_id: int, prompt: str):
         conv_id = self.latest_id("conversations", "user_id", user_id)
-        self.SQL.cursor().execute(
+        log.info(f"Writing prompt to db: {prompt}")
+        result = self.SQL.cursor().execute(
             """
             INSERT INTO chats (conv_id, prompt, timestamp)
             VALUES(?, ?, datetime('now'))
             """,
             (conv_id, prompt),
         )
+        self.SQL.commit()
 
-    def write_response_to_latest_prompt(self, user_id: str, response: str):
+    def write_response_to_latest_prompt(self, user_id: int, response: str):
         conv_id = self.latest_id("conversations", "user_id", user_id)
         chat_id = self.latest_id("chats", "conv_id", conv_id)
         self.SQL.cursor().execute(
@@ -110,6 +114,7 @@ class DittoDB:
             """,
             (response, chat_id),
         )
+        self.SQL.commit()
 
     def latest_id(self, table: str, ref_id_field: str, ref_id: str) -> int:
         """
@@ -127,7 +132,7 @@ class DittoDB:
             self.SQL.cursor()
             .execute(
                 f"SELECT id FROM {table} WHERE {ref_id_field} = ? ORDER BY id DESC LIMIT 1",
-                ref_id,
+                (ref_id,),
             )
             .fetchone()[0]
         )
