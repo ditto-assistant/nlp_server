@@ -91,7 +91,7 @@ def get_ditto_unit_on_bool(user_id="ditto"):
         status = res["status"]
         # log.info(f"Ditto unit status: {status}")
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         # log.info("Ditto unit is off")
         status = "off"
     ditto_unit_off = True if status == "off" else False
@@ -248,11 +248,17 @@ def mute_ditto_mic(user_id: str):
         ditto_unit_ip = user_obj["ditto_unit_ip"]
         ditto_unit_port = user_obj["ditto_unit_port"]
         log.info(f"toggling ditto unit's mic for user: {user_id}")
-        res = requests_lib.post(
+        res1 = requests_lib.post(
             f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?toggleMic=1",
             timeout=30,
         )
-        return str(res.content.decode().strip())
+        time.sleep(0.3)
+        # toggle ditto eyes too
+        res2 = requests_lib.post(
+            f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?prompt=toggleEyes",
+            timeout=30,
+        )
+        return str(res1.content.decode().strip())
 
     except BaseException as e:
         log.error(e)
@@ -309,7 +315,7 @@ def get_prompt_response_count(user_id: str):
         count = ditto_db.get_prompt_response_count(user_id)
         return '{"historyCount": %d}' % count
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         return ErrException(e)
 
 
@@ -319,7 +325,7 @@ def get_conversation_history(user_id: str):
         prompts, responses = ditto_db.get_conversation_history(user_id)
         return '{"prompts": %s, "responses": %s}' % (prompts, responses)
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         return ErrException(e)
 
 
@@ -331,7 +337,7 @@ def get_ditto_unit_status(user_id: str):
         status = "on" if ditto_unit_on else "off"
         return '{"status": "%s"}' % status
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         return ErrException(e)
 
 
@@ -355,7 +361,7 @@ def get_ditto_mic_status(user_id: str):
             status = "off"
             # log.info("Ditto unit is off")
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         # log.info("Ditto unit is off")
         status = "off"
     return '{"ditto_mic_status": "%s"}' % status
