@@ -390,5 +390,6 @@ class IntentRecognition:
         response = '{"name" : "%s"}' % (entity)
         return response
 
+
 if __name__ == "__main__":
     intent = IntentRecognition(train=TRAIN)

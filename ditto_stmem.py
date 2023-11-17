@@ -41,8 +41,10 @@ class ShortTermMemoryStore:
         if face_name == "none":
             query_with_short_term_memory = f"Current Prompt:\n{user_name}: {query}"
         else:
-            query_with_short_term_memory = f"Facial Recognition (you are looking at): {face_name}\n"\
+            query_with_short_term_memory = (
+                f"Facial Recognition (you are looking at): {face_name}\n"
                 + f"Current Prompt:\n{user_name}: {query}"
+            )
 
         if len(stmem) > 0:
             query_with_short_term_memory = "Short Term Memory Buffer:\n"
@@ -54,8 +56,10 @@ class ShortTermMemoryStore:
             if face_name == "none":
                 query_with_short_term_memory += f"Current Prompt:\n{user_name}: {query}"
             else:
-                query_with_short_term_memory += f"Facial Recognition (you are looking at): {face_name}\n"\
+                query_with_short_term_memory += (
+                    f"Facial Recognition (you are looking at): {face_name}\n"
                     + f"Current Prompt:\n{user_name}: {query}"
+                )
 
         return query_with_short_term_memory
 
