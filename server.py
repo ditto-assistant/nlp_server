@@ -144,7 +144,7 @@ def image_rag(user_id: str):
             )
         else:
             return ErrException(f"Invalid mode: {mode}")
-        
+
         # get stamp for memory stores
         stamp = str(datetime.utcfromtimestamp(time.time()))
         mem_query = f"Timestamp: {stamp}\n{prompt}"
