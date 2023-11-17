@@ -113,7 +113,7 @@ for ndx, data in enumerate(json_data["training_data"]):
             if "entity" in x:
                 tag = "ENTITY"
                 ent_ndx.append([ndx, x])
-    
+
     elif NAME:
         words = data["words"]
         labels = data["labels"]

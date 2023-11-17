@@ -88,9 +88,7 @@ class DittoMemory:
                 {"Ditto": "Hi! My name is Ditto. Nice to meet you!"},
             )
             self.memory[user_id].save_context(
-                {
-                    f"Human": "Hey Ditto! Nice to meet you too. Glad we can be talking."
-                },
+                {f"Human": "Hey Ditto! Nice to meet you too. Glad we can be talking."},
                 {"Ditto": "Me too!"},
             )
             pickle.dump(self.memory[user_id], open(mem_file, "wb"))
