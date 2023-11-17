@@ -69,6 +69,7 @@ class IntentRecognition:
             self.ner_timer = spacy.load("models/ner/timer")
             self.ner_numeric = spacy.load("models/ner/numeric")
             self.ner_light = spacy.load("models/ner/light")
+            self.ner_name = spacy.load("models/ner/name")
         except:
             log.info("\n[Unable to locate one or more NER models...]\n")
             self.ner_play, self.ner_timer, self.ner_numeric, self.ner_light = (
@@ -380,6 +381,14 @@ class IntentRecognition:
         )
         return response
 
+    def prompt_ner_name(self, sentence):
+        entity = ""
+        reply = self.ner_name(sentence)
+        for ent in reply.ents:
+            if "entity" in ent.label_:
+                entity += ent.text + " "
+        response = '{"name" : "%s"}' % (entity)
+        return response
 
 if __name__ == "__main__":
     intent = IntentRecognition(train=TRAIN)

@@ -24,7 +24,8 @@ from tqdm import tqdm
 PLAY = 0
 LIGHT = 0
 TIMER = 0
-NUM = 1
+NUM = 0
+NAME = 1
 
 EPOCHS = 100
 
@@ -41,6 +42,9 @@ elif TIMER:
         json_data = json.load(f)
 elif NUM:
     with open("data/numeric_commands.json") as f:
+        json_data = json.load(f)
+elif NAME:
+    with open("data/name_commands.json") as f:
         json_data = json.load(f)
 
 sentences = []
@@ -109,6 +113,16 @@ for ndx, data in enumerate(json_data["training_data"]):
             if "entity" in x:
                 tag = "ENTITY"
                 ent_ndx.append([ndx, x])
+    
+    elif NAME:
+        words = data["words"]
+        labels = data["labels"]
+
+        ent_ndx = []
+        for ndx, x in enumerate(labels):
+            if "entity" in x:
+                tag = "ENTITY"
+                ent_ndx.append([ndx, x])
 
     sentence = ""
     for x in words:
@@ -160,6 +174,8 @@ elif NUM:
     output_dir = Path("models/ner/numeric")
 elif LIGHT:
     output_dir = Path("models/ner/light")
+elif NAME:
+    output_dir = Path("models/ner/name")
 
 if model is not None:
     nlp = spacy.load(model)

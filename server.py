@@ -1,16 +1,13 @@
 import json
 import shutil
 import requests as requests_lib
-from ditto_memory import DittoMemory
 import platform
 from flask import Flask
 from flask import request
 from flask_cors import CORS
+from datetime import datetime
+import time
 import logging
-
-from PIL import Image
-from io import BytesIO
-import base64
 
 # set up logging for server
 log = logging.getLogger("server")
@@ -24,6 +21,10 @@ from database.db import DittoDB
 
 # import ditto image rag agent
 from modules.image_rag import DittoImageRAG
+
+# import ditto memory agent
+from ditto_memory import DittoMemory
+
 
 import os
 
@@ -90,7 +91,7 @@ def get_ditto_unit_on_bool(user_id="ditto"):
         status = res["status"]
         # log.info(f"Ditto unit status: {status}")
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         # log.info("Ditto unit is off")
         status = "off"
     ditto_unit_off = True if status == "off" else False
@@ -113,15 +114,13 @@ def send_prompt_to_ditto_unit(user_id, prompt):
         log.info("Ditto unit is off")
 
 
-def send_prompt_to_llm(user_id, prompt):
+def send_prompt_to_llm(user_id, prompt, face_name="none"):
     log.info(f"sending user: {user_id} prompt to memory agent: {prompt}")
-    response = ditto.prompt(prompt, user_id)
-
+    response = ditto.prompt(prompt, user_id, face_name)
     return json.dumps({"response": response})
 
 
 # Makes requests to the ditto image rag agent
-### TODO: finish implementing this endpoint...
 @app.route("/users/<user_id>/image_rag", methods=["POST"])
 def image_rag(user_id: str):
     requests = request.args
@@ -145,6 +144,23 @@ def image_rag(user_id: str):
             )
         else:
             return ErrException(f"Invalid mode: {mode}")
+        
+        # get stamp for memory stores
+        stamp = str(datetime.utcfromtimestamp(time.time()))
+        mem_query = f"Timestamp: {stamp}\n{prompt}"
+
+        # save prompt and response to long term memory vector store
+        ditto.save_new_memory(
+            prompt=mem_query,
+            response=image_rag_response,
+            user_id=user_id,
+        )
+
+        # save prompt and response to short term memory vector store
+        ditto.short_term_mem_store.save_response_to_stmem(
+            user_id=user_id, query=mem_query, response=image_rag_response
+        )
+
         return json.dumps({"response": image_rag_response})
 
     except BaseException as e:
@@ -159,9 +175,13 @@ def prompt_llm(user_id: str):
     try:
         if "prompt" not in requests:
             return ErrMissingArg("prompt")
+        if "face_name" not in requests:
+            face_name = "none"
+        else:
+            face_name = requests["face_name"]
         prompt = requests["prompt"]
 
-        response = send_prompt_to_llm(user_id, prompt)
+        response = send_prompt_to_llm(user_id, prompt, face_name)
 
         return response
 
@@ -228,11 +248,17 @@ def mute_ditto_mic(user_id: str):
         ditto_unit_ip = user_obj["ditto_unit_ip"]
         ditto_unit_port = user_obj["ditto_unit_port"]
         log.info(f"toggling ditto unit's mic for user: {user_id}")
-        res = requests_lib.post(
+        res1 = requests_lib.post(
             f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?toggleMic=1",
             timeout=30,
         )
-        return str(res.content.decode().strip())
+        time.sleep(0.3)
+        # toggle ditto eyes too
+        res2 = requests_lib.post(
+            f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto/?prompt=toggleEyes",
+            timeout=30,
+        )
+        return str(res1.content.decode().strip())
 
     except BaseException as e:
         log.error(e)
@@ -289,7 +315,7 @@ def get_prompt_response_count(user_id: str):
         count = ditto_db.get_prompt_response_count(user_id)
         return '{"historyCount": %d}' % count
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         return ErrException(e)
 
 
@@ -299,7 +325,7 @@ def get_conversation_history(user_id: str):
         prompts, responses = ditto_db.get_conversation_history(user_id)
         return '{"prompts": %s, "responses": %s}' % (prompts, responses)
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         return ErrException(e)
 
 
@@ -311,7 +337,7 @@ def get_ditto_unit_status(user_id: str):
         status = "on" if ditto_unit_on else "off"
         return '{"status": "%s"}' % status
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         return ErrException(e)
 
 
@@ -335,7 +361,7 @@ def get_ditto_mic_status(user_id: str):
             status = "off"
             # log.info("Ditto unit is off")
     except BaseException as e:
-        log.error(e)
+        # log.error(e)
         # log.info("Ditto unit is off")
         status = "off"
     return '{"ditto_mic_status": "%s"}' % status
@@ -385,6 +411,10 @@ def ner_handler(entity_id: str):
             case "play":
                 log.info("sending request to ner_play")
                 ner_response = intent_model.prompt_ner_play(prompt)
+
+            case "name":
+                log.info("sending request to ner_name")
+                ner_response = intent_model.prompt_ner_name(prompt)
 
         log.info(ner_response)
         return ner_response

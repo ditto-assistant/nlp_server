@@ -1,0 +1,203 @@
+{
+    "labels": [
+        "O",
+        "B-entity",
+        "I-entity"
+    ],
+    "training_data": [
+        {
+            "words": [
+                "my",
+                "name",
+                "is",
+                "Omar"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "Hello",
+                "my",
+                "name",
+                "is",
+                "John"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "I",
+                "go",
+                "by",
+                "the",
+                "name",
+                "Steven"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "Please",
+                "call",
+                "me",
+                "Jessica."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "You",
+                "can",
+                "address",
+                "me",
+                "as",
+                "Alex."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "Hi",
+                "there,",
+                "I'm",
+                "Sarah."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "I'm",
+                "known",
+                "as",
+                "Michael."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "My",
+                "name",
+                "is",
+                "Maria,",
+                "but",
+                "you",
+                "can",
+                "call",
+                "me",
+                "Mari."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        },
+        {
+            "words": [
+                "I'm",
+                "James,",
+                "and",
+                "it's",
+                "nice",
+                "to",
+                "meet",
+                "you."
+            ],
+            "labels": [
+                "O",
+                "B-entity",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "Call",
+                "me",
+                "Sophia,",
+                "if",
+                "you",
+                "like."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "B-entity",
+                "O",
+                "O",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "I'm",
+                "William,",
+                "but",
+                "everyone",
+                "calls",
+                "me",
+                "Will."
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-entity"
+            ]
+        }
+    ]
+}

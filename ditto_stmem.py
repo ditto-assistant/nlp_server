@@ -32,20 +32,30 @@ class ShortTermMemoryStore:
         log.info(f"Resetting short term memory store for user: {user_id}")
         self.stmem_store[user_id] = []
 
-    def get_prompt_with_stmem(self, query, user_id="Human"):
+    def get_prompt_with_stmem(self, query, user_id="Human", face_name="none"):
         """Returns the prompt with the short term memory buffer injected"""
 
         stmem = self.get_stmem(user_id)
-        query_with_short_term_memory = f"Current Prompt:\n{user_id}: {query}"
+        user_name = face_name if not face_name == "none" else user_id
+
+        if face_name == "none":
+            query_with_short_term_memory = f"Current Prompt:\n{user_name}: {query}"
+        else:
+            query_with_short_term_memory = f"Facial Recognition (you are looking at): {face_name}\n"\
+                + f"Current Prompt:\n{user_name}: {query}"
 
         if len(stmem) > 0:
             query_with_short_term_memory = "Short Term Memory Buffer:\n"
             for mem in stmem:
                 q, response, stamp = mem
-                query_with_short_term_memory += f"{user_id}: ({stamp}): " + q + "\n"
+                query_with_short_term_memory += f"{user_name}: ({stamp}): " + q + "\n"
                 query_with_short_term_memory += f"AI: " + response + "\n"
 
-            query_with_short_term_memory += f"Current Prompt:\n{user_id}: {query}"
+            if face_name == "none":
+                query_with_short_term_memory += f"Current Prompt:\n{user_name}: {query}"
+            else:
+                query_with_short_term_memory += f"Facial Recognition (you are looking at): {face_name}\n"\
+                    + f"Current Prompt:\n{user_name}: {query}"
 
         return query_with_short_term_memory
 
