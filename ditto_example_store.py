@@ -58,6 +58,14 @@ class DittoExampleStore:
                 "answer": "<GOOGLE_SEARCH> forecast for the next 5 days in Miami, FL",
             },
             {
+                "query": "Can you use google to search for the latest news involving aquaponics?",
+                "answer": "<GOOGLE_SEARCH> latest news involving aquaponics",
+            },
+            {
+                "query": "Can you look up the weather in Golden, CO?",
+                "answer": "<GOOGLE_SEARCH> weather in Golden, CO",
+            },
+            {
                 "query": "What is the current time in New York?",
                 "answer": "<GOOGLE_SEARCH> current time in New York",
             },

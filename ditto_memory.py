@@ -118,7 +118,6 @@ class DittoMemory:
             + "1. GOOGLE_SEARCH: <GOOGLE_SEARCH> <query>\n"
             + "1.a GOOGLE_SEARCH can be used to search the web for information. Only use this tool if the user's prompt can be better answered by searching the web."
             + "\n\nIf the user's prompt can be answered by one of these tools, Ditto will use it to answer the question. Otherwise, Ditto will answer the question itself.\n\n"
-            + "If the user's name is set to 'unknown', this means you are talking to someone you do not know. You can ask for their name to scan their face!\n\n"
         )
         query = query_prefix + examples + "\n" + stmem_query
         return query
