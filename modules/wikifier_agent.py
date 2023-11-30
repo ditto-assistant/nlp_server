@@ -1,11 +1,13 @@
 WIKIFIER_TEMPLATE = """
-You are a Wikipedia editor, and your task is to take a user's prompt and response from an AI assistant and convert it into a Wikipedia article. Do not include any new information when writing the article.
+You are a Wikipedia editor, and your task is to take a user's prompt and response from an AI assistant named Ditto and convert it into a Wikipedia article. Do NOT include any new information than what is included in "AI:".
+
+If the prompt / response pair is small talk, then do not create a Wikipedia article - simply respond with "no." if the prompt / response pair is small talk.
 
 Examples:
 
 User: What is the capital of France?
-AI: Paris
-Response:
+Ditto: Paris
+Wiki:
 # Capital of France
 The user asked the AI assistant for the capital of France, and the assistant responded with the answer: Paris.
 
@@ -15,7 +17,7 @@ AI: As of my last knowledge update in January 2022, Arceus is often considered o
 However, it's important to note that the Pokémon franchise is continually evolving, with new games and generations introducing more powerful Pokémon. Additionally, the concept of the "strongest" Pokémon can vary depending on factors such as individual stats, movesets, and type matchups.
 
 If there have been new Pokémon games or updates since my last knowledge update in January 2022, I recommend checking the latest official Pokémon sources for the most up-to-date information on the strongest Pokémon.
-Response:
+Wiki:
 # The Strongest Pokémon
 
 ## Introduction
@@ -36,9 +38,48 @@ The determination of the "strongest" Pokémon is a nuanced process, considering 
 ## Staying Informed
 For the latest and most accurate information on the strongest Pokémon, especially considering potential new Pokémon games or updates since January 2022, it is highly recommended to consult the latest official Pokémon sources. Staying informed ensures an up-to-date understanding of the evolving hierarchy of Pokémon strength.
 
+User: Tell me a short story about a dog.
+Ditto: Once upon a time, there was a dog named Ditto. He was a very good dog.
+Wiki:
+# A Short Story About a Dog
+
+## Introduction
+Once upon a time, there was a dog named Ditto. 
+
+## Conclusion
+He was a very good dog.
+
+User: Hi! What's up?
+Ditto: Hi! My name is Ditto. Nice to meet you!
+Wiki:
+no.
+
+User: Thanks!!
+Ditto: "You're welcome! If you have any more questions or if there's anything else I can help you with, just let me know."
+Wiki:
+no.
+
+User: Can you tell me about baseball?
+Ditto: "Baseball is a sport played between two teams of nine players each. The goal is to score runs by hitting a thrown ball with a bat and touching a series of four bases arranged at the corners of a ninety-foot square, or diamond. Players on one team (the batting team) take turns hitting against the pitcher of the other team (the fielding team), which tries to stop them from scoring runs by getting hitters out in any of several ways. A player on the batting team can stop at any of the bases and later advance via a teammate's hit or other means. The teams switch between batting and fielding whenever the fielding team records three outs. One turn at bat for each team constitutes an inning; nine innings make up a professional game. The team with the most runs at the end of the game wins."
+Wiki:
+# Baseball Overview
+
+## Introduction
+Baseball is a team sport played between two teams, each comprising nine players. The primary objective is to score runs by hitting a pitched ball with a bat and reaching four bases arranged in a diamond shape.
+
+## Gameplay
+Teams alternate between batting and fielding. The batting team faces the pitcher of the fielding team, aiming to score runs. The fielding team strives to get hitters out through various methods. Players can advance by stopping at bases and later progressing through hits or other team actions.
+
+## Innings and Scoring
+A game consists of nine innings, with each team having a turn at bat. The team with the most runs at the end of the game emerges as the winner.
+
+## Dynamics
+The strategic game involves skillful pitching, hitting, and defensive maneuvers. The constant switch between batting and fielding adds to the dynamic nature of baseball.
+
+
 User: {prompt}
-AI: {response}
-Response:
+Ditto: {response}
+Wiki:
 """
 
 from langchain.prompts import PromptTemplate
@@ -48,7 +89,7 @@ class WikifierAgent:
 
     def __init__(self):
         self.template = WIKIFIER_TEMPLATE
-        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+        self.llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
         self.prompt_template = PromptTemplate(
             input_variables=["prompt", "response"],
             template=WIKIFIER_TEMPLATE,
@@ -63,7 +104,7 @@ class WikifierAgent:
     
 if __name__ == "__main__":
     wikifier_agent = WikifierAgent()
-    prompt = "What is the capital of France?"
-    response = "Paris"
+    prompt = "tell me about the pokemon Mewtwo"
+    response = "Mewtwo is a powerful Psychic-type Pokémon that was created through genetic manipulation. It is known for its immense psychic abilities and high intelligence. Mewtwo is a clone of the legendary Pokémon Mew, and it was created with the goal of being the most powerful Pokémon in existence. It has a sleek, humanoid appearance with purple fur, a long tail, and a large, armored head. Mewtwo has appeared in various Pokémon games, movies, and TV shows, and it is often portrayed as a formidable opponent. Is there anything specific you would like to know about Mewtwo?"
     res = wikifier_agent.wikify(prompt, response)
     print(res)

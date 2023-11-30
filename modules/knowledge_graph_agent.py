@@ -1,6 +1,8 @@
 KG_TEMPLATE = """
 You are en experienced neo4j graph constructor and your job is to convert this text into nodes and relationships for a neo4j graph. Use integer ids for node ids and encode the nodes and relationships in JSON. The user's prompt that generated the text is included below. The user's prompt will always be the first node with id=0, type=Prompt, title=Prompt, and description=a summary of the user's prompt. The second node will always be a summary of the text with id=1, type=Response, title=Response, and description=a summary of the text. The rest of the nodes and relationships are up to you.
 
+Do not include new information than what's given in Text.
+
 Nodes have the following keys:
 1. id: unique integer identifier
 2. type: usually the subject of the sentence or paragraph but can be any one word that describes the node. Make this one word that summarizes header strings.
@@ -12,7 +14,9 @@ Relationships have the following keys:
 2. target_node: id of target node.
 3. relationship_type: unique relationship string that can be used if appears again. Make this all caps with underscores as spaces.
 
-Example:
+Be sure to always make a Prompt, Response, and Subject node. Always connect a node to at least one other node. Never leave a node unconnected. If you are unsure where to connect a node related to a Subject and its nodes, connect it to the Subject node by default.
+
+Examples:
 
 User's Prompt: What is the best Pokémon?
 
@@ -56,7 +60,7 @@ Response:
       "id": 2,
       "type": "Subject",
       "title": "Pokémon",
-      "description": "Pokémon is a media franchise created by Satoshi Tajiri and owned by The Pokémon Company, created in 1995. It is centered on fictional creatures called 'Pokémon,' which humans known as Pokémon Trainers catch and train to battle each other for sport."
+      "description": "Pokémon"
     },
     {
       "id": 3,
@@ -128,6 +132,60 @@ Response:
   ]
 }
 
+User's Prompt: What is the capital of France?
+
+Text:
+# Capital of France
+The user asked the AI assistant for the capital of France, and the assistant responded with the answer: Paris.
+
+Response:
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "Prompt",
+      "title": "Prompt",
+      "description": "What is the capital of France?"
+    },
+    {
+      "id": 1,
+      "type": "Response",
+      "title": "Response",
+      "description": "The capital of France is Paris."
+    },
+    {
+      "id": 2,
+      "type": "Subject",
+      "title": "France",
+      "description": "France is a country located in Western Europe. It is known for its rich history, culture, and contributions to art, fashion, and cuisine."
+    },
+    {
+      "id": 3,
+      "type": "Capital",
+      "title": "Paris",
+      "description": "Paris is the capital and largest city of France. It is a global center for art, fashion, gastronomy, and culture."
+    }
+  ],
+  "relationships": [
+    {
+      "src_node": 0,
+      "target_node": 1,
+      "relationship_type": "HAS_RESPONSE"
+    },
+    {
+      "src_node": 1,
+      "target_node": 2,
+      "relationship_type": "HAS_SUBJECT"
+    },
+    {
+      "src_node": 2,
+      "target_node": 3,
+      "relationship_type": "HAS_CAPITAL"
+    }
+  ]
+}
+
+
 User's Prompt: <!user_prompt>
 
 Text:
@@ -157,10 +215,33 @@ class KGAgent:
     
 if __name__ == "__main__":
     agent = KGAgent()
-    user_prompt = "What is the capital of France?"
+    user_prompt = "Can you tell me about the pokemon Mewtwo?"
     text = """
-    # Capital of France
-    The user asked the AI assistant for the capital of France, and the assistant responded with the answer: Paris.
+    # Mewtwo
+
+    ## Introduction
+    Mewtwo is a powerful Psychic-type Pokémon that was created through genetic manipulation. It is renowned for its extraordinary psychic abilities and exceptional intelligence. This Pokémon is a clone of the legendary Pokémon Mew, and it was specifically engineered with the ambition of becoming the most dominant and formidable Pokémon in existence.
+
+    ## Appearance
+    Mewtwo possesses a sleek and humanoid physique, characterized by its vibrant purple fur. It boasts a long, elegant tail and a distinctive, heavily armored head. These physical attributes contribute to Mewtwo's imposing presence and visually distinguish it from other Pokémon.
+
+    ## Psychic Abilities
+    Mewtwo's psychic capabilities are unparalleled within the Pokémon world. It possesses an array of psychic powers, including telekinesis, telepathy, and the ability to manipulate energy. These abilities grant Mewtwo an immense advantage in battles and make it a formidable opponent.
+
+    ## Origin and Creation
+    Mewtwo's origin lies in its genetic connection to the legendary Pokémon Mew. Scientists conducted extensive genetic experiments to create a clone of Mew, resulting in the birth of Mewtwo. The aim of these experiments was to produce a Pokémon with unparalleled power and abilities.
+
+    ## Appearances in Media
+    Mewtwo has made appearances in various Pokémon games, movies, and TV shows. It is often depicted as a significant character and a formidable adversary. Its presence in these media outlets has contributed to its popularity and recognition among Pokémon enthusiasts.
+
+    ## Legacy and Impact
+    Mewtwo's status as a powerful and iconic Pokémon has solidified its place in the Pokémon franchise. Its unique abilities, captivating appearance, and intriguing backstory have made it a fan favorite and a symbol of strength and intelligence within the Pokémon universe.
+
+    ## Ongoing Evolution
+    As the Pokémon franchise continues to evolve with new games and generations, Mewtwo's role and significance may undergo further development. It is essential to stay updated with the latest official Pokémon sources to remain informed about any new information or changes regarding Mewtwo.  
     """
     res = agent.construct_kg(user_prompt, text)
     print(res)
+
+    ## TODO: Hook this up to Ditto Memory Agent!!!! :D
+    # This will allow us to construct a knowledge graph while interacting with Ditto :D

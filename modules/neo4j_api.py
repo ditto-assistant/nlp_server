@@ -142,6 +142,109 @@ TEST = """
 }
 """
 
+TEST = """
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "Prompt",
+      "title": "Prompt",
+      "description": "Can you tell me about the pokemon Mewtwo?"
+    },
+    {
+      "id": 1,
+      "type": "Response",
+      "title": "Response",
+      "description": "Mewtwo is a powerful Psychic-type Pokémon that was created through genetic manipulation. It possesses extraordinary psychic abilities, an imposing appearance, and has made appearances in various Pokémon media. Stay updated with official Pokémon sources for the latest information on Mewtwo."
+    },
+    {
+      "id": 2,
+      "type": "Subject",
+      "title": "Mewtwo",
+      "description": "Mewtwo is a powerful Psychic-type Pokémon that was created through genetic manipulation. It is renowned for its extraordinary psychic abilities and exceptional intelligence. This Pokémon is a clone of the legendary Pokémon Mew, and it was specifically engineered with the ambition of becoming the most dominant and formidable Pokémon in existence."
+    },
+    {
+      "id": 3,
+      "type": "Appearance",
+      "title": "Physical Appearance",
+      "description": "Mewtwo possesses a sleek and humanoid physique, characterized by its vibrant purple fur. It boasts a long, elegant tail and a distinctive, heavily armored head. These physical attributes contribute to Mewtwo's imposing presence and visually distinguish it from other Pokémon."
+    },
+    {
+      "id": 4,
+      "type": "Psychic Abilities",
+      "title": "Psychic Abilities",
+      "description": "Mewtwo's psychic capabilities are unparalleled within the Pokémon world. It possesses an array of psychic powers, including telekinesis, telepathy, and the ability to manipulate energy. These abilities grant Mewtwo an immense advantage in battles and make it a formidable opponent."
+    },
+    {
+      "id": 5,
+      "type": "Origin and Creation",
+      "title": "Origin and Creation",
+      "description": "Mewtwo's origin lies in its genetic connection to the legendary Pokémon Mew. Scientists conducted extensive genetic experiments to create a clone of Mew, resulting in the birth of Mewtwo. The aim of these experiments was to produce a Pokémon with unparalleled power and abilities."
+    },
+    {
+      "id": 6,
+      "type": "Media Appearances",
+      "title": "Appearances in Media",
+      "description": "Mewtwo has made appearances in various Pokémon games, movies, and TV shows. It is often depicted as a significant character and a formidable adversary. Its presence in these media outlets has contributed to its popularity and recognition among Pokémon enthusiasts."
+    },
+    {
+      "id": 7,
+      "type": "Legacy and Impact",
+      "title": "Legacy and Impact",
+      "description": "Mewtwo's status as a powerful and iconic Pokémon has solidified its place in the Pokémon franchise. Its unique abilities, captivating appearance, and intriguing backstory have made it a fan favorite and a symbol of strength and intelligence within the Pokémon universe."
+    },
+    {
+      "id": 8,
+      "type": "Ongoing Evolution",
+      "title": "Ongoing Evolution",
+      "description": "As the Pokémon franchise continues to evolve with new games and generations, Mewtwo's role and significance may undergo further development. It is essential to stay updated with the latest official Pokémon sources to remain informed about any new information or changes regarding Mewtwo."
+    }
+  ],
+  "relationships": [
+    {
+      "src_node": 0,
+      "target_node": 1,
+      "relationship_type": "HAS_RESPONSE"
+    },
+    {
+      "src_node": 1,
+      "target_node": 2,
+      "relationship_type": "HAS_SUBJECT"
+    },
+    {
+      "src_node": 2,
+      "target_node": 3,
+      "relationship_type": "HAS_APPEARANCE"
+    },
+    {
+      "src_node": 2,
+      "target_node": 4,
+      "relationship_type": "HAS_PSYCHIC_ABILITIES"
+    },
+    {
+      "src_node": 2,
+      "target_node": 5,
+      "relationship_type": "HAS_ORIGIN_AND_CREATION"
+    },
+    {
+      "src_node": 2,
+      "target_node": 6,
+      "relationship_type": "HAS_MEDIA_APPEARANCES"
+    },
+    {
+      "src_node": 2,
+      "target_node": 7,
+      "relationship_type": "HAS_LEGACY_AND_IMPACT"
+    },
+    {
+      "src_node": 2,
+      "target_node": 8,
+      "relationship_type": "HAS_ONGOING_EVOLUTION"
+    }
+  ]
+}
+"""
+
 import os
 
 class Neo4jAPI:
@@ -160,16 +263,16 @@ class Neo4jAPI:
             return latest_node_id
         
     def load_users(self):
-        if not os.path.exists("users.json"):
+        if not os.path.exists("kg_users.json"):
             return {"users": []}
         else:
-            with open("users.json", "r") as f:
+            with open("kg_users.json", "r") as f:
                 users_obj = json.load(f)
             return users_obj
         
     def update_user_ids(self, user_name, user_id):
         self.users_obj['users'].append({user_id: user_name})
-        with open("users.json", "w") as f:
+        with open("kg_users.json", "w") as f:
             json.dump(self.users_obj, f)
 
     def get_user_id(self, user_name):
@@ -200,35 +303,41 @@ class Neo4jAPI:
         self.update_user_ids(user_name, random_id)
     
     def create_graph(self, user_name, nodes, relationships):
-        self.driver = GraphDatabase.driver('bolt://localhost:7687', auth=('neo4j', 'password'), database='neo4j')
-        user_node_id = self.get_user_id(user_name)
-        if user_node_id is None:
-            self.create_user_node(user_name)
-            user_node_id = self.get_user_id(user_name)
-        for node in nodes:
-            self.create_node(node)
-        for relationship in relationships:
-            self.create_relationship(relationship)
+        try:
+          self.driver = GraphDatabase.driver('bolt://localhost:7687', auth=('neo4j', 'password'), database='neo4j')
+          user_node_id = self.get_user_id(user_name)
+          if user_node_id is None:
+              self.create_user_node(user_name)
+              user_node_id = self.get_user_id(user_name)
+          for node in nodes:
+              self.create_node(node)
+          for relationship in relationships:
+              self.create_relationship(relationship)
 
-        # connect graph to user node
-        prompt_node_id = nodes[0]["id"] + self.latest_node["id"]
+          # connect graph to user node
+          prompt_node_id = nodes[0]["id"] + self.latest_node["id"]
+          
+          self.driver.execute_query("""
+              MATCH (a), (b)
+              WHERE a.id = %d AND b.id = %d
+              CREATE (a)-[:%s]->(b)
+          """ % (user_node_id, prompt_node_id, "HAS_PROMPT"))
+
+          latest_node_id = nodes[-1]["id"]
+          self.latest_node["id"] = int(latest_node_id) + self.latest_node["id"]
+          self.update_latest_node_id()
+
+          self.driver.close()
+
+        except BaseException as e:
+          print(e)
+          self.driver.close()
         
-        self.driver.execute_query("""
-            MATCH (a), (b)
-            WHERE a.id = %d AND b.id = %d
-            CREATE (a)-[:%s]->(b)
-        """ % (user_node_id, prompt_node_id, "HAS_PROMPT"))
-
-        latest_node_id = nodes[-1]["id"]
-        self.latest_node["id"] = int(latest_node_id) + self.latest_node["id"]
-        self.update_latest_node_id()
-
-        self.driver.close()
         
 
     def create_node(self, node):
         node_id = int(node["id"]) + self.latest_node["id"]
-        node_type = node["type"]
+        node_type = str(node["type"]).replace(" ", "").strip()
         node_title = node["title"]
         node_description = node["description"]
         self.driver.execute_query("""

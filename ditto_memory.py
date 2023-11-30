@@ -29,16 +29,21 @@ from ditto_example_store import DittoExampleStore
 # import short term memory store
 from ditto_stmem import ShortTermMemoryStore
 
+# import knowledge graph agent job
+from modules.kg_job import KGJob
+
 log = logging.getLogger("ditto_memory")
 logging.basicConfig(level=logging.INFO)
 
 from templates.llm_tools import LLM_TOOLS_TEMPLATE
 from templates.default import DEFAULT_TEMPLATE
 
+KG_MODE = bool(os.environ["knowledge_graph"])
 
 class DittoMemory:
     def __init__(self, verbose=False):
         self.verbose = verbose
+        self.kg_mode = KG_MODE
         self.__handle_params()
         self.short_term_mem_store = ShortTermMemoryStore()
         self.google_search_agent = GoogleSearchAgent(verbose=verbose)
@@ -175,6 +180,13 @@ class DittoMemory:
 
         self.save_new_memory(mem_query, memory_res, user_id, face_name=face_name)
         self.short_term_mem_store.save_response_to_stmem(user_id, query, memory_res)
+
+        # save to knowledge graph (starts a new thread and closes when done)
+        if self.kg_mode == True:
+            kg_job = KGJob(
+                user_id, query, memory_res
+            )
+
         log.info(f"Handled prompt for {user_id}")
         return res
 

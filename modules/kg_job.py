@@ -10,17 +10,18 @@ import logging
 import json
 import os
 
-from wikifier_agent import WikifierAgent
-from knowledge_graph_agent import KGAgent
+from modules.wikifier_agent import WikifierAgent
+from modules.knowledge_graph_agent import KGAgent
 
-from neo4j_api import Neo4jAPI
+from modules.neo4j_api import Neo4jAPI
 
 log = logging.getLogger("kg_job")
 log.setLevel(logging.INFO)
 
 class KGJob:
 
-    def __init__(self, prompt, response):
+    def __init__(self, user_name, prompt, response):
+        self.user_name = user_name
         self.prompt = prompt
         self.response = response
         self.wikifier_agent = WikifierAgent()
@@ -31,8 +32,11 @@ class KGJob:
         self.thread.start()
 
     def run(self):
-        log.info("KG job started")
+        print("KG job started")
         wikifier_res = self.wikifier_agent.wikify(self.prompt, self.response)
+        if len(wikifier_res.strip()) < 10 or wikifier_res.strip().lower() == "no.":
+            print("No wikifier results")
+            return
         kg_res = self.kg_agent.construct_kg(self.prompt, wikifier_res)
         try:
             kg_res = json.loads(kg_res)
@@ -40,8 +44,8 @@ class KGJob:
             log.error(e)
         nodes = kg_res["nodes"]
         relationships = kg_res["relationships"]
-        self.neo4j_api.create_graph(nodes, relationships)
-        log.info("KG job finished")
+        self.neo4j_api.create_graph(self.user_name, nodes, relationships)
+        print("KG job finished")
         
     def is_alive(self):
         return self.thread.is_alive()
@@ -53,4 +57,4 @@ class KGJob:
 if __name__ == "__main__":
     prompt = "Tell me a short story about a dog."
     response = "Once upon a time, there was a dog named Ditto. He was a very good dog."
-    kg_job = KGJob(prompt, response)
+    kg_job = KGJob("Omar", prompt, response)
