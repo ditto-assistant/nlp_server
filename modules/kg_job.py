@@ -1,8 +1,8 @@
-'''
+"""
 This class will start a thread that takes a prompt and response pair and runs it through the wikifier
 agent and then the knowlege graph agent. The returned json from the KG agent will be written to neo4j
 via the neo4j driver. The thread will stop when the job is complete or when the thread is stopped.
-'''
+"""
 
 from threading import Thread
 import time
@@ -18,8 +18,8 @@ from modules.neo4j_api import Neo4jAPI
 log = logging.getLogger("kg_job")
 log.setLevel(logging.INFO)
 
-class KGJob:
 
+class KGJob:
     def __init__(self, user_name, prompt, response):
         self.user_name = user_name
         self.prompt = prompt
@@ -46,13 +46,14 @@ class KGJob:
         relationships = kg_res["relationships"]
         self.neo4j_api.create_graph(self.user_name, nodes, relationships)
         print("KG job finished")
-        
+
     def is_alive(self):
         return self.thread.is_alive()
-    
+
     def stop(self):
         self.thread.join()
-        log.info("KG job stopped")  
+        log.info("KG job stopped")
+
 
 if __name__ == "__main__":
     prompt = "Tell me a short story about a dog."

@@ -48,7 +48,9 @@ class ShortTermMemoryStore:
             )
 
         if len(stmem) > 0:
-            query_with_short_term_memory = "Short Term Memory Buffer (most recent prompt/response pairs):\n"
+            query_with_short_term_memory = (
+                "Short Term Memory Buffer (most recent prompt/response pairs):\n"
+            )
             for mem in stmem:
                 q, response, stamp = mem
                 query_with_short_term_memory += f"{user_name}: ({stamp}): " + q + "\n"

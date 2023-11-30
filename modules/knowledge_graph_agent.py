@@ -196,12 +196,12 @@ Response:
 
 from langchain.chat_models import ChatOpenAI
 
-class KGAgent:
 
+class KGAgent:
     def __init__(self):
         self.template = KG_TEMPLATE
         self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
-    
+
     def get_prompt_template(self, user_prompt, text):
         template = KG_TEMPLATE
         template = template.replace("<!user_prompt>", user_prompt)
@@ -212,7 +212,8 @@ class KGAgent:
         prompt = self.get_prompt_template(user_prompt, text)
         res = self.llm.call_as_llm(prompt)
         return res
-    
+
+
 if __name__ == "__main__":
     agent = KGAgent()
     user_prompt = "Can you tell me about the pokemon Mewtwo?"

@@ -247,8 +247,8 @@ TEST = """
 
 import os
 
-class Neo4jAPI:
 
+class Neo4jAPI:
     def __init__(self):
         self.latest_node = self.load_latest_node_id()
         self.users_obj = self.load_users()
@@ -259,9 +259,9 @@ class Neo4jAPI:
         else:
             with open("latest_node_id.json", "r") as f:
                 latest_node_id = json.load(f)
-                latest_node_id['id'] = int(latest_node_id['id']) + 1
+                latest_node_id["id"] = int(latest_node_id["id"]) + 1
             return latest_node_id
-        
+
     def load_users(self):
         if not os.path.exists("kg_users.json"):
             return {"users": []}
@@ -269,14 +269,14 @@ class Neo4jAPI:
             with open("kg_users.json", "r") as f:
                 users_obj = json.load(f)
             return users_obj
-        
+
     def update_user_ids(self, user_name, user_id):
-        self.users_obj['users'].append({user_id: user_name})
+        self.users_obj["users"].append({user_id: user_name})
         with open("kg_users.json", "w") as f:
             json.dump(self.users_obj, f)
 
     def get_user_id(self, user_name):
-        for user_obj in self.users_obj['users']:
+        for user_obj in self.users_obj["users"]:
             user_id = list(user_obj.keys())[0]
             user_name_ = user_obj[user_id]
             if user_name_ == user_name:
@@ -288,7 +288,7 @@ class Neo4jAPI:
             json.dump(self.latest_node, f)
 
     def user_id_exists(self, user_id):
-        for user in self.users_obj['users']:
+        for user in self.users_obj["users"]:
             if user[user_id]:
                 return True
         return False
@@ -297,65 +297,77 @@ class Neo4jAPI:
         random_id = -np.random.randint(1, 1000000000)
         while self.user_id_exists(random_id):
             random_id = -np.random.randint(1, 1000000000)
-        self.driver.execute_query("""
+        self.driver.execute_query(
+            """
             CREATE (:%s {name: "%s", id: %d})
-        """ % ("User", user_name, random_id))
+        """
+            % ("User", user_name, random_id)
+        )
         self.update_user_ids(user_name, random_id)
-    
+
     def create_graph(self, user_name, nodes, relationships):
         try:
-          self.driver = GraphDatabase.driver('bolt://localhost:7687', auth=('neo4j', 'password'), database='neo4j')
-          user_node_id = self.get_user_id(user_name)
-          if user_node_id is None:
-              self.create_user_node(user_name)
-              user_node_id = self.get_user_id(user_name)
-          for node in nodes:
-              self.create_node(node)
-          for relationship in relationships:
-              self.create_relationship(relationship)
+            self.driver = GraphDatabase.driver(
+                "bolt://localhost:7687", auth=("neo4j", "password"), database="neo4j"
+            )
+            user_node_id = self.get_user_id(user_name)
+            if user_node_id is None:
+                self.create_user_node(user_name)
+                user_node_id = self.get_user_id(user_name)
+            for node in nodes:
+                self.create_node(node)
+            for relationship in relationships:
+                self.create_relationship(relationship)
 
-          # connect graph to user node
-          prompt_node_id = nodes[0]["id"] + self.latest_node["id"]
-          
-          self.driver.execute_query("""
+            # connect graph to user node
+            prompt_node_id = nodes[0]["id"] + self.latest_node["id"]
+
+            self.driver.execute_query(
+                """
               MATCH (a), (b)
               WHERE a.id = %d AND b.id = %d
               CREATE (a)-[:%s]->(b)
-          """ % (user_node_id, prompt_node_id, "HAS_PROMPT"))
+          """
+                % (user_node_id, prompt_node_id, "HAS_PROMPT")
+            )
 
-          latest_node_id = nodes[-1]["id"]
-          self.latest_node["id"] = int(latest_node_id) + self.latest_node["id"]
-          self.update_latest_node_id()
+            latest_node_id = nodes[-1]["id"]
+            self.latest_node["id"] = int(latest_node_id) + self.latest_node["id"]
+            self.update_latest_node_id()
 
-          self.driver.close()
+            self.driver.close()
 
         except BaseException as e:
-          print(e)
-          self.driver.close()
-        
-        
+            print(e)
+            self.driver.close()
 
     def create_node(self, node):
         node_id = int(node["id"]) + self.latest_node["id"]
         node_type = str(node["type"]).replace(" ", "").strip()
         node_title = node["title"]
         node_description = node["description"]
-        self.driver.execute_query("""
+        self.driver.execute_query(
+            """
             CREATE (:%s {title: "%s", description: "%s", id: %d})
-        """ % (node_type, node_title, node_description, node_id))
-    
+        """
+            % (node_type, node_title, node_description, node_id)
+        )
+
     def create_relationship(self, relationship):
         src_node = relationship["src_node"] + self.latest_node["id"]
         target_node = relationship["target_node"] + self.latest_node["id"]
         relationship_type = relationship["relationship_type"]
-        self.driver.execute_query("""
+        self.driver.execute_query(
+            """
             MATCH (a), (b)
             WHERE a.id = %d AND b.id = %d
             CREATE (a)-[:%s]->(b)
-        """ % (src_node, target_node, relationship_type))
+        """
+            % (src_node, target_node, relationship_type)
+        )
+
 
 if __name__ == "__main__":
-
     neo4j_api = Neo4jAPI()
     kg = json.loads(TEST)
     nodes = kg["nodes"]
