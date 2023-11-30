@@ -85,8 +85,8 @@ Wiki:
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 
-class WikifierAgent:
 
+class WikifierAgent:
     def __init__(self):
         self.template = WIKIFIER_TEMPLATE
         self.llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
@@ -94,14 +94,13 @@ class WikifierAgent:
             input_variables=["prompt", "response"],
             template=WIKIFIER_TEMPLATE,
         )
-    
+
     def wikify(self, prompt, response):
-        prompt = self.prompt_template.format(
-            prompt=prompt, response=response
-        )
+        prompt = self.prompt_template.format(prompt=prompt, response=response)
         res = self.llm.call_as_llm(prompt)
         return res
-    
+
+
 if __name__ == "__main__":
     wikifier_agent = WikifierAgent()
     prompt = "tell me about the pokemon Mewtwo"
