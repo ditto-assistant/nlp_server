@@ -264,7 +264,7 @@ class Neo4jAPI:
 
     def load_users(self):
         if not os.path.exists("kg_users.json"):
-            return {"users": []}
+            return {"users": [{'-1': 'Ditto'}]}
         else:
             with open("kg_users.json", "r") as f:
                 users_obj = json.load(f)
@@ -289,7 +289,7 @@ class Neo4jAPI:
 
     def user_id_exists(self, user_id):
         for user in self.users_obj["users"]:
-            if user[user_id]:
+            if user_id in user.keys():
                 return True
         return False
 
@@ -311,7 +311,7 @@ class Neo4jAPI:
                 "bolt://localhost:7687", auth=("neo4j", "password"), database="neo4j"
             )
             user_node_id = self.get_user_id(user_name)
-            if user_node_id is None:
+            if user_node_id == None:
                 self.create_user_node(user_name)
                 user_node_id = self.get_user_id(user_name)
             for node in nodes:
