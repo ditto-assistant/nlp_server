@@ -16,6 +16,8 @@ Relationships have the following keys:
 
 Be sure to always make a Prompt, Response, and Subject node. Always connect a node to at least one other node. Never leave a node unconnected. If you are unsure where to connect a node related to a Subject and its nodes, connect it to the Subject node by default.
 
+Also, ALWAYS use single quotes for strings in JSON. NEVER use double quotes for strings in JSON.
+
 Examples:
 
 User's Prompt: What is the best Pokémon?
@@ -208,8 +210,8 @@ class KGAgent:
         template = template.replace("<!text>", text)
         return template
 
-    def construct_kg(self, user_prompt, text):
-        prompt = self.get_prompt_template(user_prompt, text)
+    def construct_kg(self, user_prompt:str, text:str):
+        prompt = self.get_prompt_template(user_prompt.replace('"', "'"), text.replace('"', "'"))
         res = self.llm.call_as_llm(prompt)
         return res
 

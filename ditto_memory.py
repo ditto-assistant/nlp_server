@@ -184,7 +184,7 @@ class DittoMemory:
 
         # save to knowledge graph (starts a new thread and closes when done)
         if self.kg_mode == True:
-            kg_job = KGJob(user_id, query, memory_res)
+            kg_job = KGJob(user_id, str(query).replace('"', "'"), memory_res.replace('"', "'"))
 
         log.info(f"Handled prompt for {user_id}")
         return res

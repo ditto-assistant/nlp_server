@@ -12,8 +12,8 @@ class DittoExampleStore:
     def __init__(self):
         # example template will be used to match query / example pairs.
         self.example_template = PromptTemplate(
-            input_variables=["query", "answer"],
-            template="Query: {query}\nAnswer: {answer}",
+            input_variables=["user", "ditto"],
+            template="User: {user}\nDitto: {ditto}",
         )
         self.construct()
 
@@ -26,60 +26,72 @@ class DittoExampleStore:
 
         self.example_pairs = [
             {
-                "query": "What are gas prices looking like today?",
-                "answer": "<GOOGLE_SEARCH> gas prices today",
+                "user": "What are gas prices looking like today?",
+                "ditto": "<GOOGLE_SEARCH> gas prices today",
             },
             {
-                "query": "What is the weather like in New York?",
-                "answer": "<GOOGLE_SEARCH> weather in New York",
+                "user": "What is the weather like in New York?",
+                "ditto": "<GOOGLE_SEARCH> weather in New York",
             },
             {
-                "query": "Can you look up topic X or topic Y for me?",
-                "answer": "<GOOGLE_SEARCH> topic X or topic Y",
+                "user": "Can you look up topic X or topic Y for me?",
+                "ditto": "<GOOGLE_SEARCH> topic X or topic Y",
             },
             {
-                "query": "What is the cheapest flight to New York from San Francisco?",
-                "answer": "<GOOGLE_SEARCH> cheapest flight from San Francisco to New York",
+                "user": "What is the cheapest flight to New York from San Francisco?",
+                "ditto": "<GOOGLE_SEARCH> cheapest flight from San Francisco to New York",
             },
             {
-                "query": "Latest news on topic X or topic Y?",
-                "answer": "<GOOGLE_SEARCH> latest news on topic X",
+                "user": "Latest news on topic X or topic Y?",
+                "ditto": "<GOOGLE_SEARCH> latest news on topic X",
             },
             {
-                "query": "What's the weather in Atlanta, GA?",
-                "answer": "<GOOGLE_SEARCH> weather in Atlanta, GA",
+                "user": "What's the weather in Atlanta, GA?",
+                "ditto": "<GOOGLE_SEARCH> weather in Atlanta, GA",
             },
             {
-                "query": "What is the current population of Tokyo, Japan?",
-                "answer": "<GOOGLE_SEARCH> population of Recife, Brazil",
+                "user": "What is the current population of Tokyo, Japan?",
+                "ditto": "<GOOGLE_SEARCH> population of Recife, Brazil",
             },
             {
-                "query": "What is the forecast for the next 5 days in Miami, FL?",
-                "answer": "<GOOGLE_SEARCH> forecast for the next 5 days in Miami, FL",
+                "user": "Can you look up the movie Back to the Future for me?",
+                "ditto": "<GOOGLE_SEARCH> movie Back to the Future",
             },
             {
-                "query": "Can you use google to search for the latest news involving aquaponics?",
-                "answer": "<GOOGLE_SEARCH> latest news involving aquaponics",
+                "user": "Google search the movie The Matrix",
+                "ditto": "<GOOGLE_SEARCH> movie The Matrix",
             },
             {
-                "query": "Can you look up the weather in Golden, CO?",
-                "answer": "<GOOGLE_SEARCH> weather in Golden, CO",
+                "user": "What is the forecast for the next 5 days in Miami, FL?",
+                "ditto": "<GOOGLE_SEARCH> forecast for the next 5 days in Miami, FL",
             },
             {
-                "query": "What is the current time in New York?",
-                "answer": "<GOOGLE_SEARCH> current time in New York",
+                "user": "can you look up the movie Fear and Loathing in Las Vegas and tell me a summary of the description",
+                "ditto": "<GOOGLE_SEARCH> movie Fear and Loathing in Las Vegas",
             },
             {
-                "query": "Can you google search topic X or topic Y for me?",
-                "answer": "<GOOGLE_SEARCH> topic X or topic Y",
+                "user": "Can you use google to search for the latest news involving aquaponics?",
+                "ditto": "<GOOGLE_SEARCH> latest news involving aquaponics",
             },
             {
-                "query": "Google search the latest news on topic X or topic Y for me?",
-                "answer": "<GOOGLE_SEARCH> latest news on topic X",
+                "user": "Can you look up the weather in Golden, CO?",
+                "ditto": "<GOOGLE_SEARCH> weather in Golden, CO",
             },
             {
-                "query": "Can you try looking up the weather in Maimi FL using Google?",
-                "answer": "<GOOGLE_SEARCH> weather in Miami, FL",
+                "user": "What is the current time in New York?",
+                "ditto": "<GOOGLE_SEARCH> current time in New York",
+            },
+            {
+                "user": "Can you google search topic X or topic Y for me?",
+                "ditto": "<GOOGLE_SEARCH> topic X or topic Y",
+            },
+            {
+                "user": "Google search the latest news on topic X or topic Y for me?",
+                "ditto": "<GOOGLE_SEARCH> latest news on topic X",
+            },
+            {
+                "user": "Can you try looking up the weather in Maimi FL using Google?",
+                "ditto": "<GOOGLE_SEARCH> weather in Miami, FL",
             },
         ]
 
@@ -100,12 +112,12 @@ class DittoExampleStore:
             example_selector=self.example_store,
             example_prompt=self.example_template,
             prefix="Below are some examples of how how to use the tools:",
-            suffix=" {query}",
-            input_variables=["query"],
+            suffix=" {user}",
+            input_variables=["user"],
         )
 
     def get_example(self, query: str):
-        example = str(self.mmr_prompt.format(query=query)).replace(query, "")
+        example = str(self.mmr_prompt.format(user=query)).replace(query, "")
         return example
 
 
