@@ -146,7 +146,7 @@ class Neo4jAPI:
         return None
 
     def update_latest_node_id(self):
-        with open("latest_node_id.json", "w") as f:
+        with open(f"{self.memory_dir}/latest_node_id.json", "w") as f:
             json.dump(self.latest_node, f)
 
     def user_id_exists(self, user_id):
@@ -166,6 +166,7 @@ class Neo4jAPI:
             % ("User", self.user_name, random_id)
         )
         self.update_user_ids(random_id)
+        return random_id
 
     def create_graph(self, nodes, relationships):
         try:
@@ -174,9 +175,8 @@ class Neo4jAPI:
             )
             user_node_id = self.get_user_id()
             if user_node_id == None:
-                self.create_user_node()
+                user_node_id = self.create_user_node()
                 self.latest_node["id"] = self.latest_node["id"] + int(np.abs(user_node_id)*0.50)
-                user_node_id = self.get_user_id()
             for node in nodes:
                 self.create_node(node)
             for relationship in relationships:
