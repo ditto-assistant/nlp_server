@@ -171,39 +171,60 @@ def prompt_llm(user_id: str):
 
 
 @app.route(
-    "/users/<user_id>/prompt_ditto",
+    "/users/<user_id>/conversations/<conv_idx>/prompt",
     methods=["POST"],
 )
-def prompt_ditto(user_id: str):
+def post_prompt(user_id: int, conv_idx: int):
     try:
+        user_id = int(user_id)
+        conv_idx = int(conv_idx)
+        target = request.args["target"].lower()
+        if target is None:
+            target = "cloud"
+        if target not in ["cloud", "ditto"]:
+            return ErrInvalidQuery("target", target)
         body = request.get_json()
         prompt = body["prompt"]
-
-        # write prompt to database
-        ditto_db.write_prompt_to_db(user_id, prompt)
-
-        # check if ditto unit is on
-        ditto_unit_on = get_ditto_unit_on_bool(user_id)
+        if prompt is None or prompt == "":
+            return ErrMissingBody("prompt")
+        ditto_db.save_prompt(user_id, conv_idx, prompt)
 
         # if ditto unit is on, send prompt to ditto unit
-        if ditto_unit_on:
-            log.debug(f"sending prompt to ditto unit: {prompt}")
-            # ditto unit will write prompt and response to database
-            send_prompt_to_ditto_unit(user_id, prompt)
-            return '{"response": "success"}'
+        if target == "ditto" and get_ditto_unit_on_bool(user_id):
+            return prompt_ditto(user_id, conv_idx, prompt)
         else:
-            log.debug(f"ditto unit is off. sending prompt to memory agent: {prompt}")
-            # ditto unit is off, send prompt to memory agent
-            response = json.loads(send_prompt_to_llm(user_id, prompt))["response"]
-
-            # write response to database
-            ditto_db.write_response_to_latest_prompt(user_id, response)
-
-            return '{"response": "success"}'
+            return prompt_cloud(user_id, conv_idx, prompt)
 
     except BaseException as e:
         log.error(e)
         return ErrException(e)
+
+
+def prompt_cloud(user_id: int, conv_idx: int, prompt: str):
+    log.debug(f"ditto unit is off. sending prompt to memory agent: {prompt}")
+    response = json.loads(send_prompt_to_llm(user_id, prompt))["response"]
+    ditto_db.save_response(user_id, conv_idx, response)
+    return ditto_db.get_chats(
+        user_id,
+        ditto_db.get_conv_id(user_id, conv_idx),
+        0,
+        1,
+        False,
+    )
+
+
+def prompt_ditto(user_id: int, conv_idx: int, prompt: str):
+    log.debug(f"sending prompt to ditto unit: {prompt}")
+    # ditto unit will write prompt and response to database
+    send_prompt_to_ditto_unit(user_id, prompt)
+    # return '{"response": "success"}'
+    return ditto_db.get_chats(
+        user_id,
+        ditto_db.get_conv_id(user_id, conv_idx),
+        0,
+        1,
+        False,
+    )
 
 
 @app.route("/users/<user_id>/reset_memory", methods=["POST", "GET"])
@@ -253,7 +274,7 @@ def write_prompt(user_id: str):
         log.info(f"saving ditto unit prompt to database.")
 
         # save prompt to database
-        ditto_db.write_prompt_to_db(user_id, prompt)
+        ditto_db.save_prompt(user_id, prompt)
 
         return '{"response": "success"}'
 
@@ -275,7 +296,7 @@ def write_response(user_id: str):
         log.info(f"saving ditto unit response to database.")
 
         # save prompt to database
-        ditto_db.write_response_to_latest_prompt(user_id, response)
+        ditto_db.save_response(user_id, response)
 
         return '{"response": "success"}'
 
@@ -284,8 +305,8 @@ def write_response(user_id: str):
         return ErrException(e)
 
 
-@app.route("/users/<user_id>/conversations/<conversation_id>", methods=["GET"])
-def get_conversation(user_id: str, conversation_id: str):
+@app.route("/users/<user_id>/conversations/<conv_id>/chats", methods=["GET"])
+def get_chats(user_id: int, conv_id: int):
     offset = request.args.get("offset", default=0)
     limit = request.args.get("limit", default=5)
     order = request.args.get("order", default="DESC")
@@ -293,9 +314,7 @@ def get_conversation(user_id: str, conversation_id: str):
         return ErrInvalidQuery("order", order)
     is_asc = True if order.upper() == "ASC" else False
     try:
-        conv = ditto_db.get_conversation(
-            user_id, conversation_id, offset, limit, is_asc
-        )
+        conv = ditto_db.get_chats(user_id, conv_id, offset, limit, is_asc)
         log.info(f"conversation: {conv}")
         return conv
     except BaseException as e:
@@ -439,6 +458,10 @@ def ErrMissingFile(file: str):
 
 def ErrMissingQuery(key: str):
     return '{"error": "missing query param %s"}' % key
+
+
+def ErrMissingBody(key: str):
+    return '{"error": "missing body param %s"}' % key
 
 
 def ErrInvalidQuery(key: str, val: str):
