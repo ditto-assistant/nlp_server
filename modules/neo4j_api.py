@@ -165,7 +165,7 @@ class Neo4jAPI:
         """
             % ("User", self.user_name, random_id)
         )
-        self.update_user_ids(self.user_name, random_id)
+        self.update_user_ids(random_id)
 
     def create_graph(self, nodes, relationships):
         try:
