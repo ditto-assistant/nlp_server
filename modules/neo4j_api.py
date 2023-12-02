@@ -94,192 +94,54 @@ TEST = """
 }
 """
 
-TEST = """
-{
-  "nodes": [
-    {
-      "id": 0,
-      "type": "Prompt",
-      "title": "Prompt",
-      "description": "What is the capital of France?"
-    },
-    {
-      "id": 1,
-      "type": "Response",
-      "title": "Response",
-      "description": "The capital of France is Paris."
-    },
-    {
-      "id": 2,
-      "type": "Subject",
-      "title": "France",
-      "description": "France is a country located in Western Europe. It is known for its rich history, culture, and contributions to art, fashion, and cuisine."
-    },
-    {
-      "id": 3,
-      "type": "Capital",
-      "title": "Paris",
-      "description": "Paris is the capital and largest city of France. It is a global center for art, fashion, gastronomy, and culture."
-    }
-  ],
-  "relationships": [
-    {
-      "src_node": 0,
-      "target_node": 1,
-      "relationship_type": "HAS_RESPONSE"
-    },
-    {
-      "src_node": 1,
-      "target_node": 2,
-      "relationship_type": "ASKS_ABOUT_SUBJECT"
-    },
-    {
-      "src_node": 2,
-      "target_node": 3,
-      "relationship_type": "HAS_CAPITAL"
-    }
-  ]
-}
-"""
-
-TEST = """
-{
-  "nodes": [
-    {
-      "id": 0,
-      "type": "Prompt",
-      "title": "Prompt",
-      "description": "Can you tell me about the pokemon Mewtwo?"
-    },
-    {
-      "id": 1,
-      "type": "Response",
-      "title": "Response",
-      "description": "Mewtwo is a powerful Psychic-type Pokémon that was created through genetic manipulation. It possesses extraordinary psychic abilities, an imposing appearance, and has made appearances in various Pokémon media. Stay updated with official Pokémon sources for the latest information on Mewtwo."
-    },
-    {
-      "id": 2,
-      "type": "Subject",
-      "title": "Mewtwo",
-      "description": "Mewtwo is a powerful Psychic-type Pokémon that was created through genetic manipulation. It is renowned for its extraordinary psychic abilities and exceptional intelligence. This Pokémon is a clone of the legendary Pokémon Mew, and it was specifically engineered with the ambition of becoming the most dominant and formidable Pokémon in existence."
-    },
-    {
-      "id": 3,
-      "type": "Appearance",
-      "title": "Physical Appearance",
-      "description": "Mewtwo possesses a sleek and humanoid physique, characterized by its vibrant purple fur. It boasts a long, elegant tail and a distinctive, heavily armored head. These physical attributes contribute to Mewtwo's imposing presence and visually distinguish it from other Pokémon."
-    },
-    {
-      "id": 4,
-      "type": "Psychic Abilities",
-      "title": "Psychic Abilities",
-      "description": "Mewtwo's psychic capabilities are unparalleled within the Pokémon world. It possesses an array of psychic powers, including telekinesis, telepathy, and the ability to manipulate energy. These abilities grant Mewtwo an immense advantage in battles and make it a formidable opponent."
-    },
-    {
-      "id": 5,
-      "type": "Origin and Creation",
-      "title": "Origin and Creation",
-      "description": "Mewtwo's origin lies in its genetic connection to the legendary Pokémon Mew. Scientists conducted extensive genetic experiments to create a clone of Mew, resulting in the birth of Mewtwo. The aim of these experiments was to produce a Pokémon with unparalleled power and abilities."
-    },
-    {
-      "id": 6,
-      "type": "Media Appearances",
-      "title": "Appearances in Media",
-      "description": "Mewtwo has made appearances in various Pokémon games, movies, and TV shows. It is often depicted as a significant character and a formidable adversary. Its presence in these media outlets has contributed to its popularity and recognition among Pokémon enthusiasts."
-    },
-    {
-      "id": 7,
-      "type": "Legacy and Impact",
-      "title": "Legacy and Impact",
-      "description": "Mewtwo's status as a powerful and iconic Pokémon has solidified its place in the Pokémon franchise. Its unique abilities, captivating appearance, and intriguing backstory have made it a fan favorite and a symbol of strength and intelligence within the Pokémon universe."
-    },
-    {
-      "id": 8,
-      "type": "Ongoing Evolution",
-      "title": "Ongoing Evolution",
-      "description": "As the Pokémon franchise continues to evolve with new games and generations, Mewtwo's role and significance may undergo further development. It is essential to stay updated with the latest official Pokémon sources to remain informed about any new information or changes regarding Mewtwo."
-    }
-  ],
-  "relationships": [
-    {
-      "src_node": 0,
-      "target_node": 1,
-      "relationship_type": "HAS_RESPONSE"
-    },
-    {
-      "src_node": 1,
-      "target_node": 2,
-      "relationship_type": "HAS_SUBJECT"
-    },
-    {
-      "src_node": 2,
-      "target_node": 3,
-      "relationship_type": "HAS_APPEARANCE"
-    },
-    {
-      "src_node": 2,
-      "target_node": 4,
-      "relationship_type": "HAS_PSYCHIC_ABILITIES"
-    },
-    {
-      "src_node": 2,
-      "target_node": 5,
-      "relationship_type": "HAS_ORIGIN_AND_CREATION"
-    },
-    {
-      "src_node": 2,
-      "target_node": 6,
-      "relationship_type": "HAS_MEDIA_APPEARANCES"
-    },
-    {
-      "src_node": 2,
-      "target_node": 7,
-      "relationship_type": "HAS_LEGACY_AND_IMPACT"
-    },
-    {
-      "src_node": 2,
-      "target_node": 8,
-      "relationship_type": "HAS_ONGOING_EVOLUTION"
-    }
-  ]
-}
-"""
-
 import os
 
 
 class Neo4jAPI:
-    def __init__(self):
+    def __init__(self, user_name="Human"):
+        self.user_name = user_name
+        self.memory_dir = self.init_memory_dirs()
         self.latest_node = self.load_latest_node_id()
-        self.users_obj = self.load_users()
+        self.users_obj = self.load_user()
+        self.load_db_params()
+
+    def load_db_params(self):
+        self.neo4j_host = os.getenv("NEO4J_URI", "localhost:7687")
+        self.neo4j_username = os.getenv("NEO4J_USER", "neo4j")
+        self.neo4j_password = os.getenv("NEO4J_PASSWORD", "password")
+
+    def init_memory_dirs(self):
+        if not os.path.exists(f"memory/{self.user_name}"):
+            os.mkdir(f"memory/{self.user_name}")
+        return f"memory/{self.user_name}"
 
     def load_latest_node_id(self):
-        if not os.path.exists("latest_node_id.json"):
-            return {"id": 0}
+        if not os.path.exists(f"{self.memory_dir}/latest_node_id.json"):     
+            return {"id": 0}   
         else:
-            with open("latest_node_id.json", "r") as f:
+            with open(f"{self.memory_dir}/latest_node_id.json", "r") as f:
                 latest_node_id = json.load(f)
                 latest_node_id["id"] = int(latest_node_id["id"]) + 1
             return latest_node_id
 
-    def load_users(self):
-        if not os.path.exists("kg_users.json"):
+    def load_user(self):
+        if not os.path.exists(f"{self.memory_dir}/kg_users.json"):
             return {"users": [{'-1': 'Ditto'}]}
         else:
-            with open("kg_users.json", "r") as f:
+            with open(f"{self.memory_dir}/kg_users.json", "r") as f:
                 users_obj = json.load(f)
             return users_obj
 
-    def update_user_ids(self, user_name, user_id):
-        self.users_obj["users"].append({user_id: user_name})
-        with open("kg_users.json", "w") as f:
+    def update_user_ids(self, user_id):
+        self.users_obj["users"].append({user_id: self.user_name})
+        with open(f"{self.memory_dir}/kg_users.json", "w") as f:
             json.dump(self.users_obj, f)
 
-    def get_user_id(self, user_name):
+    def get_user_id(self):
         for user_obj in self.users_obj["users"]:
             user_id = list(user_obj.keys())[0]
             user_name_ = user_obj[user_id]
-            if user_name_ == user_name:
+            if user_name_ == self.user_name:
                 return int(user_id)
         return None
 
@@ -293,27 +155,28 @@ class Neo4jAPI:
                 return True
         return False
 
-    def create_user_node(self, user_name):
-        random_id = -np.random.randint(1, 1000000000)
+    def create_user_node(self):
+        random_id = -np.random.randint(10000, 1000000000)
         while self.user_id_exists(random_id):
-            random_id = -np.random.randint(1, 1000000000)
+            random_id = -np.random.randint(10000, 1000000000)
         self.driver.execute_query(
             """
             CREATE (:%s {name: "%s", id: %d})
         """
-            % ("User", user_name, random_id)
+            % ("User", self.user_name, random_id)
         )
-        self.update_user_ids(user_name, random_id)
+        self.update_user_ids(self.user_name, random_id)
 
-    def create_graph(self, user_name, nodes, relationships):
+    def create_graph(self, nodes, relationships):
         try:
             self.driver = GraphDatabase.driver(
-                "bolt://localhost:7687", auth=("neo4j", "password"), database="neo4j"
+                self.neo4j_host, auth=(self.neo4j_username, self.neo4j_password), database='neo4j'
             )
-            user_node_id = self.get_user_id(user_name)
+            user_node_id = self.get_user_id()
             if user_node_id == None:
-                self.create_user_node(user_name)
-                user_node_id = self.get_user_id(user_name)
+                self.create_user_node()
+                self.latest_node["id"] = self.latest_node["id"] + int(np.abs(user_node_id)*0.50)
+                user_node_id = self.get_user_id()
             for node in nodes:
                 self.create_node(node)
             for relationship in relationships:
@@ -344,6 +207,10 @@ class Neo4jAPI:
     def create_node(self, node):
         node_id = int(node["id"]) + self.latest_node["id"]
         node_type = str(node["type"]).replace(" ", "").strip()
+
+        # replace all ASCII leaving only alphanumeric characters in node type
+        node_type = "".join([c for c in node_type if c.isalnum()]) 
+
         node_title = node["title"]
         node_description = node["description"]
         self.driver.execute_query(
@@ -356,7 +223,8 @@ class Neo4jAPI:
     def create_relationship(self, relationship):
         src_node = relationship["src_node"] + self.latest_node["id"]
         target_node = relationship["target_node"] + self.latest_node["id"]
-        relationship_type = relationship["relationship_type"]
+        relationship_type = str(relationship["relationship_type"]).replace("-", "_")
+
         self.driver.execute_query(
             """
             MATCH (a), (b)
@@ -368,8 +236,8 @@ class Neo4jAPI:
 
 
 if __name__ == "__main__":
-    neo4j_api = Neo4jAPI()
+    neo4j_api = Neo4jAPI("Omar")
     kg = json.loads(TEST)
     nodes = kg["nodes"]
     relationships = kg["relationships"]
-    neo4j_api.create_graph("Omar", nodes, relationships)
+    neo4j_api.create_graph(nodes, relationships)

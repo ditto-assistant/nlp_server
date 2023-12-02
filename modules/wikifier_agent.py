@@ -76,6 +76,36 @@ A game consists of nine innings, with each team having a turn at bat. The team w
 ## Dynamics
 The strategic game involves skillful pitching, hitting, and defensive maneuvers. The constant switch between batting and fielding adds to the dynamic nature of baseball.
 
+User: can you tell me a list of the top 3 best simulation games of all time?
+Ditto: "As of my last knowledge update in January 2022, I can provide you with information on popular simulation games up to that point. However, keep in mind that the popularity and critical acclaim of games can change over time, and there may be new releases or updates since then. As of 2022, some of the top simulation games included:
+
+The Sims Series:
+
+Developed by Maxis and published by Electronic Arts, The Sims series allows players to create and control simulated people, guiding them through various aspects of life. The franchise has been incredibly successful and has a large fan base.
+Cities: Skylines:
+
+Developed by Colossal Order and published by Paradox Interactive, Cities: Skylines is a city-building simulation game. It gained popularity for its extensive city management features, realistic simulation mechanics, and modding support.
+Microsoft Flight Simulator:
+
+Developed by Asobo Studio and published by Xbox Game Studios, Microsoft Flight Simulator is known for its stunningly realistic graphics and detailed flight simulation. It provides a highly immersive experience, allowing players to explore the world from the cockpit of various aircraft.
+Please check for more recent sources to see if there have been any new releases or notable updates to simulation games since my last update."
+Wiki:
+# Top 3 Simulation Games of All Time
+
+## 1. The Sims Series
+
+Developed by Maxis and published by Electronic Arts, The Sims series revolutionized simulation games by allowing players to create and control simulated people, guiding them through various aspects of life. With its engaging gameplay and endless possibilities, The Sims has garnered a massive and dedicated fan base.
+
+## 2. Cities: Skylines
+
+Developed by Colossal Order and published by Paradox Interactive, Cities: Skylines offers an immersive city-building simulation experience. Praised for its realistic city management features and modding support, this game has become a favorite among simulation enthusiasts. Players can meticulously plan and develop their cities, facing challenges that mirror real urban planning dilemmas.
+
+## 3. Microsoft Flight Simulator
+
+Developed by Asobo Studio and published by Xbox Game Studios, Microsoft Flight Simulator sets a new standard for realistic flight simulation. Known for its breathtakingly realistic graphics and attention to detail, the game allows players to explore the world from the cockpit of various aircraft. The level of immersion and authenticity in Microsoft Flight Simulator has captivated both aviation enthusiasts and gamers alike.
+
+Please note that the popularity and rankings of simulation games may have evolved since my last update in January 2022. Consider checking more recent sources for the latest information on simulation games.
+
 
 User: {prompt}
 Ditto: {response}

@@ -26,7 +26,9 @@ class KGJob:
         self.response = response
         self.wikifier_agent = WikifierAgent()
         self.kg_agent = KGAgent()
-        self.neo4j_api = Neo4jAPI()
+        self.neo4j_api = Neo4jAPI(
+            user_name=user_name,
+        )
         self.thread = Thread(target=self.run, args=())
         self.thread.daemon = True
         self.thread.start()
@@ -44,7 +46,7 @@ class KGJob:
             log.error(e)
         nodes = kg_res["nodes"]
         relationships = kg_res["relationships"]
-        self.neo4j_api.create_graph(self.user_name, nodes, relationships)
+        self.neo4j_api.create_graph(nodes, relationships)
         print("KG job finished")
 
     def is_alive(self):
