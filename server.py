@@ -7,6 +7,7 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 import logging
+import query_params
 
 from PIL import Image
 from io import BytesIO
@@ -14,7 +15,7 @@ import base64
 
 # set up logging for server
 log = logging.getLogger("server")
-logging.basicConfig(level=logging.INFO)
+log.setLevel(logging.DEBUG)
 
 # load intent model
 from intent import IntentRecognition
@@ -171,60 +172,50 @@ def prompt_llm(user_id: str):
 
 
 @app.route(
-    "/users/<user_id>/conversations/<conv_idx>/prompt",
+    "/users/<email>/conversations/<conv_idx>/prompt",
     methods=["POST"],
 )
-def post_prompt(user_id: int, conv_idx: int):
+def post_prompt(email: str, conv_idx: int):
     try:
-        user_id = int(user_id)
+        user_id = ditto_db.get_create_user_id(email)
         conv_idx = int(conv_idx)
+        conv_id = ditto_db.get_create_conv_id(user_id, conv_idx)
         target = request.args["target"].lower()
         if target is None:
             target = "cloud"
         if target not in ["cloud", "ditto"]:
             return ErrInvalidQuery("target", target)
+        log.debug(f"prompt email: {email}, conv_id: {conv_id} target: {target}")
         body = request.get_json()
         prompt = body["prompt"]
         if prompt is None or prompt == "":
             return ErrMissingBody("prompt")
-        ditto_db.save_prompt(user_id, conv_idx, prompt)
+        ditto_db.save_prompt(user_id, conv_id, prompt)
 
         # if ditto unit is on, send prompt to ditto unit
         if target == "ditto" and get_ditto_unit_on_bool(user_id):
-            return prompt_ditto(user_id, conv_idx, prompt)
+            return prompt_ditto(user_id, conv_id, prompt)
         else:
-            return prompt_cloud(user_id, conv_idx, prompt)
+            return prompt_cloud(user_id, conv_id, prompt)
 
     except BaseException as e:
         log.error(e)
         return ErrException(e)
 
 
-def prompt_cloud(user_id: int, conv_idx: int, prompt: str):
+def prompt_cloud(user_id: int, conv_id: int, prompt: str):
     log.debug(f"ditto unit is off. sending prompt to memory agent: {prompt}")
     response = json.loads(send_prompt_to_llm(user_id, prompt))["response"]
-    ditto_db.save_response(user_id, conv_idx, response)
-    return ditto_db.get_chats(
-        user_id,
-        ditto_db.get_conv_id(user_id, conv_idx),
-        0,
-        1,
-        False,
-    )
+    ditto_db.save_response(user_id, conv_id, response)
+    return ditto_db.get_chat_latest(user_id, conv_id)
 
 
-def prompt_ditto(user_id: int, conv_idx: int, prompt: str):
+def prompt_ditto(user_id: int, conv_id: int, prompt: str):
     log.debug(f"sending prompt to ditto unit: {prompt}")
     # ditto unit will write prompt and response to database
     send_prompt_to_ditto_unit(user_id, prompt)
     # return '{"response": "success"}'
-    return ditto_db.get_chats(
-        user_id,
-        ditto_db.get_conv_id(user_id, conv_idx),
-        0,
-        1,
-        False,
-    )
+    return ditto_db.get_chat_latest(user_id, conv_id)
 
 
 @app.route("/users/<user_id>/reset_memory", methods=["POST", "GET"])
@@ -305,18 +296,37 @@ def write_response(user_id: str):
         return ErrException(e)
 
 
-@app.route("/users/<user_id>/conversations/<conv_id>/chats", methods=["GET"])
-def get_chats(user_id: int, conv_id: int):
-    offset = request.args.get("offset", default=0)
-    limit = request.args.get("limit", default=5)
-    order = request.args.get("order", default="DESC")
-    if order.upper() not in ["ASC", "DESC"]:
-        return ErrInvalidQuery("order", order)
-    is_asc = True if order.upper() == "ASC" else False
+@app.route("/users/<email>/conversations", methods=["GET"])
+def get_conversations(email: str):
     try:
-        conv = ditto_db.get_chats(user_id, conv_id, offset, limit, is_asc)
-        log.info(f"conversation: {conv}")
-        return conv
+        user_id = ditto_db.get_create_user_id(email)
+        args = query_params.ReqQuery(request.args)
+        offset = args.offset()
+        limit = args.limit()
+        is_asc = args.is_asc_order()
+        log.debug(
+            f"getting conversations for user: {user_id} offset: {offset}, limit: {limit}, is_asc: {is_asc}"
+        )
+        return ditto_db.get_conversations(user_id, offset, limit, is_asc)
+    except BaseException as e:
+        log.error(e)
+        return ErrException(e)
+
+
+@app.route("/users/<email>/conversations/<conv_idx>/chats", methods=["GET"])
+def get_chats(email: str, conv_idx: int):
+    try:
+        user_id = ditto_db.get_create_user_id(email)
+        conv_idx = int(conv_idx)
+        conv_id = ditto_db.get_create_conv_id(user_id, conv_idx)
+        args = query_params.ReqQuery(request.args)
+        offset = args.offset()
+        limit = args.limit()
+        is_asc = args.is_asc_order()
+        log.debug(
+            f"getting chats for user: {user_id}, conv_id: {conv_id} offset: {offset}, limit: {limit}, is_asc: {is_asc}"
+        )
+        return ditto_db.get_chats(user_id, conv_id, offset, limit, is_asc)
     except BaseException as e:
         log.error(e)
         return ErrException(e)

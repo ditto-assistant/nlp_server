@@ -1,8 +1,9 @@
 -- Create the users table
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username VARCHAR NOT NULL,
-    ditto_unit_url VARCHAR
+    ditto_unit_url VARCHAR,
+    email VARCHAR NOT NULL,
+    name VARCHAR
 );
 
 -- Create the conversations table with a foreign key reference to users
@@ -36,9 +37,9 @@ CREATE TABLE IF NOT EXISTS migrations (
 
 -- Insert sample data into users and conversations tables
 INSERT INTO
-    users (username, ditto_unit_url)
+    users (email, ditto_unit_url)
 SELECT
-    'user1',
+    'fake@email.com',
     'http://localhost:42032'
 WHERE
     NOT EXISTS (

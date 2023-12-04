@@ -47,11 +47,84 @@ class DittoDB:
             response_count = 0
         return int(prompt_count) + int(response_count)
 
+    def get_create_user_id(self, email: str) -> int:
+        """
+        This function returns the user's id.
+        If the user does not exist, it creates a new user and returns the generated id.
+        param email: The user's email.
+        return: The user's id.
+        """
+        with closing(self.SQL.cursor()) as c:
+            user_id = c.execute(
+                """
+                SELECT id FROM users WHERE email = ?
+                """,
+                (email,),
+            ).fetchone()
+            if user_id is None:
+                c.execute(
+                    """
+                    INSERT INTO users (email) VALUES (?)
+                    """,
+                    (email,),
+                )
+                self.SQL.commit()
+                user_id = c.execute("SELECT last_insert_rowid()").fetchone()[0]
+            else:
+                user_id = user_id[0]
+            return user_id
+
+    def get_chat_latest(self, user_id: int, conv_id: int):
+        """
+        This function returns the latest chat for the user.
+        """
+        return self.get_chats(
+            user_id,
+            conv_id,
+            0,
+            1,
+            False,
+        )
+
+    def get_conversations(self, user_id: int, offset: int, limit: int, is_asc: bool):
+        order = "ASC" if is_asc else "DESC"
+        log.info(f"Getting conversations for user: {user_id}")
+        with closing(self.SQL.cursor()) as c:
+            return c.execute(
+                f"""
+                    WITH RankedConversations AS (
+                        SELECT
+                            conv.created_at,
+                            conv.updated_at,
+                            conv.chat_count,
+                            ROW_NUMBER() OVER (
+                                ORDER BY
+                                    conv.updated_at
+                            ) AS conv_index,
+                            conv.title
+                        FROM
+                            conversations conv
+                        WHERE
+                            conv.user_id = ?
+                    )
+                    SELECT
+                        conv_index,
+                        title,
+                        chat_count,
+                        created_at,
+                        updated_at
+                    FROM RankedConversations
+                    ORDER BY updated_at {order}
+                    LIMIT ? OFFSET ? 
+                    """,
+                (user_id, limit, offset),
+            ).fetchall()
+
     def get_chats(
-        self, user_id: int, conv_idx: int, offset: int, limit: int, is_asc: bool
+        self, user_id: int, conv_id: int, offset: int, limit: int, is_asc: bool
     ):
         order = "ASC" if is_asc else "DESC"
-        log.info(f"Getting chats for user: {user_id} with conv_idx: {conv_idx}")
+        log.info(f"Getting chats for user: {user_id} conv_id: {conv_id}")
         with closing(self.SQL.cursor()) as c:
             return c.execute(
                 f"""
@@ -81,7 +154,7 @@ class DittoDB:
                     ORDER BY timestamp {order}
                     LIMIT ? OFFSET ? 
                     """,
-                (user_id, conv_idx, limit, offset),
+                (user_id, conv_id, limit, offset),
             ).fetchall()
 
     def get_conversation_history(self, user_id: str):
@@ -99,7 +172,7 @@ class DittoDB:
             responses = []
             return None
 
-    def new_conversation(self, user_id: int):
+    def new_conversation(self, user_id: int) -> int:
         """
         This function creates a new conversation for the user.
         param user_id: The user's id.
@@ -115,38 +188,37 @@ class DittoDB:
                 (user_id,),
             )
             self.SQL.commit()
+            return c.execute("SELECT last_insert_rowid()").fetchone()[0]
 
-    def save_prompt(self, user_id: int, conv_idx: int, prompt: str):
-        log.info(f"Saving prompt for user: {user_id} conv_idx: {conv_idx}")
-        raw_conv_id = self.get_conv_id(user_id, conv_idx)
+    def save_prompt(self, user_id: int, conv_id: int, prompt: str):
+        log.info(f"Saving prompt for user: {user_id} conv_id: {conv_id}")
         with closing(self.SQL.cursor()) as c:
             c.execute(
                 add_chat_sql,
-                (raw_conv_id, True, prompt),
+                (conv_id, True, prompt),
             )
             c.execute(
                 bump_conv_sql,
-                (raw_conv_id,),
+                (conv_id,),
             )
             self.SQL.commit()
 
-    def save_response(self, user_id: int, conv_idx: int, response: str):
-        log.info(f"Saving response for user: {user_id} conv_idx: {conv_idx}")
-        raw_conv_id = self.get_conv_id(user_id, conv_idx)
+    def save_response(self, user_id: int, conv_id: int, response: str):
+        log.info(f"Saving response for user: {user_id} conv_id: {conv_id}")
         with closing(self.SQL.cursor()) as c:
             c.execute(
                 add_chat_sql,
-                (raw_conv_id, False, response),
+                (conv_id, False, response),
             )
             c.execute(
                 bump_conv_sql,
-                (raw_conv_id,),
+                (conv_id,),
             )
             self.SQL.commit()
 
     def get_latest_conv_chat_id(self, user_id: int, conv_idx: int) -> (int, int):
         log.debug(f"Getting raw_chat_id for user: {user_id} with conv_idx: {conv_idx}")
-        conv_id = self.get_conv_id(user_id, conv_idx)
+        conv_id = self.get_create_conv_id(user_id, conv_idx)
         log.debug(f"conv_id: {conv_id}")
         with closing(self.SQL.cursor()) as c:
             return (
@@ -168,7 +240,7 @@ class DittoDB:
                     SELECT
                         conv.id AS conv_id,
                         ROW_NUMBER() OVER (
-                            ORDER BY conv.id
+                            ORDER BY conv.id ASC
                         ) AS conv_idx
                     FROM
                         conversations conv
@@ -179,8 +251,15 @@ class DittoDB:
                 FROM RankedConversations
                 WHERE conv_idx = ?
                 """,
-                (user_id, conv_idx),
-            ).fetchone()[0]
+                (int(user_id), int(conv_idx)),
+            ).fetchone()
+
+    def get_create_conv_id(self, user_id: int, conv_idx: int) -> int:
+        conv_id = self.get_conv_id(user_id, conv_idx)
+        log.debug(f"conv_id: {conv_id}")
+        if conv_id is None:
+            return self.new_conversation(user_id)
+        return conv_id[0]
 
 
 bump_conv_sql = """
