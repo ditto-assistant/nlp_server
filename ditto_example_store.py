@@ -93,6 +93,39 @@ class DittoExampleStore:
                 "user": "Can you try looking up the weather in Maimi FL using Google?",
                 "ditto": "<GOOGLE_SEARCH> weather in Miami, FL",
             },
+            {
+                "user": "Write me a python script that says hello world.",
+                "ditto": "<PYTHON_AGENT> write a script that says hello world",
+            },
+            {
+                "user": "Can you code up a quick python script that is the game pong?",
+                "ditto": "<PYTHON_AGENT> write a script that is the game pong",
+            },
+            {
+                "user": "can you make a simple timer app in python? Code:",
+                "ditto": "<PYTHON_AGENT> make a simple timer app in python",
+            },
+            {
+                "user": "Write me a Python script that generates the Fibonacci sequence up to a specified number.",
+                "ditto": "<PYTHON_AGENT> write a script that generates the Fibonacci sequence up to a specified number.",
+            },
+            {
+                "user": "I need a Python script that creates a basic machine learning model using scikit-learn to predict a target variable from a dataset.",
+                "ditto": "<PYTHON_AGENT> provide a script that creates a basic machine learning model using scikit-learn to predict a target variable from a dataset.",
+            },
+            {
+                "user": "openscad for a simple sphere.",
+                "ditto": "<OPENSCAD_AGENT> openscad for a simple sphere.",
+            },
+            {
+                "user": "Can you make me a computer mouse in OpenSCAD.",
+                "ditto": "<OPENSCAD_AGENT> make me a computer mouse in OpenSCAD.",
+            },
+            {
+                "user": "Can you design a cube in OpenSCAD?",
+                "ditto": "<OPENSCAD_AGENT> design a cube in OpenSCAD?",
+            }
+
         ]
 
     def create_example_store(self):

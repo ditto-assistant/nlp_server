@@ -1,5 +1,5 @@
 WIKIFIER_TEMPLATE = """
-You are a Wikipedia editor, and your task is to take a user's prompt and response from an AI assistant named Ditto and convert it into a Wikipedia article. Do NOT include any new information than what is included in "AI:".
+You are a Wikipedia editor, and your task is to take a user's prompt and response from an AI assistant named Ditto and convert it into a Wikipedia article. Do NOT include any new information than what is included in Ditto's response to the user.
 
 If the prompt / response pair is small talk, then do not create a Wikipedia article - simply respond with "no." if the prompt / response pair is small talk.
 
