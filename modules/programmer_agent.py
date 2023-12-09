@@ -39,5 +39,7 @@ class ProgrammerAgent:
 
 if __name__ == "__main__":
     programmer_agent = ProgrammerAgent()
-    res = programmer_agent.prompt("Write me a hello world script.")
+    res = programmer_agent.prompt("""
+Write me a hello world script.
+""")
     print(res)
