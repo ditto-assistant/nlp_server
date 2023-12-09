@@ -1,5 +1,5 @@
 Category,Subcategory,Action,Sentence
-lights,none,none,set the lights to red
+lights,none,none,set the lights to hi
 lights,none,none,please set the lights to red
 lights,none,none,set the lights to red
 lights,none,none,lights to red
@@ -269,6 +269,15 @@ conv,none,none,I want to play a game with you
 conv,none,none,good times
 conv,none,none,pretty good just working on a midi generative network
 conv,none,none,is it okay if I ask you some math questions
+conv,none,none,What is the history of prompt templating in the field of LLMs and AI
+conv,none,none,What is the history of prompt templating in the field of LLMs
+conv,none,none,can you tell me the history of the band The Mars Volta
+conv,none,none,can you tell me about The Mars Volta
+conv,none,none,can you tell me about the band The Mars Volta and their history?
+conv,none,none,can you tell me about jeff buckley
+conv,none,none,tell me about the artist false jasmine
+conv,none,none,"Hello, I wonder what you think about the outifts worn in 1980s music videos"
+conv,none,none,what do you think about the outifts worn in the 1950s?
 conv,none,exit,bye
 conv,none,exit,talk to you later
 conv,none,exit,goodbye
@@ -608,19 +617,6 @@ vision,none,qa,"How do you think this shirt complements my hair, and do you like
 vision,none,qa,I'm curious about my attire - do you find it appealing?
 vision,none,qa,Can you give me details about my current attire?
 vision,none,qa,Could you provide a description of my outfit for me?
-vision,none,name,my name is John
-vision,none,name,people call me Steven
-vision,none,name,my name is Omar
-vision,none,name,"Hello, I'm Emily."
-vision,none,name,I go by the name Daniel.
-vision,none,name,You can call me Jessica.
-vision,none,name,My friends call me Alex.
-vision,none,name,"Hi there, I'm Sarah."
-vision,none,name,I'm known as Michael.
-vision,none,name,"My name is Maria, but you can call me Mari."
-vision,none,name,"I'm James, and it's nice to meet you."
-vision,none,name,"Call me Sophia, if you like."
-vision,none,name,"I'm William, but everyone calls me Will."
 conv,none,none,"hi, how are you doing?"
 conv,none,none,i'm fine. how about yourself?
 conv,none,none,i'm pretty good. thanks for asking.

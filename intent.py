@@ -27,8 +27,13 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 log = logging.getLogger("intent")
 logging.basicConfig(level=logging.DEBUG)
 
-TRAIN = False
+# get arg for train or test
+import sys
 
+TRAIN = False
+if len(sys.argv) > 1:
+    if str(sys.argv[1]).lower() == "train":
+        TRAIN = True
 
 class IntentRecognition:
     def __init__(self, train=0):

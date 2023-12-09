@@ -42,22 +42,26 @@ class ShortTermMemoryStore:
             query_with_short_term_memory = f"Current Prompt:\n{user_name}: {query}"
         else:
             query_with_short_term_memory = (
-                f"Facial Recognition (you are looking at): {face_name}\n"
+                "If the user's name is set to 'unknown', this means you are talking to someone you do not know. You can ask for their name to scan their face!\n\n"
+                + f"\nFacial Recognition (you are looking at): {face_name}\n"
                 + f"Current Prompt:\n{user_name}: {query}"
             )
 
         if len(stmem) > 0:
-            query_with_short_term_memory = "Short Term Memory Buffer:\n"
+            query_with_short_term_memory = (
+                "Short Term Memory Buffer (most recent prompt/response pairs):\n"
+            )
             for mem in stmem:
                 q, response, stamp = mem
                 query_with_short_term_memory += f"{user_name}: ({stamp}): " + q + "\n"
-                query_with_short_term_memory += f"AI: " + response + "\n"
+                query_with_short_term_memory += f"Ditto: " + response + "\n"
 
             if face_name == "none":
                 query_with_short_term_memory += f"Current Prompt:\n{user_name}: {query}"
             else:
                 query_with_short_term_memory += (
-                    f"Facial Recognition (you are looking at): {face_name}\n"
+                    "\n\nIf the user's name is set to 'unknown', this means you are talking to someone you do not know. You can ask for their name to scan their face!\n\n"
+                    f"\nFacial Recognition (you are looking at): {face_name}\n"
                     + f"Current Prompt:\n{user_name}: {query}"
                 )
 
