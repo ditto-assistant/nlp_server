@@ -124,8 +124,7 @@ class DittoExampleStore:
             {
                 "user": "Can you design a cube in OpenSCAD?",
                 "ditto": "<OPENSCAD_AGENT> design a cube in OpenSCAD?",
-            }
-
+            },
         ]
 
     def create_example_store(self):

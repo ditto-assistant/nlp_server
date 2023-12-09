@@ -41,5 +41,7 @@ class OpenSCADAgent:
 
 if __name__ == "__main__":
     programmer_agent = OpenSCADAgent()
-    res = programmer_agent.prompt("Can you make me a computer mouse ergonomically CORRECT.")
+    res = programmer_agent.prompt(
+        "Can you make me a computer mouse ergonomically CORRECT."
+    )
     print(res)

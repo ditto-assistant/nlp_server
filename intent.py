@@ -35,6 +35,7 @@ if len(sys.argv) > 1:
     if str(sys.argv[1]).lower() == "train":
         TRAIN = True
 
+
 class IntentRecognition:
     def __init__(self, train=0):
         self.train = train

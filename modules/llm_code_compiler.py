@@ -4,6 +4,7 @@ import subprocess
 import os
 import ast
 
+
 class LLMCodeCompiler:
     def __init__(self, root):
         self.root = root
@@ -19,10 +20,12 @@ class LLMCodeCompiler:
 
         try:
             # Try to parse the script (without executing)
-            parsed_script = compile(self.latest_script, '<string>', 'exec', ast.PyCF_ONLY_AST)
+            parsed_script = compile(
+                self.latest_script, "<string>", "exec", ast.PyCF_ONLY_AST
+            )
 
             # Compile the script (may still raise other exceptions)
-            compiled_script = compile(parsed_script, '<string>', 'exec')
+            compiled_script = compile(parsed_script, "<string>", "exec")
 
             # Redirect stdout to capture the output
             try:
@@ -69,16 +72,16 @@ class LLMCodeCompiler:
         self.update_script(script)
         self.compile_and_run_script()
 
+
 def isolate_code_from_llm_script(script, language="python"):
     # isolate code from llm script
     script = script.split(f"```{language}")[-1]
     script = script.split("```")[0]
     return script
 
+
 def write_llm_code(script, language="python"):
-
     try:
-
         # isolate code from llm script
         script = isolate_code_from_llm_script(script)
 
@@ -94,18 +97,16 @@ def write_llm_code(script, language="python"):
 
     except BaseException as e:
         print(e)
-        return 'error'
-    return 'success'
+        return "error"
+    return "success"
+
 
 def run_llm_code():
-
-
     # run the script (python llm_scripts/script.py)
     subprocess.Popen(["python", "llm_scripts/script.py"])
 
 
 def run_openscad_code(script):
-
     code = isolate_code_from_llm_script(script, language="openscad")
 
     # save the script to llm_scripts/openSCAD.SCAD
@@ -115,16 +116,16 @@ def run_openscad_code(script):
     subprocess.Popen(["openscad", "llm_scripts/openscad.SCAD"])
 
 
-if __name__ == '__main__':
-
-
-    run_openscad_code("""
+if __name__ == "__main__":
+    run_openscad_code(
+        """
                  
 $fn = 100; // Set the resolution for the sphere
 
 // Create a sphere
 sphere(r = 20); // Adjust the radius as needed
                  
-    """)
+    """
+    )
 
     # run_llm_code()

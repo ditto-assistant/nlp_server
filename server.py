@@ -88,12 +88,12 @@ def update_user_obj_ditto_ip(user_id, new_ditto_unit_ip):
             USERS["users"][user_ndx]["ditto_unit_ip"] = new_ditto_unit_ip
             return USERS
     return None
-            
+
 
 def update_and_write_user_obj(new_user_obj):
     with open("users.json", "w") as f:
         json.dump(new_user_obj, f, indent=4)
-    
+
 
 def get_ditto_unit_on_bool(user_id="ditto"):
     try:
@@ -281,6 +281,7 @@ def mute_ditto_mic(user_id: str):
         log.error(e)
         return ErrException(e)
 
+
 # endpoint to change user's ditto unit ip
 @app.route("/users/<user_id>/update_ditto_unit_ip", methods=["POST", "GET"])
 def update_ditto_unit_ip(user_id: str):
@@ -288,7 +289,7 @@ def update_ditto_unit_ip(user_id: str):
     try:
         if "ditto_unit_ip" not in requests:
             return ErrMissingArg("ditto_unit_ip")
-        
+
         # get user's ditto unit ip from request
         ditto_unit_ip = requests["ditto_unit_ip"]
 
@@ -303,6 +304,7 @@ def update_ditto_unit_ip(user_id: str):
     except BaseException as e:
         log.error(e)
         return ErrException(e)
+
 
 @app.route("/users/<user_id>/write_prompt", methods=["POST", "GET"])
 def write_prompt(user_id: str):

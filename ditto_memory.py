@@ -80,7 +80,7 @@ class DittoMemory:
             )
         else:  # default to openai
             self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
-        
+
         # check if code compiler is enabled
         self.llm_code_compiler = bool(os.environ["COMPILE_CODE"])
         # set code compiler user
@@ -150,7 +150,8 @@ class DittoMemory:
             + "\n\nTools:\n"
             + "Ditto has access to the following tools, and they can be used in the following ways:\n"
             + "1. GOOGLE_SEARCH: <GOOGLE_SEARCH> <query>\n"
-            + "1.a GOOGLE_SEARCH can be used to search the web for information. Only use this tool if the user's prompt can be better answered by searching the web." + "\n"
+            + "1.a GOOGLE_SEARCH can be used to search the web for information. Only use this tool if the user's prompt can be better answered by searching the web."
+            + "\n"
             + "2. PYTHON_AGENT: <PYTHON_AGENT> <query>\n"
             + "2.a PYTHON_AGENT can be used to program a script for the user. The script will be compiled and run for the user."
             + "3. OPENSCAD_AGENT: <OPENSCAD_AGENT> <query>\n"
@@ -203,8 +204,7 @@ class DittoMemory:
             log.info(f"Getting LLM response...")
             res = conversation_with_memory.predict(input=query_with_examples)
 
-        if "GOOGLE_SEARCH" in res: # handle google search
-
+        if "GOOGLE_SEARCH" in res:  # handle google search
             log.info(f"Handling prompt for {user_id} with Google Search Agent")
             ditto_command = "<GOOGLE_SEARCH>"
             ditto_query = res.split("GOOGLE_SEARCH")[-1].strip()
@@ -212,8 +212,9 @@ class DittoMemory:
             res = res + "\n-LLM Tools: Google Search-"
             memory_res = f"{ditto_command} {ditto_query} \nGoogle Search Agent: " + res
 
-        elif "PYTHON_AGENT" in res and user_id == self.llm_code_compiler_user: # handle llm code compiler
-
+        elif (
+            "PYTHON_AGENT" in res and user_id == self.llm_code_compiler_user
+        ):  # handle llm code compiler
             log.info(f"Handling prompt for {user_id} with LLM Code Compiler")
 
             ditto_command = "<PYTHON_AGENT>"
@@ -222,12 +223,13 @@ class DittoMemory:
             res = res + "\n-LLM Tools: Programmer Agent-"
             memory_res = f"{ditto_command} {ditto_query} \nProgrammer Agent: " + res
 
-            success = write_llm_code(res) # TODO: might want to move this to assistant/ ( defininetly want to move this to assistant/)
-            if success == 'success':
-                run_llm_code()   
+            success = write_llm_code(
+                res
+            )  # TODO: might want to move this to assistant/ ( defininetly want to move this to assistant/)
+            if success == "success":
+                run_llm_code()
 
-        elif "OPENSCAD_AGENT" in res: # handle llm code compiler
-
+        elif "OPENSCAD_AGENT" in res:  # handle llm code compiler
             log.info(f"Handling prompt for {user_id} with LLM Code Compiler (OpenSCAD)")
 
             ditto_command = "<OPENSCAD_AGENT>"
@@ -239,9 +241,7 @@ class DittoMemory:
 
             run_openscad_code(res)
 
-
-        else: # no special handling
-
+        else:  # no special handling
             memory_res = res
 
         self.save_new_memory(mem_query, memory_res, user_id, face_name=face_name)
@@ -249,7 +249,9 @@ class DittoMemory:
 
         # save to knowledge graph (starts a new thread and closes when done)
         if self.kg_mode == True:
-            kg_job = KGJob(user_id, str(query).replace('"', "'"), memory_res.replace('"', "'"))
+            kg_job = KGJob(
+                user_id, str(query).replace('"', "'"), memory_res.replace('"', "'")
+            )
 
         log.info(f"Handled prompt for {user_id}")
         return res
