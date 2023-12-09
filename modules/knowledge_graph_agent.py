@@ -210,8 +210,10 @@ class KGAgent:
         template = template.replace("<!text>", text)
         return template
 
-    def construct_kg(self, user_prompt:str, text:str):
-        prompt = self.get_prompt_template(user_prompt.replace('"', "'"), text.replace('"', "'"))
+    def construct_kg(self, user_prompt: str, text: str):
+        prompt = self.get_prompt_template(
+            user_prompt.replace('"', "'"), text.replace('"', "'")
+        )
         res = self.llm.call_as_llm(prompt)
         return res
 

@@ -116,8 +116,8 @@ class Neo4jAPI:
         return f"memory/{self.user_name}"
 
     def load_latest_node_id(self):
-        if not os.path.exists(f"{self.memory_dir}/latest_node_id.json"):     
-            return {"id": 0}   
+        if not os.path.exists(f"{self.memory_dir}/latest_node_id.json"):
+            return {"id": 0}
         else:
             with open(f"{self.memory_dir}/latest_node_id.json", "r") as f:
                 latest_node_id = json.load(f)
@@ -126,7 +126,7 @@ class Neo4jAPI:
 
     def load_user(self):
         if not os.path.exists(f"{self.memory_dir}/kg_users.json"):
-            return {"users": [{'-1': 'Ditto'}]}
+            return {"users": [{"-1": "Ditto"}]}
         else:
             with open(f"{self.memory_dir}/kg_users.json", "r") as f:
                 users_obj = json.load(f)
@@ -171,12 +171,16 @@ class Neo4jAPI:
     def create_graph(self, nodes, relationships):
         try:
             self.driver = GraphDatabase.driver(
-                self.neo4j_host, auth=(self.neo4j_username, self.neo4j_password), database='neo4j'
+                self.neo4j_host,
+                auth=(self.neo4j_username, self.neo4j_password),
+                database="neo4j",
             )
             user_node_id = self.get_user_id()
             if user_node_id == None:
                 user_node_id = self.create_user_node()
-                self.latest_node["id"] = self.latest_node["id"] + int(np.abs(user_node_id)*0.50)
+                self.latest_node["id"] = self.latest_node["id"] + int(
+                    np.abs(user_node_id) * 0.50
+                )
             for node in nodes:
                 self.create_node(node)
             for relationship in relationships:
@@ -209,7 +213,7 @@ class Neo4jAPI:
         node_type = str(node["type"]).replace(" ", "").strip()
 
         # replace all ASCII leaving only alphanumeric characters in node type
-        node_type = "".join([c for c in node_type if c.isalnum()]) 
+        node_type = "".join([c for c in node_type if c.isalnum()])
 
         node_title = node["title"]
         node_description = node["description"]
