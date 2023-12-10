@@ -99,7 +99,7 @@ class DittoDB:
                             conv.chat_count,
                             ROW_NUMBER() OVER (
                                 ORDER BY
-                                    conv.updated_at
+                                    conv.id ASC
                             ) AS conv_index,
                             conv.title
                         FROM
