@@ -313,7 +313,7 @@ def get_conversations(email: str):
         return ErrException(e)
 
 
-@app.route("/users/<email>/conversations/<conv_idx>/chats", methods=["GET"])
+@app.route("/users/<email>/conversations/<conv_idx>", methods=["GET"])
 def get_chats(email: str, conv_idx: int):
     try:
         user_id = ditto_db.get_create_user_id(email)
