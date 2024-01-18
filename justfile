@@ -1,6 +1,10 @@
 # uncomment to load .env file
 set dotenv-load
 
+# Run with your local python
+runpy:
+    python main.py
+
 # Run container, detaching (daemonize)
 run:
     docker run -d --env-file .env -p 32032:32032 --name nlp_server nlp_server
