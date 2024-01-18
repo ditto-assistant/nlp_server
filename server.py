@@ -16,7 +16,7 @@ import base64
 
 # set up logging for server
 log = logging.getLogger("server")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 # load intent model
 from intent import IntentRecognition
@@ -305,7 +305,7 @@ def update_ditto_unit_ip(user_id: str):
     requests = request.args
     try:
         if "ditto_unit_ip" not in requests:
-            return ErrMissingArg("ditto_unit_ip")
+            return ErrMissingQuery("ditto_unit_ip")
 
         # get user's ditto unit ip from request
         ditto_unit_ip = requests["ditto_unit_ip"]

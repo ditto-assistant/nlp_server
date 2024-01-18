@@ -25,7 +25,7 @@ import logging
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 log = logging.getLogger("intent")
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # get arg for train or test
 import sys

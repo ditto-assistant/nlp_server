@@ -63,7 +63,6 @@ class DittoMemory:
         self.memory = {}
 
     def __handle_params(self):
-        self.llm_provider = os.environ["LLM"]
         self.template_type = (
             "DEFAULT" if "SERPER_API_KEY" not in os.environ else "SELF-ASK-WITH-SEARCH"
         )
@@ -72,11 +71,12 @@ class DittoMemory:
             if "SERPER_API_KEY" not in os.environ
             else LLM_TOOLS_TEMPLATE
         )
+        self.llm_provider = os.environ["LLM"]
         if self.llm_provider == "huggingface":
             # repo_id = "google/flan-t5-xxl"
-            repo_id = "codellama/CodeLlama-13b-hf"
+            repo_id = os.getenv("LLM_REPO_ID", "mistralai/Mixtral-8x7B-Instruct-v0.1")
             self.llm = HuggingFaceHub(
-                repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000}
+                repo_id=repo_id, model_kwargs={"temperature": 0.2, "max_length": 3000}
             )
         else:  # default to openai
             self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
@@ -93,16 +93,16 @@ class DittoMemory:
             os.makedirs(mem_dir)
             log.info(f"Created memory directory for {user_id}")
         if not os.path.exists(mem_file) or reset:
-            if self.llm_provider == "openai":
-                embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
-                index = faiss.IndexFlatL2(embedding_size)
-                embedding_fn = OpenAIEmbeddings().embed_query
-                vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
-            else:
-                embedding_size = 768  # Dimensions of the HuggingFaceEmbeddings
-                index = faiss.IndexFlatL2(embedding_size)
-                embedding_fn = HuggingFaceEmbeddings().embed_query
-                vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
+            # if self.llm_provider == "openai":
+            embedding_size = 1536  # Dimensions of the OpenAIEmbeddings
+            index = faiss.IndexFlatL2(embedding_size)
+            embedding_fn = OpenAIEmbeddings().embed_query
+            vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
+            # else:
+            #     embedding_size = 768  # Dimensions of the HuggingFaceEmbeddings
+            #     index = faiss.IndexFlatL2(embedding_size)
+            #     embedding_fn = HuggingFaceEmbeddings().embed_query
+            #     vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {})
             retriever = vectorstore.as_retriever(search_kwargs=dict(k=5))
             self.memory[user_id] = VectorStoreRetrieverMemory(retriever=retriever)
             self.memory[user_id].save_context(
@@ -202,7 +202,7 @@ class DittoMemory:
             )
 
             log.info(f"Getting LLM response...")
-            res = conversation_with_memory.predict(input=query_with_examples)
+            res = conversation_with_memory.predict(input=query_with_examples).strip()
 
         if "GOOGLE_SEARCH" in res:  # handle google search
             log.info(f"Handling prompt for {user_id} with Google Search Agent")
@@ -248,7 +248,7 @@ class DittoMemory:
         self.short_term_mem_store.save_response_to_stmem(user_id, query, memory_res)
 
         # save to knowledge graph (starts a new thread and closes when done)
-        if self.kg_mode == True:
+        if self.kg_mode == True and not self.llm_provider == "huggingface":
             kg_job = KGJob(
                 user_id, str(query).replace('"', "'"), memory_res.replace('"', "'")
             )

@@ -6,7 +6,7 @@ from contextlib import closing
 
 # setup logging for this module
 log = logging.getLogger("db")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 
 class DittoDB:

@@ -11,6 +11,7 @@ import json
 
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import HuggingFaceHub
 
 # import example store
 try:
@@ -50,7 +51,6 @@ user's query: {query}{caption}
 response:
 """
 
-
 class DittoImageRAG:
     def __init__(self):
         self.vision_server_ip = os.getenv("vision_server_ip")
@@ -70,7 +70,15 @@ class DittoImageRAG:
             return False
 
     def init_llm_agent(self):
-        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
+        self.llm_provider = os.environ["LLM"]
+        if self.llm_provider == "huggingface":
+            # repo_id = "google/flan-t5-xxl"
+            repo_id = os.getenv("LLM_REPO_ID", "mistralai/Mixtral-8x7B-Instruct-v0.1")
+            self.llm = HuggingFaceHub(
+                repo_id=repo_id, model_kwargs={"temperature": 0.2, "max_length": 3000}
+            )
+        else:  # default to openai
+            self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
         self.prompt_template = PromptTemplate(
             input_variables=["examples", "query", "caption"],
             template=TEMPLATE,
@@ -129,7 +137,7 @@ class DittoImageRAG:
         max_iterations = 5
 
         for i in range(max_iterations):
-            res = self.llm.call_as_llm(prompt)
+            res = self.llm.predict(prompt)
             if "<QA>" in res:
                 llm_query = str(res).split("<QA>")[-1].strip().split("\n")[0]
                 qa = self.get_qa(llm_query, image)

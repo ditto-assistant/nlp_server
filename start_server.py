@@ -3,7 +3,7 @@ from gevent.pywsgi import WSGIServer
 import logging
 
 log = logging.getLogger("start_server")
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class devnull:

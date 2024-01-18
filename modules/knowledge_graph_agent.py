@@ -197,12 +197,22 @@ Response:
 """
 
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import HuggingFaceHub
+import os
 
 
 class KGAgent:
     def __init__(self):
         self.template = KG_TEMPLATE
-        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+        self.llm_provider = os.environ["LLM"]
+        if self.llm_provider == "huggingface":
+            # repo_id = "google/flan-t5-xxl"
+            repo_id = os.getenv("LLM_REPO_ID", "mistralai/Mixtral-8x7B-Instruct-v0.1")
+            self.llm = HuggingFaceHub(
+                repo_id=repo_id, model_kwargs={"temperature": 0.2, "max_length": 3000}
+            )
+        else:  # default to openai
+            self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
 
     def get_prompt_template(self, user_prompt, text):
         template = KG_TEMPLATE
@@ -214,7 +224,7 @@ class KGAgent:
         prompt = self.get_prompt_template(
             user_prompt.replace('"', "'"), text.replace('"', "'")
         )
-        res = self.llm.call_as_llm(prompt)
+        res = self.llm.predict(prompt)
         return res
 
 
