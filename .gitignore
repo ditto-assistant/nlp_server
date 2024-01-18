@@ -5,3 +5,5 @@ __pycache__
 memory/
 users.json
 gcp/
+.json*
+llm_scripts/
