@@ -38,7 +38,9 @@ class GoogleSearchAgent:
         if LLM == "openai":
             llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
         else:
-            repo_id = repo_id = os.getenv("LLM_REPO_ID", "mistralai/Mixtral-8x7B-Instruct-v0.1")
+            repo_id = repo_id = os.getenv(
+                "LLM_REPO_ID", "mistralai/Mixtral-8x7B-Instruct-v0.1"
+            )
             llm = HuggingFaceHub(
                 repo_id=repo_id, model_kwargs={"temperature": 0.2, "max_length": 3000}
             )

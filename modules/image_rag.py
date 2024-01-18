@@ -51,6 +51,7 @@ user's query: {query}{caption}
 response:
 """
 
+
 class DittoImageRAG:
     def __init__(self):
         self.vision_server_ip = os.getenv("vision_server_ip")
