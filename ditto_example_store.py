@@ -51,7 +51,7 @@ class DittoExampleStore:
             },
             {
                 "user": "What is the current population of Tokyo, Japan?",
-                "ditto": "<GOOGLE_SEARCH> population of Recife, Brazil",
+                "ditto": "<GOOGLE_SEARCH> population of Tokyo, Japan",
             },
             {
                 "user": "Can you look up the movie Back to the Future for me?",
