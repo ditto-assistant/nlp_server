@@ -17,7 +17,7 @@ NLP server housing intent and NER models as well as Langchain memory agent for D
 1. If you prefer using HuggingFace's API, set `HUGGINGFACEHUB_API_TOKEN` to your HuggingFace API key and set `LLM=huggingface` in `.env`.
 
 # Visualizing Memory
-1. Install Neo4j Desktop and create a new project.
+1. Install [Neo4j Desktop](https://neo4j.com/download/) and create a new project.
 2. Add a new database named `ditto-memory` and set the password to `password`.
 3. That's it! You can now visualize the memory by opening the Neo4j browser and running the following query:
 ```cypher
