@@ -22,10 +22,10 @@ from tqdm import tqdm
 
 # which model to create
 PLAY = 0
-LIGHT = 0
+LIGHT = 1
 TIMER = 0
 NUM = 0
-NAME = 1
+# NAME = 1
 
 EPOCHS = 100
 

@@ -12,7 +12,6 @@ MODE = "dev"
 if len(args) > 1:
     MODE = args[1]
 
-
 def start_server():
     """
     Boots the NLP Server for API calls.
@@ -27,4 +26,5 @@ def start_server():
 
 
 if __name__ == "__main__":
+
     start_server()

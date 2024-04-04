@@ -494,3 +494,4 @@ def ErrMissingArg(arg: str):
 
 def ErrException(e: BaseException):
     return '{"error": "%s"}' % e
+
