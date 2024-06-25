@@ -36,7 +36,7 @@ class GoogleSearchAgent:
         This function initializes the agent.
         """
         if LLM == "openai":
-            llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+            llm = ChatOpenAI(temperature=0.4, model_name="gpt-4o")
         else:
             repo_id = "codellama/CodeLlama-13b-hf"
             llm = HuggingFaceHub(

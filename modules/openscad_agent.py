@@ -26,7 +26,7 @@ from langchain.chat_models import ChatOpenAI
 class OpenSCADAgent:
     def __init__(self):
         self.template = OPENSCAD_TEMPLATE
-        self.llm = ChatOpenAI(temperature=0, model_name="gpt-4")
+        self.llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
 
     def get_prompt_template(self, prompt):
         template = OPENSCAD_TEMPLATE

@@ -119,7 +119,7 @@ from langchain.chat_models import ChatOpenAI
 class WikifierAgent:
     def __init__(self):
         self.template = WIKIFIER_TEMPLATE
-        self.llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
+        self.llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
         self.prompt_template = PromptTemplate(
             input_variables=["prompt", "response"],
             template=WIKIFIER_TEMPLATE,

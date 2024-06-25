@@ -79,7 +79,7 @@ class DittoMemory:
                 repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 3000}
             )
         else:  # default to openai
-            self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+            self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-4o")
 
         # check if code compiler is enabled
         self.llm_code_compiler = bool(os.environ["COMPILE_CODE"])

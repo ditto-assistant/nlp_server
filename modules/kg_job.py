@@ -39,7 +39,7 @@ class KGJob:
         if len(wikifier_res.strip()) < 10 or wikifier_res.strip().lower() == "no.":
             print("No wikifier results")
             return
-        kg_res = self.kg_agent.construct_kg(self.prompt, wikifier_res)
+        kg_res = self.kg_agent.construct_kg(self.prompt, wikifier_res).strip("```").strip("```json")
         try:
             kg_res = json.loads(kg_res)
         except BaseException as e:

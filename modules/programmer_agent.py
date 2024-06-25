@@ -21,7 +21,7 @@ from langchain.chat_models import ChatOpenAI
 class ProgrammerAgent:
     def __init__(self):
         self.template = CODER_TEMPLATE
-        self.llm = ChatOpenAI(temperature=0, model_name="gpt-4")
+        self.llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
 
     def get_prompt_template(self, prompt):
         template = CODER_TEMPLATE

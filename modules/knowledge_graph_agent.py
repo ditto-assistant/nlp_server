@@ -16,7 +16,7 @@ Relationships have the following keys:
 
 Be sure to always make a Prompt, Response, and Subject node. Always connect a node to at least one other node. Never leave a node unconnected. If you are unsure where to connect a node related to a Subject and its nodes, connect it to the Subject node by default.
 
-Also, ALWAYS use single quotes for strings in JSON. NEVER use double quotes for strings in JSON.
+Be sure to work when calling json.loads() to your response.
 
 Examples:
 
@@ -44,6 +44,7 @@ The determination of the "strongest" Pokémon is a nuanced process, considering 
 For the latest and most accurate information on the strongest Pokémon, especially considering potential new Pokémon games or updates since January 2022, it is highly recommended to consult the latest official Pokémon sources. Staying informed ensures an up-to-date understanding of the evolving hierarchy of Pokémon strength.
 
 Response:
+```json
 {
   "nodes": [
     {
@@ -133,6 +134,7 @@ Response:
     }
   ]
 }
+```
 
 User's Prompt: What is the capital of France?
 
@@ -141,6 +143,7 @@ Text:
 The user asked the AI assistant for the capital of France, and the assistant responded with the answer: Paris.
 
 Response:
+```json
 {
   "nodes": [
     {
@@ -186,7 +189,11 @@ Response:
     }
   ]
 }
+```
 
+End of Examples
+
+Current Task:
 
 User's Prompt: <!user_prompt>
 
@@ -202,7 +209,7 @@ from langchain.chat_models import ChatOpenAI
 class KGAgent:
     def __init__(self):
         self.template = KG_TEMPLATE
-        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo-16k")
+        self.llm = ChatOpenAI(temperature=0.4, model_name="gpt-4o")
 
     def get_prompt_template(self, user_prompt, text):
         template = KG_TEMPLATE
