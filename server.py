@@ -219,9 +219,9 @@ def prompt_ditto(user_id: str):
         ditto_db.write_prompt_to_db(user_id, prompt)
 
         # check if ditto unit is on
-        ditto_unit_status = get_ditto_unit_status_str(user_id)
+        status = get_ditto_unit_status_str(user_id)
 
-        ditto_unit_on = True if ditto_unit_status == "on" else False
+        ditto_unit_on = False if status == "off" else True
 
         # if ditto unit is on, send prompt to ditto unit
         if ditto_unit_on:
@@ -389,7 +389,7 @@ def get_ditto_mic_status(user_id: str):
         ditto_unit_ip = user_obj["ditto_unit_ip"]
         ditto_unit_port = user_obj["ditto_unit_port"]
         status = get_ditto_unit_status_str(user_id)
-        ditto_unit_on = True if status == "on" else False
+        ditto_unit_on = False if status == "off" else True
         if ditto_unit_on:
             res = requests_lib.get(
                 f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto?dittoMicStatus=1",
