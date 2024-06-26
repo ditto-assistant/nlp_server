@@ -95,7 +95,7 @@ def update_and_write_user_obj(new_user_obj):
         json.dump(new_user_obj, f, indent=4)
 
 
-def get_ditto_unit_on_bool(user_id="ditto"):
+def get_ditto_unit_status_str(user_id="ditto"):
     try:
         user_obj = get_user_obj(user_id)
         ditto_unit_ip = user_obj["ditto_unit_ip"]
@@ -111,9 +111,7 @@ def get_ditto_unit_on_bool(user_id="ditto"):
         # log.error(e)
         # log.info("Ditto unit is off")
         status = "off"
-    ditto_unit_off = True if status == "off" else False
-    ditto_unit_on = True if not ditto_unit_off else False
-    return ditto_unit_on
+    return status
 
 
 def send_prompt_to_ditto_unit(user_id, prompt):
@@ -221,7 +219,9 @@ def prompt_ditto(user_id: str):
         ditto_db.write_prompt_to_db(user_id, prompt)
 
         # check if ditto unit is on
-        ditto_unit_on = get_ditto_unit_on_bool(user_id)
+        ditto_unit_status = get_ditto_unit_status_str(user_id)
+
+        ditto_unit_on = True if ditto_unit_status == "on" else False
 
         # if ditto unit is on, send prompt to ditto unit
         if ditto_unit_on:
@@ -374,8 +374,7 @@ def get_conversation_history(user_id: str):
 @app.route("/users/<user_id>/get_ditto_unit_status", methods=["GET"])
 def get_ditto_unit_status(user_id: str):
     try:
-        ditto_unit_on = get_ditto_unit_on_bool(user_id)
-        status = "on" if ditto_unit_on else "off"
+        status = get_ditto_unit_status_str(user_id)
         return '{"status": "%s"}' % status
     except BaseException as e:
         # log.error(e)
@@ -389,7 +388,8 @@ def get_ditto_mic_status(user_id: str):
         user_obj = get_user_obj(user_id)
         ditto_unit_ip = user_obj["ditto_unit_ip"]
         ditto_unit_port = user_obj["ditto_unit_port"]
-        ditto_unit_on = get_ditto_unit_on_bool(user_id)
+        status = get_ditto_unit_status_str(user_id)
+        ditto_unit_on = True if status == "on" else False
         if ditto_unit_on:
             res = requests_lib.get(
                 f"http://{ditto_unit_ip}:{ditto_unit_port}/ditto?dittoMicStatus=1",
