@@ -1,3 +1,4 @@
+import os
 import json
 import shutil
 import requests as requests_lib
@@ -24,9 +25,6 @@ from modules.image_rag import DittoImageRAG
 
 # import ditto memory agent
 from ditto_memory import DittoMemory
-
-
-import os
 
 # load intent model
 intent_model = IntentRecognition(train=False)
@@ -106,10 +104,8 @@ def get_ditto_unit_status_str(user_id="ditto"):
         )
         res = json.loads(str(res.content.decode().strip()))
         status = res["status"]
-        # log.info(f"Ditto unit status: {status}")
     except BaseException as e:
-        # log.error(e)
-        # log.info("Ditto unit is off")
+        log.error(e)
         status = "off"
     return status
 

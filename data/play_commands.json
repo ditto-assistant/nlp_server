@@ -72,7 +72,7 @@
                 "O",
                 "B-playlist",
                 "I-playlist",
-                "O"
+                "I-playlist"
             ]
         },
         {
@@ -147,6 +147,40 @@
                 "I-playlist",
                 "I-playlist",
                 "I-playlist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "Bruno",
+                "Mars",
+                "on",
+                "spotify"
+            ],
+            "labels": [
+                "O",
+                "B-artist",
+                "I-artist",
+                "O",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "The",
+                "Mars",
+                "Volta",
+                "on",
+                "spotify"
+            ],
+            "labels": [
+                "O",
+                "B-artist",
+                "I-artist",
+                "I-artist",
+                "O",
+                "O"
             ]
         },
         {
@@ -283,6 +317,20 @@
             ],
             "labels": [
                 "O",
+                "O",
+                "B-playlist",
+                "I-playlist",
+                "O"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "latin",
+                "kick",
+                "playlist"
+            ],
+            "labels": [
                 "O",
                 "B-playlist",
                 "I-playlist",
@@ -584,6 +632,44 @@
         {
             "words": [
                 "play",
+                "some",
+                "songs",
+                "by",
+                "Doja",
+                "Cat"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-artist",
+                "I-artist"
+            ]
+        },
+        {
+            "words": [
+                "play",
+                "some",
+                "music",
+                "by",
+                "The",
+                "Mars",
+                "Volta"
+            ],
+            "labels": [
+                "O",
+                "O",
+                "O",
+                "O",
+                "B-artist",
+                "I-artist",
+                "I-artist"
+            ]
+        },
+        {
+            "words": [
+                "play",
                 "Slow",
                 "by",
                 "black",
@@ -600,7 +686,7 @@
         {
             "words": [
                 "play",
-                "Let's",
+                "Lets",
                 "Write",
                 "a",
                 "Book",
