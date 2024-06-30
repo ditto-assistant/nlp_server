@@ -219,23 +219,31 @@ class DittoMemory:
             ditto_command = "<PYTHON_AGENT>"
             ditto_query = res.split("PYTHON_AGENT")[-1].strip()
             generated_script = self.programmer_agent.prompt(ditto_query)
-            res = "[Python script generated and compiled]." + "\n-LLM Tools: Programmer Agent-"
+            res = (
+                "[Python script generated and compiled]."
+                + "\n-LLM Tools: Programmer Agent-"
+            )
             memory_res = f"{ditto_command} {ditto_query}"
             success = write_llm_code(
                 generated_script
-            ) # writes to file and returns success or failure
+            )  # writes to file and returns success or failure
             if success == "success":
                 # runs the file written above with the generated code
-                run_llm_code() # TODO: move this to assistant (optional)
+                run_llm_code()  # TODO: move this to assistant (optional)
 
         elif "OPENSCAD_AGENT" in res:  # handle llm code compiler
             log.info(f"Handling prompt for {user_id} with LLM Code Compiler (OpenSCAD)")
             ditto_command = "<OPENSCAD_AGENT>"
             ditto_query = res.split("OPENSCAD_AGENT")[-1].strip()
             generated_script = self.openscad_agent.prompt(ditto_query)
-            res = "[OpenSCAD script generated and compiled]." + "\n-LLM Tools: OpenSCAD Agent-"
+            res = (
+                "[OpenSCAD script generated and compiled]."
+                + "\n-LLM Tools: OpenSCAD Agent-"
+            )
             memory_res = f"{ditto_command} {ditto_query}"
-            run_openscad_code(generated_script) # TODO: move this to assistant (optional)
+            run_openscad_code(
+                generated_script
+            )  # TODO: move this to assistant (optional)
 
         else:  # no special handling
             memory_res = res
